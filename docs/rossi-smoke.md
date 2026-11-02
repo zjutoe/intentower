@@ -224,3 +224,32 @@ refinement_concrete.bpo:  INITIALISATION/inv1..inv4/INV, increase/inv1/INV,
 
 - Rossi 方言里 `∧` 与 `∨` **同层且不可混用**（`⇒` 与 `⇔` 同理），不加括号直接解析失败 —— 输入侧不存在歧义，输出侧全括号，所以"字符串拼接改变优先级"在这条链路上不可能发生。
 - `f(a) = b` 在 Rossi AST 里是 `binary operator FunImage`（不是 `Application`）；量词嵌在 `∧` 里必须加括号。
+
+## 13. T18：真实义务生成的完整 SMT-LIB 脚本（已喂给 cvc5）
+
+`src/smt/encode.rs` 生成的脚本形状（单测里逐字节钉死，取自 `m1::sub/grd1/GRD`）：
+
+```smt2
+(set-logic QF_LIA)
+(set-info :source "m1::sub/grd1/GRD")
+(declare-fun a () Int)
+(declare-fun abstract_count () Int)
+(declare-fun b () Int)
+(declare-fun delta () Int)
+(assert (and (>= abstract_count 0) (<= abstract_count 1000) (>= a 0) (>= b 0) (= abstract_count (+ a b)) (>= delta 1) (<= delta a) (not (>= abstract_count 1))))
+(check-sat)
+```
+
+把这段**原样**存成文件喂 cvc5 1.4.2（只把耦合不变式改成 `(- a b)` 得到错误变体）：
+
+| 脚本 | cvc5 | exit |
+|---|---|---|
+| 正例 | `unsat`（即该 PO 已证明） | 0 |
+| 错例（`abstract_count = a − b`） | `sat`（候选反例） | 0 |
+
+要点：
+
+- 声明来自**自由变量集合**（自己遍历类型化 AST，`rossi` 没有公开 `free_idents()`），按字典序排序，每个变量只声明一次；`count'` 直接作为 SMT 符号合法。
+- 前提为 0 时不生成 `(and ...)`，直接 `(assert (not Goal))` —— `(and X)` 单参数虽合法但没必要。
+- `smt_name` 在可接受名字上是单射（裸名不以 `|` 开头、引号名不含 `|`），所以不需要运行时"重名"检查；这一点用测试钉住而不是加防御代码。
+- 非 `Int`/`Bool` 的自由变量在声明阶段报 `TypeMismatch`（当前 F0 下走不到，属编码器扩展时的护栏）。

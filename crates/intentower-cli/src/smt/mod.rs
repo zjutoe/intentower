@@ -5,6 +5,7 @@
 
 pub mod arithmetic;
 pub mod atoms;
+pub mod encode;
 pub mod logic;
 
 use std::fmt;
