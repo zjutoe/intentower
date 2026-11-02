@@ -461,3 +461,44 @@ org.eventb.core.source="/r1/m0.bum|org.eventb.core.machineFile#m0|org.eventb.cor
 
 `gate::policy::run` 现在把 `inputs` 带进 `Decision`，T27 写报告时直接落盘；
 找不到的模型源不会被静默跳过，会显式记 `model source(s) not found: …`。
+
+## 20. T27：`intentower verify` / `intentower gate`
+
+```
+intentower verify <MODEL_DIR> [--model-id ID] [--policy FILE] --out <DIR>     # 写 <DIR>/report.json
+intentower gate   <MODEL_DIR> [--model-id ID] [--policy FILE] --out <FILE>    # 写报告文件
+退出码：0=PASS  1=FAIL  2=INCOMPLETE / 工具或用错参数
+```
+
+两个子命令走同一条路径：读 `<MODEL_DIR>/models.json` 取源文件 → `rm -rf` 后重跑
+`rossi export --build` → 全集枚举 → 每条义务重跑 cvc5 → 判定 → 按 schema 写报告。
+`--policy` 指向的文件按哈希进 `inputs`（role=`policy`）。
+
+`models/counter/models.json`（**新增文件，语义待人类批准**）：
+
+```json
+{"MODEL-001": ["m0.eventb", "m1.eventb"],
+ "MODEL-002": ["m0.eventb", "m1_badadd.eventb"],
+ "MODEL-003": ["m0.eventb", "m1_broken.eventb"],
+ "MODEL-004": ["counter.eventb", "counter_machine.eventb"]}
+```
+
+MODEL-001/002 与 T23 fixture 里的 model_id 一致；003/004 是本次新分配。
+
+实测（`cargo test --test cli_gate -- --nocapture` 全绿，7 个用例；下面是手工复跑）：
+
+| 命令 | 退出码 | 报告 |
+|---|---|---|
+| `verify models/counter --out artifacts/counter`（SPEC-001 §13 原命令，默认 MODEL-001） | **2** | `INCOMPLETE 20 obligations`，`validate-report.py` → OK |
+| `gate models/counter --model-id MODEL-004 --policy project.json --out …` | **0** | `PASS 6 obligations, inputs 5`（含 policy 哈希） |
+| `gate models/counter --model-id MODEL-002` | **1** | `FAIL`，reasons 点名 `m1_badadd::add/inv3/INV`，issue `COUNTEREXAMPLE` |
+| `gate tests/fixtures/report/counter-m0m1-incomplete.json --out …` | **2** | `… looks like a report … evidence about a past run, not an authorization`，且不产生任何运行 |
+| `gate models/counter --model-id MODEL-999` | **2** | 列出已知 id：MODEL-001…MODEL-004 |
+| `gate … --policy approvals/baseline.json` | **2** | `policy file not found`，不写报告（baseline 仍缺） |
+
+报告里每条义务都有 `status`；非 `SMT_DISCHARGED` 的都在 `issues` 里有对应条目（`OUTSIDE_F0` / `COUNTEREXAMPLE` / `TOOL_ERROR` / `TIMEOUT` / `UNKNOWN_RESULT` / `STALE_INPUT` / `MISSING_PO`），`inputs` 的每个 sha256 都能被 `sha256sum` 复核。
+
+**与 SPEC-001 §13 的冲突（未擅自修改 Spec）**：§13 写的是该命令"正例：退出 0 … 全部 SMT_DISCHARGED"。
+实测退出 2，因为 MODEL-001（m0+m1）里 `m0::sub/act1/FIS` 的 `∃` 在 F0 之外，属 `UNSUPPORTED`。
+两种出路都需要人类决定：(a) 扩 F0 支持存在量词（新任务），或 (b) 把 §13 的正例改成 MODEL-004 这类全判定的模型对。
+命令本身现在可跑了（T23 之前连 `verify` 子命令都没有）。

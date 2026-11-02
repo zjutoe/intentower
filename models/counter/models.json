@@ -1,0 +1,6 @@
+{
+  "MODEL-001": ["m0.eventb", "m1.eventb"],
+  "MODEL-002": ["m0.eventb", "m1_badadd.eventb"],
+  "MODEL-003": ["m0.eventb", "m1_broken.eventb"],
+  "MODEL-004": ["counter.eventb", "counter_machine.eventb"]
+}

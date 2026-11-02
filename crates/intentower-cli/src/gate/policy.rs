@@ -46,35 +46,45 @@ impl Verdict {
     }
 }
 
+/// One obligation, its outcome, and enough detail for a report row.
+#[derive(Debug, Clone)]
+pub struct Outcome {
+    pub id: String,
+    /// Schema kind: `INV`, `GRD`, `SIM`, `FIS`, `SEQ` or `OTHER`.
+    pub kind: String,
+    pub status: Status,
+    pub elapsed_ms: u128,
+    pub detail: Option<String>,
+}
+
 #[derive(Debug)]
 pub struct Decision {
     pub verdict: Verdict,
     /// Why, naming the obligations involved so a reviewer can find them.
     pub reasons: Vec<String>,
-    /// `(component-qualified id, status)` for every obligation, POG order.
-    pub statuses: Vec<(String, Status)>,
+    /// Every obligation, POG order.
+    pub outcomes: Vec<Outcome>,
     pub counts: BTreeMap<&'static str, usize>,
     /// The exact bytes this verdict is evidence about (T26).
     pub inputs: Vec<provenance::Input>,
+    pub build_ok: bool,
+    /// Inventory failures (duplicate, missing, zero, unreadable `.bpo`).
+    pub inventory_issues: Vec<inventory::Issue>,
 }
 
 /// The complete PASS rule, as a pure function so every branch is testable
 /// without running a tool.
-pub fn judge(
-    build_ok: bool,
-    inventory_complete: bool,
-    statuses: Vec<(String, Status)>,
-) -> Decision {
+pub fn judge(build_ok: bool, inventory_complete: bool, outcomes: Vec<Outcome>) -> Decision {
     let mut counts: BTreeMap<&'static str, usize> = BTreeMap::new();
-    for (_, status) in &statuses {
-        *counts.entry(status.as_str()).or_insert(0) += 1;
+    for outcome in &outcomes {
+        *counts.entry(outcome.status.as_str()).or_insert(0) += 1;
     }
 
     let named = |status: Status| -> Vec<String> {
-        statuses
+        outcomes
             .iter()
-            .filter(|(_, got)| *got == status)
-            .map(|(id, _)| id.clone())
+            .filter(|outcome| outcome.status == status)
+            .map(|outcome| outcome.id.clone())
             .collect()
     };
 
@@ -85,7 +95,7 @@ pub fn judge(
     if !inventory_complete {
         reasons.push("the PO inventory is not complete (zero, duplicate or missing obligations, or an unreadable .bpo)".to_string());
     }
-    if statuses.is_empty() {
+    if outcomes.is_empty() {
         reasons.push("no proof obligation was generated: nothing was checked".to_string());
     }
 
@@ -116,13 +126,13 @@ pub fn judge(
         }
     }
 
-    let all_discharged = statuses
+    let all_discharged = outcomes
         .iter()
-        .all(|(_, status)| *status == Status::SmtDischarged);
+        .all(|outcome| outcome.status == Status::SmtDischarged);
 
     let verdict = if !counterexamples.is_empty() {
         Verdict::Fail
-    } else if build_ok && inventory_complete && !statuses.is_empty() && all_discharged {
+    } else if build_ok && inventory_complete && !outcomes.is_empty() && all_discharged {
         Verdict::Pass
     } else {
         Verdict::Incomplete
@@ -131,18 +141,34 @@ pub fn judge(
     Decision {
         verdict,
         reasons,
-        statuses,
+        outcomes,
         counts,
         inputs: Vec::new(),
+        build_ok,
+        inventory_issues: Vec::new(),
     }
 }
 
 /// Verify every obligation with the real solver.
-fn statuses_of(inventory: &inventory::Inventory, solver: &Cvc5) -> Vec<(String, Status)> {
+fn outcomes_of(inventory: &inventory::Inventory, solver: &Cvc5) -> Vec<Outcome> {
     inventory
         .obligations
         .iter()
-        .map(|po| (po.full_id(), verify::verify(po, solver).status))
+        .map(|po| {
+            let verdict = verify::verify(po, solver);
+            let kind = match po.kind.as_str() {
+                "INV" | "GRD" | "SIM" | "FIS" | "SEQ" => po.kind.as_str().to_string(),
+                // The schema allows no other kind name.
+                _ => "OTHER".to_string(),
+            };
+            Outcome {
+                id: po.full_id(),
+                kind,
+                status: verdict.status,
+                elapsed_ms: verdict.elapsed_ms,
+                detail: verdict.detail,
+            }
+        })
         .collect()
 }
 
@@ -150,6 +176,17 @@ fn statuses_of(inventory: &inventory::Inventory, solver: &Cvc5) -> Vec<(String, 
 /// the project directory inside it is recreated every time, so a leftover
 /// `.bpo` cannot be mistaken for current output.
 pub fn run(sources: &[PathBuf], project: &str, work: &Path) -> Decision {
+    run_with(sources, project, work, None)
+}
+
+/// `policy` is an optional policy file (for example a baselined `project.json`)
+/// pinned into the report inputs by hash.
+pub fn run_with(
+    sources: &[PathBuf],
+    project: &str,
+    work: &Path,
+    policy: Option<&Path>,
+) -> Decision {
     let dir = work.join(project);
     let _ = std::fs::remove_dir_all(&dir);
 
@@ -175,7 +212,7 @@ pub fn run(sources: &[PathBuf], project: &str, work: &Path) -> Decision {
         Ok(output) if output.status.success() => true,
         Ok(output) => {
             let mut decision = judge(false, false, Vec::new());
-            decision.inputs = provenance::collect(&present, &dir, None);
+            decision.inputs = provenance::collect(&present, &dir, policy);
             decision.reasons.push(format!(
                 "rossi stderr: {}",
                 String::from_utf8_lossy(&output.stderr).trim()
@@ -185,7 +222,7 @@ pub fn run(sources: &[PathBuf], project: &str, work: &Path) -> Decision {
         }
         Err(err) => {
             let mut decision = judge(false, false, Vec::new());
-            decision.inputs = provenance::collect(&present, &dir, None);
+            decision.inputs = provenance::collect(&present, &dir, policy);
             decision.reasons.push(format!("could not run rossi: {err}"));
             note_missing(&mut decision, &missing);
             return decision;
@@ -194,8 +231,9 @@ pub fn run(sources: &[PathBuf], project: &str, work: &Path) -> Decision {
 
     let inv = inventory::collect(&dir);
     let solver = Cvc5::from_env();
-    let mut decision = judge(build, inv.is_complete(), statuses_of(&inv, &solver));
-    decision.inputs = provenance::collect(&present, &dir, None);
+    let mut decision = judge(build, inv.is_complete(), outcomes_of(&inv, &solver));
+    decision.inputs = provenance::collect(&present, &dir, policy);
+    decision.inventory_issues = inv.issues.clone();
     note_missing(&mut decision, &missing);
     decision
 }
@@ -212,10 +250,16 @@ fn note_missing(decision: &mut Decision, missing: &[String]) {
 mod tests {
     use super::*;
 
-    fn rows(list: &[Status]) -> Vec<(String, Status)> {
+    fn rows(list: &[Status]) -> Vec<Outcome> {
         list.iter()
             .enumerate()
-            .map(|(i, status)| (format!("m::po{i}/INV"), *status))
+            .map(|(i, status)| Outcome {
+                id: format!("m::po{i}/INV"),
+                kind: "INV".to_string(),
+                status: *status,
+                elapsed_ms: 1,
+                detail: None,
+            })
             .collect()
     }
 
@@ -296,7 +340,13 @@ mod tests {
         let decision = judge(
             true,
             true,
-            vec![("m1::add/grd2/GRD".to_string(), Status::NotDischarged)],
+            vec![Outcome {
+                id: "m1::add/grd2/GRD".to_string(),
+                kind: "GRD".to_string(),
+                status: Status::NotDischarged,
+                elapsed_ms: 1,
+                detail: None,
+            }],
         );
         assert!(
             decision

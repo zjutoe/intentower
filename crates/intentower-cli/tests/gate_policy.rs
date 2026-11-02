@@ -28,7 +28,7 @@ fn report_of(decision: &policy::Decision) -> String {
     format!(
         "{} total {} counts {:?} reasons {:?}",
         decision.verdict.as_str(),
-        decision.statuses.len(),
+        decision.outcomes.len(),
         decision.counts,
         decision.reasons
     )
@@ -46,7 +46,7 @@ fn the_gate_passes_when_the_whole_pog_is_discharged() {
     );
     println!("counter: {}", report_of(&decision));
     assert_eq!(decision.verdict, Verdict::Pass);
-    assert_eq!(decision.statuses.len(), 6);
+    assert_eq!(decision.outcomes.len(), 6);
     assert_eq!(
         decision.counts[intentower_cli::verify::Status::SmtDischarged.as_str()],
         6
@@ -68,7 +68,7 @@ fn the_refinement_is_incomplete_while_one_obligation_is_outside_f0() {
     );
     println!("m0+m1: {}", report_of(&decision));
     assert_eq!(decision.verdict, Verdict::Incomplete);
-    assert_eq!(decision.statuses.len(), 20);
+    assert_eq!(decision.outcomes.len(), 20);
     assert_eq!(
         decision.counts[intentower_cli::verify::Status::Unsupported.as_str()],
         1
@@ -142,7 +142,7 @@ fn a_model_that_does_not_build_is_incomplete() {
     );
     println!("missing source: {}", report_of(&decision));
     assert_eq!(decision.verdict, Verdict::Incomplete);
-    assert_eq!(decision.statuses.len(), 0);
+    assert_eq!(decision.outcomes.len(), 0);
     assert!(decision.reasons.iter().any(|r| r.contains("rossi")));
     assert!(decision
         .reasons
