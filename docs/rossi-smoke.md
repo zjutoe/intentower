@@ -417,3 +417,47 @@ FIS 必须在场：它就是"只枚举 INV/GRD/SIM"的实现会静默丢掉的�
 **当前诚实结论**：旗舰模型 `m0 + m1` 今天**不是 PASS**，是 INCOMPLETE —— `m0::sub/act1/FIS` 的 `∃` 在 F0 之外。任何"Intentower 已证明该精化"的说法都不成立。能 PASS 的只有 `counter.eventb + counter_machine.eventb`（6 条 INV 全判定）。
 
 退出码（0/1/2）与 report 写出属于 T27。
+
+## 19. T26：provenance 哈希链与 STALE（`src/gate/provenance.rs`）
+
+`Input { role, path, sha256 }` 与 T23 报告 schema 的 `inputs` 形状**完全一致**，
+并有单测 `roles_match_the_report_schema_enum` 把 `model_source / po_artifact / policy / other`
+钉在 schema 里（schema 改角色名，Rust 侧立刻失败）。
+
+SHA-256 是仓库内实现，**没有新增依赖**（AGENTS.md 规定未授权不得装依赖）。
+K/H 常量不是抄表，而是由前 64 个素数的立方根 / 前 8 个素数的平方根小数部分生成，
+所以抄错常数这条路被堵死。正确性由两层钉住：
+
+- FIPS 180-4 已知答案：`""`、`"abc"`、1000×`a`、1,000,000×`a`（`cdc76e5c…12cd0`）；
+- 与 coreutils `sha256sum` 对 5 个真实文件逐字节比对（模型、两个 `.bpo`、schema）。
+
+实测篡改（`cargo test --test provenance -- --nocapture`，全部在临时副本上操作）：
+
+| 篡改 | staleness 输出 |
+|---|---|
+| 改模型源文件（追加 `@ inv9 NATURAL`） | 1 条，含路径 + 旧哈希 + 新哈希 |
+| 重写 `.bpo` | 1 条，含 `m1.bpo` 与两个哈希 |
+| 新增一个模型源 | `…/m2.eventb: input was added after the report` |
+| 删除一个模型源 | `…/m0.eventb: input is gone` |
+| 未篡改 | `[]` |
+| 已入库的 T23 报告 fixture（2 个，各 4 个 input） | `[]` —— fixture 里的哈希确实对应真实文件，不是编造 |
+
+**Rossi 产物的可复现性边界（必须记住）**：同一对模型导出到**不同输出目录**时，
+`m0.bpo/m1.bpo/m0.bcm/m1.bcm` 字节不同，因为文件里嵌了绝对路径：
+
+```xml
+org.eventb.core.parentSet="/r1/m0.bpo|org.eventb.core.poFile#m0|…"
+org.eventb.core.source="/r1/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+```
+
+同一目录重复导出则字节一致（`the_decision_names_the_exact_bytes_it_verified` 钉住）。
+`m0.bps`、`m0.bum` 两种情况都一致。结论：**判断"模型是否变了"只能看 `model_source`/`policy` 哈希**；
+`po_artifact` 哈希只是把"这一次跑出来的产物"钉住，换目录就不可比。
+
+**顺带修掉一个真实测试缺陷**：`tests/gate_policy.rs` 里多个测试共用同一个
+`/tmp/intentower-gate-<pid>` 工作目录，cargo 并行跑时两个测试同时往
+`counter-m0m1-rodin/` 写 `.bpo`，导致假的 staleness（`126041da… != b75cb374…`）。
+现在每个测试一个 `work("<label>")` 目录。
+
+`gate::policy::run` 现在把 `inputs` 带进 `Decision`，T27 写报告时直接落盘；
+找不到的模型源不会被静默跳过，会显式记 `model source(s) not found: …`。

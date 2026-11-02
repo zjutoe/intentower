@@ -24,6 +24,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use crate::gate::inventory;
+use crate::gate::provenance;
 use crate::solver::cvc5::Cvc5;
 use crate::verify::{self, Status};
 
@@ -53,6 +54,8 @@ pub struct Decision {
     /// `(component-qualified id, status)` for every obligation, POG order.
     pub statuses: Vec<(String, Status)>,
     pub counts: BTreeMap<&'static str, usize>,
+    /// The exact bytes this verdict is evidence about (T26).
+    pub inputs: Vec<provenance::Input>,
 }
 
 /// The complete PASS rule, as a pure function so every branch is testable
@@ -130,6 +133,7 @@ pub fn judge(
         reasons,
         statuses,
         counts,
+        inputs: Vec::new(),
     }
 }
 
@@ -149,6 +153,19 @@ pub fn run(sources: &[PathBuf], project: &str, work: &Path) -> Decision {
     let dir = work.join(project);
     let _ = std::fs::remove_dir_all(&dir);
 
+    // Provenance can only hash bytes that exist; a missing source is reported
+    // explicitly below rather than dropped quietly.
+    let missing: Vec<String> = sources
+        .iter()
+        .filter(|source| !source.exists())
+        .map(|source| source.to_string_lossy().to_string())
+        .collect();
+    let present: Vec<PathBuf> = sources
+        .iter()
+        .filter(|source| source.exists())
+        .cloned()
+        .collect();
+
     let mut cmd = Command::new("rossi");
     cmd.args(["export", "--build", "-o"]).arg(&dir);
     for source in sources {
@@ -158,22 +175,37 @@ pub fn run(sources: &[PathBuf], project: &str, work: &Path) -> Decision {
         Ok(output) if output.status.success() => true,
         Ok(output) => {
             let mut decision = judge(false, false, Vec::new());
+            decision.inputs = provenance::collect(&present, &dir, None);
             decision.reasons.push(format!(
                 "rossi stderr: {}",
                 String::from_utf8_lossy(&output.stderr).trim()
             ));
+            note_missing(&mut decision, &missing);
             return decision;
         }
         Err(err) => {
             let mut decision = judge(false, false, Vec::new());
+            decision.inputs = provenance::collect(&present, &dir, None);
             decision.reasons.push(format!("could not run rossi: {err}"));
+            note_missing(&mut decision, &missing);
             return decision;
         }
     };
 
     let inv = inventory::collect(&dir);
     let solver = Cvc5::from_env();
-    judge(build, inv.is_complete(), statuses_of(&inv, &solver))
+    let mut decision = judge(build, inv.is_complete(), statuses_of(&inv, &solver));
+    decision.inputs = provenance::collect(&present, &dir, None);
+    note_missing(&mut decision, &missing);
+    decision
+}
+
+fn note_missing(decision: &mut Decision, missing: &[String]) {
+    if !missing.is_empty() {
+        decision
+            .reasons
+            .push(format!("model source(s) not found: {}", missing.join(", ")));
+    }
 }
 
 #[cfg(test)]

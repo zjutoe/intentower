@@ -2,3 +2,4 @@
 
 pub mod inventory;
 pub mod policy;
+pub mod provenance;
