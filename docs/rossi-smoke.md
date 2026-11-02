@@ -249,7 +249,43 @@ refinement_concrete.bpo:  INITIALISATION/inv1..inv4/INV, increase/inv1/INV,
 
 要点：
 
-- 声明来自**自由变量集合**（自己遍历类型化 AST，`rossi` 没有公开 `free_idents()`），按字典序排序，每个变量只声明一次；`count'` 直接作为 SMT 符号合法。
+- 声明来自**自由变量集合**（自己遍历类型化 AST，`rossi` 没有公开 `free_idents()`），按字典序排序，每个变量只声明一次；~~`count'` 直接作为 SMT 符号合法~~ **此说法已被 T21a 推翻**：SMT-LIB 的 simple symbol 不含 `'`，裸 `count'` 会让 cvc5 报 `Parse Error: Error finding token`，必须写成 `|count'|`。当时只比了生成字符串，没有真跑求解器，所以没发现。
 - 前提为 0 时不生成 `(and ...)`，直接 `(assert (not Goal))` —— `(and X)` 单参数虽合法但没必要。
 - `smt_name` 在可接受名字上是单射（裸名不以 `|` 开头、引号名不含 `|`），所以不需要运行时"重名"检查；这一点用测试钉住而不是加防御代码。
 - 非 `Int`/`Bool` 的自由变量在声明阶段报 `TypeMismatch`（当前 F0 下走不到，属编码器扩展时的护栏）。
+
+## 14. T13a：修 `m1.add` 的守卫（T21 暴露的模型缺陷 B）
+
+**触发**：T21 用真实 cvc5 跑 `counter-m0m1-rodin` 全部 20 条义务，发现 `m1::add/grd2/GRD` 是 `sat`（候选反例）。这不是编码问题：假设 `abstract_count = a + b`、`a + delta ≤ 1000`、`b ≥ 0` 推不出目标 `abstract_count + delta ≤ 1000`，反例 `a=999, b=1, delta=1`。T13 当时只把 `sub/grd1/GRD` 与 `rebalance/inv3/INV` 喂给 cvc5，缺陷因没被全量跑而留到今天。
+
+**改动**（人工指派 T13a）：`m1.eventb` 与 `m1_broken.eventb` 的 `add` 各加**同一条**守卫
+
+```eventb
+@grd3 a + b + delta <= 1000
+```
+
+用具体变量表达（不是照抄抽象守卫），所以 GRD 义务仍需借耦合不变式 `abstract_count = a + b` 才能闭合。两个变体加的是同一条守卫，耦合不变式仍是它们唯一的语义差别。`m0.eventb` 未动。
+
+**重跑命令**（产物入库，覆盖旧文件；`rossi export --build` 退出 0）：
+
+```bash
+rossi export --build -o artifacts/spike/counter-m0m1-rodin models/counter/m0.eventb models/counter/m1.eventb
+rossi export --build -o artifacts/spike/counter-m0m1broken-rodin models/counter/m0.eventb models/counter/m1_broken.eventb
+python3 scripts/po-inventory.py artifacts/spike/counter-rodin artifacts/spike/refinement-rodin \
+    artifacts/spike/counter-m0m1-rodin artifacts/spike/counter-m0m1broken-rodin > artifacts/spike/po-inventory.json
+```
+
+PO 形状不变：两项目各 20 条，`INV 16 / GRD 2 / SIM 1 / FIS 1`（加具体守卫不新增 GRD 义务）。
+
+**新证据**（`cargo test --test integration_inv -- --nocapture`：Rossi 0.2.3 现跑 POG + cvc5 1.4.2）：
+
+| 项目 | SMT_DISCHARGED | NOT_DISCHARGED | UNSUPPORTED | TOOL_ERROR |
+|---|---|---|---|---|
+| `counter-m0m1-rodin` | 19 | 0 | 1（`m0::sub/act1/FIS`，`∃`） | 0 |
+| `counter-m0m1broken-rodin` | 16 | 3 | 1 | 0 |
+
+错例的 3 条 `NOT_DISCHARGED` 精确钉在测试里：`rebalance/inv3/INV`、`sub/act1/SIM`、`sub/grd1/GRD`。`add/grd2/GRD` 在错例里也变成已证明 —— `a + b + delta ≤ 1000` 与耦合无关，这正是“变异只伤耦合”的体现。
+
+**连带更新**：§12 的普查快照 280/340 → **286/346**（新增 6 条可编码的线性守卫：两项目 × 3 条义务的前提）；F0 外三类计数不变（`∈` 51 / `∗` 6 / `∃` 3）。`po::tests::each_obligation_carries_exactly_its_own_hypotheses` 钉的 `add/grd2/GRD` 前提表同步加了 `a+b+delta≤1000`。
+
+**仍未验证**：全量 `SMT_DISCHARGED` ≠ PASS。`gate`（T25/T27）之前本节不构成验收结论；`m0::sub/act1/FIS` 仍在 F0 外；空洞前提（SP-G8）未检查。

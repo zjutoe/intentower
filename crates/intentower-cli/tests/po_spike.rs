@@ -308,10 +308,10 @@ fn f0_coverage_census_over_real_obligations() {
     for (why, count) in &rejected {
         println!("  {count} x {why}");
     }
-    assert_eq!(total, 340, "census must cover every hypothesis and goal");
+    assert_eq!(total, 346, "census must cover every hypothesis and goal");
     assert_eq!(
-        encoded, 280,
-        "regression: fewer predicates encode inside F0"
+        encoded, 286,
+        "regression: fewer predicates encode inside F0 (T13a added 6 linear guards)"
     );
     assert_eq!(
         rejected,

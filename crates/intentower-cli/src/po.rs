@@ -274,6 +274,8 @@ mod tests {
                 "abstract_count=a+b",
                 "delta≥1",
                 "a+delta≤1000",
+                // T13a: the guard that makes `add` a real refinement.
+                "a+b+delta≤1000",
             ]
         );
         assert_eq!(add.goal_text(), "abstract_count+delta≤1000");

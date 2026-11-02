@@ -1,9 +1,12 @@
 // Deliberately wrong variant of m1 (T13).
 // The coupling invariant is abstract_count = a - b instead of a + b.
+// Everything else, including the T13a guard @grd3 on `add`, is identical to
+// m1.eventb so that the coupling stays the only semantic difference.
 // Expected consequences, to be confirmed by proof obligations, not by eye:
-//   sub/grd2/GRD      fails: delta <= a no longer implies abstract_count >= 1
+//   sub/grd1/GRD      fails: delta <= a no longer implies abstract_count >= 1
 //   rebalance/inv3/INV fails: a - b is not preserved by moving k from a to b
-//   rebalance SIM     fails: the stuttering step no longer keeps the coupling
+//   add/grd2/GRD      holds even here: a + b + delta <= 1000 implies the
+//                     abstract guard whatever the coupling says
 MACHINE m1_broken
 REFINES
     m0
@@ -27,6 +30,7 @@ EVENTS
     WHERE
         @grd1 delta >= 1
         @grd2 a + delta <= 1000
+        @grd3 a + b + delta <= 1000
     THEN
         @act1 a := a + delta
     END

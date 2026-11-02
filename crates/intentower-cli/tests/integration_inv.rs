@@ -189,30 +189,35 @@ fn primed_free_identifiers_are_quoted_and_discharged() {
         assert_eq!(*status, Status::SmtDischarged, "{id}");
     }
     assert_eq!(count(&rows, Status::ToolError), 0, "no TOOL_ERROR expected");
-    assert_eq!(
-        count(&rows, Status::SmtDischarged),
-        18,
-        "18 of the 20 obligations of counter-m0m1 are discharged"
-    );
 }
 
 #[test]
-fn add_grd2_of_the_correct_model_is_not_discharged() {
-    // A model defect, not an encoding one: the hypotheses give
-    // abstract_count = a + b, a ≥ 0, b ≥ 0, delta ≥ 1 and a + delta ≤ 1000,
-    // so the goal abstract_count + delta ≤ 1000 fails for any b > 0. m1.eventb
-    // refines `add` without a strong enough guard. T13 exported this model but
-    // only ran cvc5 over two obligations, so this surfaced now. Repairing the
-    // model is a human decision, so the status is pinned rather than hidden.
-    let rows = decide(&obligations("grd2", M0M1, M0M1_SOURCES));
+fn t13a_discharges_add_grd2_and_leaves_only_fis_outside_f0() {
+    // T13a: `add` in models/counter/m1.eventb now carries @grd3
+    // a + b + delta ≤ 1000. With the coupling invariant
+    // abstract_count = a + b that implies the abstract guard
+    // abstract_count + delta ≤ 1000. Before the guard the obligation was
+    // genuinely invalid (a=999, b=1, delta=1) and cvc5 answered `sat`.
+    //
+    // Whole-project totals, fresh POG + real cvc5: 19 SMT_DISCHARGED and 1
+    // UNSUPPORTED (m0::sub/act1/FIS, quantifier Exists). A fully discharged
+    // project is still not a PASS: that verdict belongs to the gate (T25/T27).
+    let rows = decide(&obligations("t13a", M0M1, M0M1_SOURCES));
     let grd2 = rows
         .iter()
         .find(|(id, _)| id == "m1::add/grd2/GRD")
         .expect("m1::add/grd2/GRD must exist");
+    assert_eq!(grd2.1, Status::SmtDischarged, "the guard must discharge it");
+    assert_eq!(count(&rows, Status::SmtDischarged), 19, "19 of 20");
+    assert_eq!(count(&rows, Status::Unsupported), 1);
     assert_eq!(
-        grd2.1,
-        Status::NotDischarged,
-        "see comment: real counterexample"
+        rows.iter()
+            .filter(|(_, status)| {
+                !matches!(status, Status::SmtDischarged | Status::Unsupported)
+            })
+            .count(),
+        0,
+        "no NOT_DISCHARGED / TOOL_ERROR / UNKNOWN / TIMEOUT may remain"
     );
 }
 
@@ -232,22 +237,26 @@ fn the_broken_variant_is_never_all_discharged() {
         "the mutation must not change the POG shape (only the component name)"
     );
 
-    let invariants: Vec<Po> = broken
-        .into_iter()
-        .filter(|po| po.kind == Kind::Inv)
+    let rows = decide(&broken);
+    let failures: Vec<String> = rows
+        .iter()
+        .filter(|(_, status)| *status == Status::NotDischarged)
+        .map(|(id, _)| id.clone())
         .collect();
-    let rows = decide(&invariants);
-    assert!(
-        count(&rows, Status::NotDischarged) >= 1,
-        "the broken coupling must produce at least one candidate counterexample"
+    assert_eq!(
+        failures,
+        [
+            // moving k from a to b changes a - b.
+            "m1_broken::rebalance/inv3/INV".to_string(),
+            // the concrete action no longer simulates the abstract choice while
+            // keeping the coupling.
+            "m1_broken::sub/act1/SIM".to_string(),
+            // delta ≤ a no longer implies the abstract guard abstract_count ≥ 1.
+            "m1_broken::sub/grd1/GRD".to_string(),
+        ],
+        "exactly these three obligations may fail for the broken coupling: {rows:?}"
     );
-    assert_ne!(count(&rows, Status::SmtDischarged), invariants.len());
-    assert!(
-        rows.iter()
-            .any(|(id, status)| id.ends_with("rebalance/inv3/INV")
-                && *status == Status::NotDischarged),
-        "rebalance/inv3/INV is the obligation this mutation breaks: {rows:?}"
-    );
+    assert_eq!(count(&rows, Status::SmtDischarged), 16, "16 of 20");
 }
 
 #[test]

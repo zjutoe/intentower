@@ -21,6 +21,7 @@ EVENTS
     WHERE
         @grd1 delta >= 1
         @grd2 a + delta <= 1000
+        @grd3 a + b + delta <= 1000
     THEN
         @act1 a := a + delta
     END

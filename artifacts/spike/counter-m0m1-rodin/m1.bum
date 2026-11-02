@@ -15,6 +15,7 @@
         <org.eventb.core.parameter name="delta" org.eventb.core.identifier="delta"/>
         <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="delta ≥ 1"/>
         <org.eventb.core.guard name="grd2" org.eventb.core.label="grd2" org.eventb.core.predicate="a + delta ≤ 1000"/>
+        <org.eventb.core.guard name="grd3" org.eventb.core.label="grd3" org.eventb.core.predicate="a + b + delta ≤ 1000"/>
         <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="a ≔ a + delta"/>
     </org.eventb.core.event>
     <org.eventb.core.event name="sub" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="sub">

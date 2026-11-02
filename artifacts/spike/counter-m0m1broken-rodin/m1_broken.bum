@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <org.eventb.core.machineFile version="5" org.eventb.core.configuration="org.eventb.core.fwd" org.eventb.core.comment="Deliberately wrong variant of m1 (T13).
 The coupling invariant is abstract_count = a - b instead of a + b.
+Everything else, including the T13a guard @grd3 on `add`, is identical to
+m1.eventb so that the coupling stays the only semantic difference.
 Expected consequences, to be confirmed by proof obligations, not by eye:
-sub/grd2/GRD      fails: delta &lt;= a no longer implies abstract_count &gt;= 1
+sub/grd1/GRD      fails: delta &lt;= a no longer implies abstract_count &gt;= 1
 rebalance/inv3/INV fails: a - b is not preserved by moving k from a to b
-rebalance SIM     fails: the stuttering step no longer keeps the coupling">
+add/grd2/GRD      holds even here: a + b + delta &lt;= 1000 implies the
+abstract guard whatever the coupling says">
     <org.eventb.core.refinesMachine name="m0" org.eventb.core.target="m0"/>
     <org.eventb.core.variable name="a" org.eventb.core.identifier="a"/>
     <org.eventb.core.variable name="b" org.eventb.core.identifier="b"/>
@@ -20,6 +23,7 @@ rebalance SIM     fails: the stuttering step no longer keeps the coupling">
         <org.eventb.core.parameter name="delta" org.eventb.core.identifier="delta"/>
         <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="delta ≥ 1"/>
         <org.eventb.core.guard name="grd2" org.eventb.core.label="grd2" org.eventb.core.predicate="a + delta ≤ 1000"/>
+        <org.eventb.core.guard name="grd3" org.eventb.core.label="grd3" org.eventb.core.predicate="a + b + delta ≤ 1000"/>
         <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="a ≔ a + delta"/>
     </org.eventb.core.event>
     <org.eventb.core.event name="sub" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="sub">

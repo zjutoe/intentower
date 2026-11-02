@@ -75,6 +75,7 @@
 <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_counv" org.eventb.core.parentSet="/counter-m0m1-rodin/m1.bpo|org.eventb.core.poFile#m1|org.eventb.core.poPredicateSet#EVTIDENTabstract_counv" org.eventb.core.poStamp="0">
 <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="delta≥1" org.eventb.core.source="/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#add|org.eventb.core.guard#grd1"/>
 <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="a+delta≤1000" org.eventb.core.source="/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#add|org.eventb.core.guard#grd2"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="a+b+delta≤1000" org.eventb.core.source="/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#add|org.eventb.core.guard#grd3"/>
 </org.eventb.core.poPredicateSet>
 <org.eventb.core.poSequent name="sub/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
 <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/counter-m0m1-rodin/m1.bpo|org.eventb.core.poFile#m1|org.eventb.core.poPredicateSet#EVTALLHYPabstract_counw"/>
