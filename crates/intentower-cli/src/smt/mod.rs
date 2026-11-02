@@ -3,6 +3,7 @@
 //! typed integer variables, `+`, `-` and the six comparisons. Anything
 //! else must be reported, never dropped and never replaced by `true`.
 
+pub mod arithmetic;
 pub mod atoms;
 
 use std::fmt;

@@ -270,3 +270,63 @@ fn report_typed_obligations() {
         }
     }
 }
+
+/// T16 cross-check: run the production F0 encoder over every predicate of
+/// every real Rossi obligation and count what falls outside F0.
+#[test]
+fn f0_coverage_census_over_real_obligations() {
+    use intentower_cli::po::load_project;
+    use intentower_cli::smt::SmtError;
+    use intentower_cli::smt::arithmetic::comparison;
+
+    let mut encoded = 0;
+    let mut total = 0;
+    let mut rejected: BTreeMap<String, usize> = BTreeMap::new();
+    for dir in [COUNTER, REFINEMENT, M0M1, M0M1BROKEN] {
+        for po in load_project(&repo(dir)).unwrap() {
+            for pred in po.typed_hypotheses.iter().chain([&po.typed_goal]) {
+                total += 1;
+                match comparison(pred, &po.types) {
+                    Ok(smt) => {
+                        encoded += 1;
+                        assert!(smt.starts_with('('), "prefix form expected: {smt}");
+                    }
+                    Err(err) => {
+                        let key = match &err {
+                            SmtError::UnsupportedNode(node) => {
+                                format!("UNSUPPORTED {node}")
+                            }
+                            other => format!("{other}"),
+                        };
+                        *rejected.entry(key).or_insert(0) += 1;
+                    }
+                }
+            }
+        }
+    }
+    println!("{encoded}/{total} predicates of real obligations encode inside F0");
+    for (why, count) in &rejected {
+        println!("  {count} x {why}");
+    }
+    assert_eq!(total, 340, "census must cover every hypothesis and goal");
+    assert_eq!(
+        encoded, 274,
+        "regression: fewer predicates encode inside F0"
+    );
+    assert_eq!(
+        rejected,
+        BTreeMap::from([
+            ("UNSUPPORTED comparison In".to_string(), 49),
+            ("UNSUPPORTED n-ary operator Mul".to_string(), 6),
+            (
+                "UNSUPPORTED not a relational predicate: n-ary logical operator LAnd".to_string(),
+                8,
+            ),
+            (
+                "UNSUPPORTED not a relational predicate: quantifier Exists".to_string(),
+                3,
+            ),
+        ]),
+        "the set of predicates outside F0 must only change on purpose"
+    );
+}

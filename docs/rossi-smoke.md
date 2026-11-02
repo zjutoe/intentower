@@ -200,3 +200,24 @@ refinement_concrete.bpo:  INITIALISATION/inv1..inv4/INV, increase/inv1/INV,
 渲染细节：Rossi 的 `PrettyPrinter` 只在 `−` 两侧加空格（`abstract_count=a − b`、`count − 1≥0`），`+ ≥ ≤ =` 不加。
 
 `artifacts/spike/po-inventory.json` 现覆盖 4 个项目共 **64 条 PO**（`INV` 51 / `GRD` 7 / `FIS` 3 / `SIM` 3）；`po_spike` 的交叉核对现在自动覆盖这 64 条（类型化 API 与 XML 读取器逐条一致）。
+
+## 12. T16：真实 PO 的 F0 覆盖率普查（不是估算，是跑出来的）
+
+把 T14/T15/T16 的编码器直接套在 4 个 Rossi 项目的**全部**前提与目标上（`cargo test --test po_spike f0_coverage -- --nocapture`）：
+
+```
+274/340 predicates of real obligations encode inside F0
+  49 x UNSUPPORTED comparison In
+   6 x UNSUPPORTED n-ary operator Mul
+   8 x UNSUPPORTED not a relational predicate: n-ary logical operator LAnd
+   3 x UNSUPPORTED not a relational predicate: quantifier Exists
+```
+
+- 340 = 64 条义务的全部前提 + 目标；274 条能编码为 `QF_LIA` 前缀式。
+- **没有一条报 `UnknownIdent` 或 `TypeMismatch`**：`Po::types` 覆盖了所有自由变量，整数变量都能解析 —— T18 声明变量时不需要猜类型。
+- 66 条落在 F0 外，分四类，处理方向不同：
+  - `∈` 49 条：多数是 `count ∈ ℤ` 这类**类型成员**，在 SMT 里由 `declare-fun ... Int` 承载；`x ∈ ℕ` 可译为 `(>= x 0)`。这是语义决策，必须单独测试后再加，不能顺手放宽。
+  - `∧` 8 条：SIM 目标的合取，T17 覆盖。
+  - `∃` 3 条：FIS 的见证存在性，T17 必须报 `UNSUPPORTED`（F0 无量词）。
+  - `∗` 6 条：来自官方 refinement 模型的 `max_value = step ∗ count` 一类乘积，非线性；计划只允许"整数常量乘变量"且需单独测试。
+- 该普查已固化为断言（`encoded == 274` 与四类拒绝的精确计数）：编码器若意外退化会立刻失败，扩展 F0 时必须显式改数字。
