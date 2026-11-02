@@ -542,3 +542,40 @@ Markdown，并重新哈希 `inputs` 判断这份证据是否还对应现在的�
 
 **未做**：`--format json`（无必要）、把摘要再喂回任何命令（禁止）、改
 `schemas/report.schema.json`（T23 冻结，本次没动）。
+
+## 22. T29：`prompts/refine.md` — 给 Agent 的精化 prompt
+
+只新增一个 prompt 文件 + 一个防漂移测试，**没有改任何生产代码**。
+
+`prompts/refine.md` 七段：输入（只读）→ 唯一可改文件 → 禁止改变的约束 →
+必须自己跑的验证命令 → 必须交回的解释（新增状态 / 新增事件与 `REFINES` 关系 /
+粘合不变量 / 保持了什么 / 诚实的 Not proved 表）→ 停止条件（3 次候选验证、
+2 次自动修复、要动受保护文件就停下请求批准）→ 填好的示例。
+
+示例用的是仓库真实状态，不是想象：`gate MODEL-001` 退出 **2**，20 条义务，
+19 条 `SMT_DISCHARGED`，1 条 `UNSUPPORTED`（`m0::sub/act1/FIS`，
+`node outside F0: quantifier Exists`），并明确写：这条来自 M0，
+**不得通过改 M0 或扩大 F0 让报告变绿**。
+
+`crates/intentower-cli/tests/prompts.rs`（4 个用例）防的是 prompt 与现实脱节：
+
+| 用例 | 检查 |
+|---|---|
+| `every_path_the_prompt_names_exists` | prompt 里反引号点到的 `models/ docs/ crates/ tests/ scripts/ schemas/` 路径必须真的存在（`approvals/`、`artifacts/` 例外：前者是 T32 的产物，后者是 Agent 要生成的） |
+| `the_prompt_names_one_writable_file_and_the_protected_ones` | 必须写死唯一可改文件 `models/counter/m1.eventb`，并点名 6 个受保护文件 |
+| `the_prompt_carries_the_limits_and_the_verification_commands` | 必须有 `QF_LIA`、精确的 `gate`/`report` 命令、8 个状态、"0 条义务不是通过"、3 次/2 次上限 |
+| `the_prompt_states_the_current_measured_state_instead_of_a_promised_pass` | 必须点名已知 `UNSUPPORTED` 义务并写"退出 **2**"，不许写"退出 0" |
+
+故障注入（确认测试不是摆设）：
+
+| 注入 | 结果 |
+|---|---|
+| 把 `models/counter/m0.eventb` 改名成不存在的 `m0_approved.eventb` | `every_path_the_prompt_names_exists` **FAILED**：`names a missing path: models/counter/m0_approved.eventb`；`..._one_writable_file...` 同时 FAILED |
+| 删掉 3 次/2 次上限、把"退出 **2**"改成"退出 0" | 后两个用例 **FAILED** |
+| 恢复原文件 | 4 passed |
+
+`cargo test --offline`：**136 passed / 0 failed**（T28 后 132，本次 +4）。
+`cargo fmt --all -- --check` 干净。受保护文件未触碰。
+
+**未做**：`prompts/repair.md`（T30）、`scripts/run-refinement.sh`（T31）、
+`approvals/baseline.json`（T32，需人类批准）。
