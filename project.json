@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1",
+  "intent_ids": ["INT-001"],
+  "spec_ids": ["SPEC-001"],
+  "models": [],
+  "required_evidence": [
+    "tool_versions",
+    "input_hashes",
+    "po_inventory",
+    "po_statuses",
+    "test_records",
+    "risks"
+  ]
+}
