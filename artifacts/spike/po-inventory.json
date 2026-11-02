@@ -1325,6 +1325,2262 @@
           ]
         }
       ]
+    },
+    {
+      "project": "artifacts/spike/counter-m0m1-rodin",
+      "bpo_files": [
+        "m0.bpo",
+        "m1.bpo"
+      ],
+      "po_total": 20,
+      "kinds": {
+        "INV": 16,
+        "FIS": 1,
+        "GRD": 2,
+        "SIM": 1
+      },
+      "obligations": [
+        {
+          "id": "INITIALISATION/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≤1000",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count+delta≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta≥0",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count+delta≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta≤1000",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/act1/FIS",
+          "kind": "FIS",
+          "desc": "Feasibility of action",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 3,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥1",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "∃abstract_count'⦂ℤ·abstract_count'<abstract_count∧abstract_count'≥0",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥1",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "'",
+              "predicate": "abstract_count'<abstract_count∧abstract_count'≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count'≥0",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥1",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "'",
+              "predicate": "abstract_count'<abstract_count∧abstract_count'≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count'≤1000",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0=0+0",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/grd2/GRD",
+          "kind": "GRD",
+          "desc": "Guard strengthening (split)",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "a+delta≤1000",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta≤1000",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "a+delta≤1000",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "a+delta≥0",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "a+delta≤1000",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta=(a+delta)+b",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "rebalance/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "k≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#rebalance|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "k≤a",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#rebalance|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "a − k≥0",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "k",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "rebalance/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "k≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#rebalance|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "k≤a",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#rebalance|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "b+k≥0",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "k",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "rebalance/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "k≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#rebalance|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "k≤a",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#rebalance|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count=a − k+(b+k)",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "k",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/act1/SIM",
+          "kind": "SIM",
+          "desc": "Action simulation",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count − delta<abstract_count∧abstract_count − delta≥0",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/grd1/GRD",
+          "kind": "GRD",
+          "desc": "Guard strengthening (split)",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count≥1",
+            "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "a − delta≥0",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1",
+          "bpo_file": "m1.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count − delta=a − delta+b",
+            "source": "/counter-m0m1-rodin/m1.bum|org.eventb.core.machineFile#m1|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "artifacts/spike/counter-m0m1broken-rodin",
+      "bpo_files": [
+        "m0.bpo",
+        "m1_broken.bpo"
+      ],
+      "po_total": 20,
+      "kinds": {
+        "INV": 16,
+        "FIS": 1,
+        "GRD": 2,
+        "SIM": 1
+      },
+      "obligations": [
+        {
+          "id": "INITIALISATION/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≤1000",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count+delta≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta≥0",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count+delta≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta≤1000",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/act1/FIS",
+          "kind": "FIS",
+          "desc": "Feasibility of action",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 3,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥1",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "∃abstract_count'⦂ℤ·abstract_count'<abstract_count∧abstract_count'≥0",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥1",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "'",
+              "predicate": "abstract_count'<abstract_count∧abstract_count'≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count'≥0",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥1",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "'",
+              "predicate": "abstract_count'<abstract_count∧abstract_count'≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count'≤1000",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0=0 − 0",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/grd2/GRD",
+          "kind": "GRD",
+          "desc": "Guard strengthening (split)",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "a+delta≤1000",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta≤1000",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "a+delta≤1000",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "a+delta≥0",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "a+delta≤1000",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta=a+delta − b",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "rebalance/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "k≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#rebalance|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "k≤a",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#rebalance|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "a − k≥0",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "k",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "rebalance/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "k≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#rebalance|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "k≤a",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#rebalance|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "b+k≥0",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "k",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "rebalance/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "k≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#rebalance|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "k≤a",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#rebalance|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count=a − k − (b+k)",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "k",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/act1/SIM",
+          "kind": "SIM",
+          "desc": "Action simulation",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count − delta<abstract_count∧abstract_count − delta≥0",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/grd1/GRD",
+          "kind": "GRD",
+          "desc": "Guard strengthening (split)",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count≥1",
+            "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "a − delta≥0",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_broken",
+          "bpo_file": "m1_broken.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1broken-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a − b",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count − delta=a − delta − b",
+            "source": "/counter-m0m1broken-rodin/m1_broken.bum|org.eventb.core.machineFile#m1_broken|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        }
+      ]
     }
   ],
   "input_hashes": {
@@ -1347,6 +3603,26 @@
     "artifacts/spike/refinement-rodin/refinement_concrete.bcm": "d11e633a3852ea087b399907871c5783ebb1830740a6be838f19a80933c5b56f",
     "artifacts/spike/refinement-rodin/refinement_concrete.bpo": "e3c0a5ceb64b13da402d12fd5f040daef06e8a4edc484c6d977f438bcfdc4f21",
     "artifacts/spike/refinement-rodin/refinement_concrete.bps": "5ca530a80135061ba94f5bcb704e1cd133e82cebc482d68122c7830cde524d31",
-    "artifacts/spike/refinement-rodin/refinement_concrete.bum": "f3b66fb1395c9b48d6dedcc18f5af7c4a342437604bd3570089a457b32834151"
+    "artifacts/spike/refinement-rodin/refinement_concrete.bum": "f3b66fb1395c9b48d6dedcc18f5af7c4a342437604bd3570089a457b32834151",
+    "artifacts/spike/counter-m0m1-rodin/.project": "5e66eef972812a10e14d8949b05bb457567b1ac4dba468b1fe817c8b566a0b17",
+    "artifacts/spike/counter-m0m1-rodin/.settings/org.eclipse.core.resources.prefs": "4238e4eafab8309d5f1ee3c167db1e6bf254d5587daa652f1495da7c3942b4c4",
+    "artifacts/spike/counter-m0m1-rodin/m0.bcm": "9fcfce7ac20fa850dbe652b2657cb6cdb11af550dfafb5f6d8239ad035da8f0f",
+    "artifacts/spike/counter-m0m1-rodin/m0.bpo": "f0ce8a6b100732ccf28fd282b0a9591602e341d021b1360925f16c96e9b5d870",
+    "artifacts/spike/counter-m0m1-rodin/m0.bps": "bbb12886b9aab95d29aa17ba2b4ed71ce10960edca000c9316ba99f6a679a4cb",
+    "artifacts/spike/counter-m0m1-rodin/m0.bum": "673b7e533192f83884fa659c21e36258b8b754a55db4ca7584577c18c03d0763",
+    "artifacts/spike/counter-m0m1-rodin/m1.bcm": "3997aa435ea8e8cd18d29036f9901028f38e8c922ca551078597258576732cc4",
+    "artifacts/spike/counter-m0m1-rodin/m1.bpo": "126041da22d61e3fc5e7059f91f599652446ec3f18b9cdb1d1239b31cf3803a7",
+    "artifacts/spike/counter-m0m1-rodin/m1.bps": "caef81ec6fd335380bb8e2b748fa1cf6967176b15e9e5ef01a3ca60955251e5f",
+    "artifacts/spike/counter-m0m1-rodin/m1.bum": "9ed516a8afea663a33c31a0d1321f2fd5526f635aa21e4d94360a94c154458c3",
+    "artifacts/spike/counter-m0m1broken-rodin/.project": "fe9d60257777adf2149bc0a2d8da5de758f95d0b65d85c3cf2bce2af031cd7f8",
+    "artifacts/spike/counter-m0m1broken-rodin/.settings/org.eclipse.core.resources.prefs": "4238e4eafab8309d5f1ee3c167db1e6bf254d5587daa652f1495da7c3942b4c4",
+    "artifacts/spike/counter-m0m1broken-rodin/m0.bcm": "3f262dba0576fce4c0dea3c3187bc47d8a5124e5ca5bc8847420de06e47515ed",
+    "artifacts/spike/counter-m0m1broken-rodin/m0.bpo": "7dca1162461487bb6e5bd47ed425cacf3f43d3b869b68754ba2c88fc535b440c",
+    "artifacts/spike/counter-m0m1broken-rodin/m0.bps": "bbb12886b9aab95d29aa17ba2b4ed71ce10960edca000c9316ba99f6a679a4cb",
+    "artifacts/spike/counter-m0m1broken-rodin/m0.bum": "673b7e533192f83884fa659c21e36258b8b754a55db4ca7584577c18c03d0763",
+    "artifacts/spike/counter-m0m1broken-rodin/m1_broken.bcm": "c576f75211e069eea43fec50478cbc8300e01b6c6686cdefc10c2710673ce7f4",
+    "artifacts/spike/counter-m0m1broken-rodin/m1_broken.bpo": "61c964161bf16d20de40b276cb5f8b0371b33b82c65b07b869477bcf4609af18",
+    "artifacts/spike/counter-m0m1broken-rodin/m1_broken.bps": "caef81ec6fd335380bb8e2b748fa1cf6967176b15e9e5ef01a3ca60955251e5f",
+    "artifacts/spike/counter-m0m1broken-rodin/m1_broken.bum": "5bbf8637cda343193262d70803c7c1f48cb7aef991fe4144cdb397b27e31e1fb"
   }
 }

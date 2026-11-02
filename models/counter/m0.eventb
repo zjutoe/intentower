@@ -1,0 +1,29 @@
+MACHINE m0
+VARIABLES
+    abstract_count
+INVARIANTS
+    @inv1 abstract_count >= 0
+    @inv2 abstract_count <= 1000
+EVENTS
+    EVENT INITIALISATION
+    THEN
+        @act1 abstract_count := 0
+    END
+
+    EVENT add
+    ANY
+        delta
+    WHERE
+        @grd1 delta >= 1
+        @grd2 abstract_count + delta <= 1000
+    THEN
+        @act1 abstract_count := abstract_count + delta
+    END
+
+    EVENT sub
+    WHERE
+        @grd1 abstract_count >= 1
+    THEN
+        @act1 abstract_count :| abstract_count' < abstract_count & abstract_count' >= 0
+    END
+END

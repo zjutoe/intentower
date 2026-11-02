@@ -1,0 +1,51 @@
+MACHINE m1
+REFINES
+    m0
+VARIABLES
+    a b
+INVARIANTS
+    @inv1 a >= 0
+    @inv2 b >= 0
+    @inv3 abstract_count = a + b
+EVENTS
+    EVENT INITIALISATION
+    THEN
+        @act1 a := 0
+        @act2 b := 0
+    END
+
+    EVENT add
+    REFINES add
+    ANY
+        delta
+    WHERE
+        @grd1 delta >= 1
+        @grd2 a + delta <= 1000
+    THEN
+        @act1 a := a + delta
+    END
+
+    EVENT sub
+    REFINES sub
+    ANY
+        delta
+    WHERE
+        @grd1 delta >= 1
+        @grd2 delta <= a
+    WITH
+        @abstract_count' abstract_count' = abstract_count - delta
+    THEN
+        @act1 a := a - delta
+    END
+
+    EVENT rebalance
+    ANY
+        k
+    WHERE
+        @grd1 k >= 1
+        @grd2 k <= a
+    THEN
+        @act1 a := a - k
+        @act2 b := b + k
+    END
+END

@@ -168,3 +168,35 @@ refinement_concrete.bpo:  INITIALISATION/inv1..inv4/INV, increase/inv1/INV,
 依赖位置：目前只在 `crates/intentower-cli/Cargo.toml` 的 `[dev-dependencies]`（spike 专用）。T14 把 PO 读取搬进产品代码时需移到 `[dependencies]`，并记一条 ADR。
 
 未验证：`rossi-prove` 自带的 reasoner / registry / `.bpr` 证明树 API（与我们的 SMT 路线无关，本轮故意不碰）。
+
+## 11. T13：非平凡精化 M0 → M1（含故意错误变体）
+
+自己写的模型（不是官方例子的复制），均在 `models/counter/`：
+
+| 文件 | 内容 |
+|---|---|
+| `m0.eventb` | 抽象计数器：`abstract_count`，不变式 `≥ 0` / `≤ 1000`；事件 `add`（`ANY delta`）、`sub`（用 `:|` 非确定赋值，故意用来触发 FIS） |
+| `m1.eventb` | 具体机：两个整数 `a`、`b`，**耦合不变式 `abstract_count = a + b`**；`add`/`sub` 用 `REFINES` 精化，`sub` 用 `WITH` 见证 `abstract_count'`；新事件 `rebalance`（`a := a − k`、`b := b + k`，不动抽象值） |
+| `m1_broken.eventb` | 只把耦合不变式改成 `abstract_count = a − b`，其余一字不改 |
+
+两个 Rodin 项目（`rossi export --build`）：`artifacts/spike/counter-m0m1-rodin/`、`artifacts/spike/counter-m0m1broken-rodin/`。**各 20 条 PO，类别分步：`INV` 16 / `GRD` 2 / `SIM` 1 / `FIS` 1** —— 精化 PO 确实生成。
+
+关键 PO（正例，取自 `.bpo`）：
+
+- `m1 / sub/grd1/GRD`：目标 `abstract_count ≥ 1`，假设含 `abstract_count = a + b`、`b ≥ 0`、`delta ≤ a`。**没有耦合不变式就证不出来**，这就是“非平凡”的地方。
+- `m1 / sub/act1/SIM`：目标 `abstract_count − delta < abstract_count ∧ abstract_count − delta ≥ 0`（具体动作模拟抽象的 `:|` 动作）。
+- `m0 / sub/act1/FIS`：`∃ abstract_count' ⦂ ℤ · abstract_count' < abstract_count ∧ abstract_count' ≥ 0`。
+- `rebalance` 只生成 `INV`：Rossi **不为新事件生成 SIM/GRD**（与官方 `refinement_concrete` 的 `change_step_size` 行为一致）。
+
+错误变体的失败不是肉眼判断，已用 cvc5 实测（`QF_LIA`，假设 ∧ ¬目标）：
+
+| PO | 正例 | 错例 |
+|---|---|---|
+| `sub/grd1/GRD` | `unsat`（已证明） | `sat`，反例 `a=1, b=1, delta=1, abstract_count=0` |
+| `rebalance/inv3/INV` | `unsat`（已证明） | `sat` |
+
+探针在 `/tmp/t13probe`（未入库；T19 会把这类编码做成 `cargo test` 的 fixture）。**一个真实教训**：第一版探针把正例的 `rebalance` 目标误写成错例形式 `a − k − (b + k)`，cvc5 当场报 `sat` —— 手写 SMT 编码必须逐字对照 `.bpo` 里的目标，不能靠记忆。
+
+渲染细节：Rossi 的 `PrettyPrinter` 只在 `−` 两侧加空格（`abstract_count=a − b`、`count − 1≥0`），`+ ≥ ≤ =` 不加。
+
+`artifacts/spike/po-inventory.json` 现覆盖 4 个项目共 **64 条 PO**（`INV` 51 / `GRD` 7 / `FIS` 3 / `SIM` 3）；`po_spike` 的交叉核对现在自动覆盖这 64 条（类型化 API 与 XML 读取器逐条一致）。

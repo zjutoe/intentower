@@ -14,6 +14,8 @@ use rossi_prove::{PoFile, PoProject, ProverSequent};
 
 const COUNTER: &str = "artifacts/spike/counter-rodin";
 const REFINEMENT: &str = "artifacts/spike/refinement-rodin";
+const M0M1: &str = "artifacts/spike/counter-m0m1-rodin";
+const M0M1BROKEN: &str = "artifacts/spike/counter-m0m1broken-rodin";
 
 /// Integration tests run with the crate directory as cwd; the fixtures
 /// live at the repository root.
@@ -180,7 +182,9 @@ fn typed_api_hypothesis_counts_match_the_xml_inventory() {
     let raw = std::fs::read_to_string(repo("artifacts/spike/po-inventory.json")).unwrap();
     let inv: serde_json::Value = serde_json::from_str(&raw).unwrap();
     let mut compared = 0usize;
+    let mut total = 0usize;
     for project in inv["projects"].as_array().unwrap() {
+        total += project["po_total"].as_u64().unwrap() as usize;
         let dir = project["project"].as_str().unwrap();
         let api = obligations(dir);
         for ob in project["obligations"].as_array().unwrap() {
@@ -195,12 +199,61 @@ fn typed_api_hypothesis_counts_match_the_xml_inventory() {
             compared += 1;
         }
     }
-    assert_eq!(compared, 24, "every inventoried obligation cross-checked");
+    assert_eq!(
+        compared, total,
+        "every inventoried obligation cross-checked"
+    );
+    assert!(compared >= 64, "expected at least 64 obligations");
+}
+
+/// T13's own M0 -> M1 pair (two concrete integers coupled by
+/// `abstract_count = a + b`). The coupling invariant is what makes the
+/// guard-strengthening obligation non-trivial.
+#[test]
+fn counter_refinement_yields_refinement_obligations_through_the_typed_api() {
+    let ob = obligations(M0M1);
+    let kinds: BTreeMap<&str, usize> =
+        ob.keys()
+            .map(|(_, n)| n.rsplit('/').next().unwrap())
+            .fold(BTreeMap::new(), |mut m, k| {
+                *m.entry(k).or_insert(0) += 1;
+                m
+            });
+    assert_eq!(
+        kinds,
+        BTreeMap::from([("FIS", 1), ("GRD", 2), ("INV", 16), ("SIM", 1)]),
+        "M0 -> M1 must produce refinement obligations, not only INV"
+    );
+
+    let grd = get(&ob, "m1.bpo", "sub/grd1/GRD");
+    assert_eq!(grd.goal, "abstract_count≥1");
+    assert!(
+        grd.hyps.contains(&"abstract_count=a+b".to_string())
+            && grd.hyps.contains(&"b≥0".to_string())
+            && grd.hyps.contains(&"delta≤a".to_string()),
+        "the coupling invariant and b >= 0 must be among the hypotheses: {:?}",
+        grd.hyps
+    );
+
+    // The deliberately broken variant produces the same obligation shape,
+    // with a coupling invariant that no longer supports them.
+    let broken = obligations(M0M1BROKEN);
+    assert_eq!(
+        broken.len(),
+        ob.len(),
+        "broken variant must not change the PO set"
+    );
+    let bgrd = get(&broken, "m1_broken.bpo", "sub/grd1/GRD");
+    assert!(
+        bgrd.hyps.contains(&"abstract_count=a − b".to_string()),
+        "broken coupling must be a hypothesis: {:?}",
+        bgrd.hyps
+    );
 }
 
 #[test]
 fn report_typed_obligations() {
-    for dir in [COUNTER, REFINEMENT] {
+    for dir in [COUNTER, REFINEMENT, M0M1, M0M1BROKEN] {
         println!("\n== {dir}");
         for ((file, name), ob) in obligations(dir) {
             println!(
