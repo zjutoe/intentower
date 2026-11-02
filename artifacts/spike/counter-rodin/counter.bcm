@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.scMachineFile org.eventb.core.accurate="true" org.eventb.core.configuration="org.eventb.core.fwd">
+<org.eventb.core.scSeesContext name="'" org.eventb.core.scTarget="/counter-rodin/counter_ctx.bcc" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.seesContext#counter_ctx"/>
+<org.eventb.core.scInternalContext name="counter_ctx">
+<org.eventb.core.scAxiom name="'" org.eventb.core.label="axm1" org.eventb.core.predicate="max_value=100" org.eventb.core.source="/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm1" org.eventb.core.theorem="false"/>
+<org.eventb.core.scAxiom name="(" org.eventb.core.label="axm2" org.eventb.core.predicate="max_value&gt;0" org.eventb.core.source="/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm2" org.eventb.core.theorem="false"/>
+<org.eventb.core.scCarrierSet name="STATUS" org.eventb.core.source="/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.carrierSet#STATUS" org.eventb.core.type="ℙ(STATUS)"/>
+<org.eventb.core.scConstant name="max_value" org.eventb.core.source="/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.constant#max_value" org.eventb.core.type="ℤ"/>
+</org.eventb.core.scInternalContext>
+<org.eventb.core.scInvariant name="counter_cty" org.eventb.core.label="inv1" org.eventb.core.predicate="count≥0" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv1" org.eventb.core.theorem="false"/>
+<org.eventb.core.scInvariant name="counter_ctz" org.eventb.core.label="inv2" org.eventb.core.predicate="count≤max_value" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv2" org.eventb.core.theorem="false"/>
+<org.eventb.core.scVariable name="count" org.eventb.core.abstract="false" org.eventb.core.concrete="true" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.variable#count" org.eventb.core.type="ℤ"/>
+<org.eventb.core.scEvent name="counter_ct{" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="INITIALISATION" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#INITIALISATION">
+<org.eventb.core.scAction name="'" org.eventb.core.assignment="count ≔ 0" org.eventb.core.label="act1" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#INITIALISATION|org.eventb.core.action#act1"/>
+</org.eventb.core.scEvent>
+<org.eventb.core.scEvent name="counter_ct|" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="increment" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#increment">
+<org.eventb.core.scGuard name="'" org.eventb.core.label="grd1" org.eventb.core.predicate="count&lt;max_value" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#increment|org.eventb.core.guard#grd1" org.eventb.core.theorem="false"/>
+<org.eventb.core.scAction name="(" org.eventb.core.assignment="count ≔ count+1" org.eventb.core.label="act1" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#increment|org.eventb.core.action#act1"/>
+</org.eventb.core.scEvent>
+<org.eventb.core.scEvent name="counter_ct}" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="decrement" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#decrement">
+<org.eventb.core.scGuard name="'" org.eventb.core.label="grd1" org.eventb.core.predicate="count&gt;0" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#decrement|org.eventb.core.guard#grd1" org.eventb.core.theorem="false"/>
+<org.eventb.core.scAction name="(" org.eventb.core.assignment="count ≔ count − 1" org.eventb.core.label="act1" org.eventb.core.source="/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#decrement|org.eventb.core.action#act1"/>
+</org.eventb.core.scEvent>
+</org.eventb.core.scMachineFile>
