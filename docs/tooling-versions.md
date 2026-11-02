@@ -21,7 +21,7 @@
 | `rustup` | found | `rustup 1.29.2 (d8c92c676 2026-10-21)` | `~/.cargo/bin/rustup` | `rustup --version` |
 | Rust toolchain | found | `stable-x86_64-unknown-linux-gnu (active, default)`；含 `rustfmt`、`clippy` | `~/.rustup` | `rustup show` |
 | `rossi` | **found** | `rossi 0.2.3` | `~/.cargo/bin/rossi` → 软链 `~/.local/bin/rossi` | `rossi --version` |
-| `rossi-prove` | found（库 crate，随源码树） | `0.2.3` | `~/tools/rossi-0.2.3/crates/rossi-prove` | 源码树；作为依赖引入待 T12 |
+| `rossi-prove` | found（库 crate） | `0.2.3` | crates.io，进 `Cargo.lock` | **已是 `intentower-cli` 生产依赖**（T14，见 ADR-0002） |
 | `cvc5` | **found** | `cvc5 1.4.2 [git 282d5e0 on branch HEAD]`，unrestricted build，GCC 11.4.0，built 2026-10-08 | `~/tools/cvc5-1.4.2/cvc5-Linux-x86_64-static/bin/cvc5` → 软链 `~/.local/bin/cvc5` | `cvc5 --version` |
 | `z3` | missing（第一阶段不需要） | — | — | `command -v z3` → 空 |
 

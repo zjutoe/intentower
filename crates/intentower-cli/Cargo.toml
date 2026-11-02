@@ -12,8 +12,6 @@ path = "src/main.rs"
 [dependencies]
 clap = "4"
 serde_json = "1"
-
-[dev-dependencies]
-# T12 spike only: read typed proof obligations out of Rossi's .bpo output.
+# Proof obligations come from Rossi, never from hand-written XML parsing.
 rossi = "0.2.3"
 rossi-prove = "0.2.3"
