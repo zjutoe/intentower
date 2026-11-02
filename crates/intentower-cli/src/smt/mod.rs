@@ -82,14 +82,16 @@ pub(crate) fn describe_predicate(kind: &PredicateKind) -> String {
 }
 
 /// Render an Event-B identifier as an SMT-LIB symbol. Plain names stay bare;
-/// anything else is quoted, which SMT-LIB allows. Names containing `|` or
+/// anything else is pipe-quoted, which SMT-LIB allows. Names containing `|` or
 /// control characters cannot be quoted, so they fail instead of being mangled.
+///
+/// `'` is **not** part of an SMT-LIB simple symbol, and Event-B after-values
+/// are named `count'`, so primed names must be quoted: cvc5 rejects a bare
+/// `count'` with `Parse Error: Error finding token`.
 pub fn smt_name(ident: &str) -> SmtResult<String> {
     let bare = !ident.is_empty()
         && !ident.chars().next().unwrap().is_ascii_digit()
-        && ident
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '\'');
+        && ident.chars().all(|c| c.is_ascii_alphanumeric() || c == '_');
     if bare {
         return Ok(ident.to_string());
     }

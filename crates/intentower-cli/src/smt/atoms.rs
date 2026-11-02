@@ -92,7 +92,7 @@ mod tests {
     fn two_different_variables_stay_different() {
         let t = types(&[("a", Sort::Int), ("count'", Sort::Int)]);
         assert_eq!(integer(&expr("a"), &t).unwrap(), "a");
-        assert_eq!(integer(&expr("count'"), &t).unwrap(), "count'");
+        assert_eq!(integer(&expr("count'"), &t).unwrap(), "|count'|");
     }
 
     #[test]
@@ -148,7 +148,7 @@ mod tests {
 
     #[test]
     fn names_become_valid_smt_symbols() {
-        assert_eq!(smt_name("count'").unwrap(), "count'");
+        assert_eq!(smt_name("count'").unwrap(), "|count'|");
         assert_eq!(smt_name("abstract_count").unwrap(), "abstract_count");
         assert_eq!(smt_name("a b").unwrap(), "|a b|");
         assert_eq!(smt_name("a|b"), Err(SmtError::BadName("a|b".to_string())));

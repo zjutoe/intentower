@@ -177,30 +177,23 @@ fn real_cvc5_discharges_at_least_two_invariant_obligations() {
 }
 
 #[test]
-fn primed_free_identifiers_are_reported_as_tool_error() {
-    // DEFECT that this task's real solver run exposed; escalated, not fixed
-    // here (the encoder belongs to T15-T18). smt_name() accepts `'` as a bare
-    // SMT-LIB character, but `'` is illegal in a simple symbol, so cvc5
-    // rejects the script: "Parse Error ... Error finding token", exit 1.
-    // These two are exactly the obligations whose *free* identifiers are
-    // primed. cvc5 accepts `|abstract_count'|`, so the fix is to drop `'`
-    // from the bare set in src/smt/mod.rs; when that lands this test must
-    // move with it, which is why the exact ids are pinned here.
+fn primed_free_identifiers_are_quoted_and_discharged() {
+    // T21a: `'` is not part of an SMT-LIB simple symbol, so an Event-B
+    // after-value such as abstract_count' must be pipe-quoted. Before that fix
+    // cvc5 rejected these two scripts ("Parse Error ... Error finding token")
+    // and both came back as TOOL_ERROR. The ids stay pinned so a regression
+    // reopens this test instead of quietly moving the totals.
     let rows = decide(&obligations("primed", M0M1, M0M1_SOURCES));
-    let errors: Vec<String> = rows
-        .iter()
-        .filter(|(_, status)| *status == Status::ToolError)
-        .map(|(id, _)| id.clone())
-        .collect();
+    for id in ["m0::sub/inv1/INV", "m0::sub/inv2/INV"] {
+        let (_, status) = rows.iter().find(|(got, _)| got == id).expect(id);
+        assert_eq!(*status, Status::SmtDischarged, "{id}");
+    }
+    assert_eq!(count(&rows, Status::ToolError), 0, "no TOOL_ERROR expected");
     assert_eq!(
-        errors,
-        vec![
-            "m0::sub/inv1/INV".to_string(),
-            "m0::sub/inv2/INV".to_string()
-        ],
-        "only primed-name obligations may be TOOL_ERROR"
+        count(&rows, Status::SmtDischarged),
+        18,
+        "18 of the 20 obligations of counter-m0m1 are discharged"
     );
-    assert_eq!(count(&rows, Status::SmtDischarged), 16);
 }
 
 #[test]

@@ -301,13 +301,19 @@ mod tests {
     }
 
     #[test]
-    fn primed_variables_are_declared() {
+    fn primed_variables_are_declared_and_quoted() {
+        // `'` is illegal in an SMT-LIB simple symbol, so every occurrence of an
+        // Event-B after-value must be pipe-quoted, declaration and use alike.
         let script = encode(&po(
             &[],
             "count' ≥ count",
             &[("count", "Int"), ("count'", "Int")],
         ))
         .unwrap();
-        assert!(script.contains("(declare-fun count' () Int)"), "{script}");
+        assert!(
+            script.contains("(declare-fun |count'| () Int)")
+                && script.contains("(>= |count'| count)"),
+            "{script}"
+        );
     }
 }
