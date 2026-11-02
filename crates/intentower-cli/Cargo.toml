@@ -1,0 +1,13 @@
+[package]
+name = "intentower-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Intentower command line interface (Phase 1 skeleton)"
+
+[[bin]]
+name = "intentower"
+path = "src/main.rs"
+
+[dependencies]
+clap = "4"
