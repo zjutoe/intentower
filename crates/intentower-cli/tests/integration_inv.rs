@@ -7,123 +7,23 @@
 //! on every run with `rossi export --build`, so the committed `.bpo` files
 //! under `artifacts/spike/` can never mask an edited model.
 //!
+//! Refinement-specific obligations (GRD/SIM) and the wrong-event mutation are
+//! in `integration_refine.rs` (T22).
+//!
 //! Repeatable: `cargo test --test integration_inv -- --nocapture`
 
-use std::path::{Path, PathBuf};
-use std::process::Command;
+mod common;
 
-use intentower_cli::po::{Kind, Po, load_project};
-use intentower_cli::solver::cvc5::Cvc5;
-use intentower_cli::verify::{Status, verify};
-
-const MODELS: &str = "models/counter";
-const M0M1: &str = "counter-m0m1-rodin";
-const M0M1BROKEN: &str = "counter-m0m1broken-rodin";
-
-/// Integration tests run with the crate directory as cwd; the models live at
-/// the repository root.
-fn repo(path: &str) -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../..")
-        .join(path)
-}
-
-/// Re-run Rossi's POG over the current sources into a scratch Rodin project.
-///
-/// The output directory name is part of the evidence: Rossi embeds the Rodin
-/// project name in the internal paths of `.bpo`/`.bcm`, so the scratch
-/// project must carry the committed name for its bytes to be comparable.
-/// `label` keeps concurrent tests from sharing a scratch directory.
-fn pog(label: &str, project: &str, sources: &[&str]) -> PathBuf {
-    let out = std::env::temp_dir()
-        .join(format!("intentower-t21-{}-{label}", std::process::id()))
-        .join(project);
-    // A leftover directory must not supply the .bpo files being tested.
-    let _ = std::fs::remove_dir_all(&out);
-
-    let mut cmd = Command::new("rossi");
-    cmd.args(["export", "--build", "-o"]).arg(&out);
-    for source in sources {
-        cmd.arg(repo(MODELS).join(source));
-    }
-    let run = cmd
-        .output()
-        .expect("rossi must be on PATH (docs/tooling-versions.md)");
-    assert!(
-        run.status.success(),
-        "rossi export --build {project}: {}",
-        String::from_utf8_lossy(&run.stderr)
-    );
-    out
-}
-
-fn obligations(label: &str, project: &str, sources: &[&str]) -> Vec<Po> {
-    load_project(&pog(label, project, sources)).unwrap_or_else(|err| panic!("{project}: {err}"))
-}
-
-fn solver() -> Cvc5 {
-    Cvc5::from_env()
-}
-
-fn cvc5_version() -> String {
-    let run = Command::new("cvc5")
-        .arg("--version")
-        .output()
-        .expect("cvc5 must be on PATH (docs/tooling-versions.md)");
-    let stdout = String::from_utf8_lossy(&run.stdout);
-    stdout.lines().next().unwrap_or_default().to_string()
-}
-
-/// Verify every obligation and print the full table, so a run shows which
-/// obligations failed instead of only the ones that passed.
-fn decide(pos: &[Po]) -> Vec<(String, Status)> {
-    let solver = solver();
-    println!(
-        "--- {} obligations, fresh Rossi POG + real cvc5 {} ---",
-        pos.len(),
-        cvc5_version()
-    );
-    let rows: Vec<(String, Status)> = pos
-        .iter()
-        .map(|po| {
-            let verdict = verify(po, &solver);
-            match &verdict.detail {
-                Some(why) => println!("{:<40} {:<15} {why}", po.full_id(), verdict.status.as_str()),
-                None => println!("{:<40} {}", po.full_id(), verdict.status.as_str()),
-            }
-            (po.full_id(), verdict.status)
-        })
-        .collect();
-    rows
-}
-
-fn count(rows: &[(String, Status)], status: Status) -> usize {
-    rows.iter().filter(|(_, got)| *got == status).count()
-}
-
-const M0M1_SOURCES: &[&str] = &["m0.eventb", "m1.eventb"];
-const BROKEN_SOURCES: &[&str] = &["m0.eventb", "m1_broken.eventb"];
+use common::{
+    BROKEN_SOURCES, M0M1, M0M1_SOURCES, M0M1BROKEN, assert_reproducible, count, decide, ids,
+    obligations,
+};
+use intentower_cli::po::{Kind, Po};
+use intentower_cli::verify::Status;
 
 #[test]
 fn re_running_the_pog_reproduces_the_committed_obligations() {
-    let fresh = pog("repro", M0M1, M0M1_SOURCES);
-    let committed = repo(&format!("artifacts/spike/{M0M1}"));
-    let mut compared = 0;
-    for entry in std::fs::read_dir(&committed).unwrap() {
-        let path = entry.unwrap().path();
-        if !path.is_file() {
-            continue;
-        }
-        let name = path.file_name().unwrap().to_str().unwrap().to_string();
-        let fresh = fresh.join(&name);
-        assert_eq!(
-            std::fs::read(&fresh).unwrap_or_else(|err| panic!("{}: {err}", fresh.display())),
-            std::fs::read(&path).unwrap(),
-            "{M0M1}/{name} differs from the committed artifact: the model changed"
-        );
-        compared += 1;
-    }
-    assert_eq!(compared, 9, "expected 9 committed files in {M0M1}");
+    assert_reproducible("repro", M0M1, M0M1_SOURCES);
 }
 
 #[test]
@@ -145,7 +45,7 @@ fn real_cvc5_discharges_at_least_two_invariant_obligations() {
         "at least 2 invariant obligations must be discharged by real cvc5, got {discharged}"
     );
     // No obligation may be dropped or left unjudged: every one of the 16 has
-    // exactly one status, and the ones outside F0 say so out loud.
+    // exactly one status.
     assert_eq!(rows.len(), 16);
     assert_eq!(
         discharged
@@ -212,9 +112,7 @@ fn t13a_discharges_add_grd2_and_leaves_only_fis_outside_f0() {
     assert_eq!(count(&rows, Status::Unsupported), 1);
     assert_eq!(
         rows.iter()
-            .filter(|(_, status)| {
-                !matches!(status, Status::SmtDischarged | Status::Unsupported)
-            })
+            .filter(|(_, status)| !matches!(status, Status::SmtDischarged | Status::Unsupported))
             .count(),
         0,
         "no NOT_DISCHARGED / TOOL_ERROR / UNKNOWN / TIMEOUT may remain"
@@ -228,12 +126,9 @@ fn the_broken_variant_is_never_all_discharged() {
     // pins the failure.
     let good = obligations("broken-good", M0M1, M0M1_SOURCES);
     let broken = obligations("broken", M0M1BROKEN, BROKEN_SOURCES);
-    let mut good_ids: Vec<String> = good.iter().map(|po| po.id.clone()).collect();
-    let mut broken_ids: Vec<String> = broken.iter().map(|po| po.id.clone()).collect();
-    good_ids.sort();
-    broken_ids.sort();
     assert_eq!(
-        good_ids, broken_ids,
+        ids(&good),
+        ids(&broken),
         "the mutation must not change the POG shape (only the component name)"
     );
 

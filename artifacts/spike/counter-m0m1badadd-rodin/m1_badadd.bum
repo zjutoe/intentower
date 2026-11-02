@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<org.eventb.core.machineFile version="5" org.eventb.core.configuration="org.eventb.core.fwd" org.eventb.core.comment="T22: deliberately wrong concrete EVENT, as opposed to m1_broken&apos;s wrong
+coupling invariant. `add` refines the abstract `add` but moves twice the
+witness amount: a := a + delta + delta while the abstract step is
+abstract_count := abstract_count + delta.
+Expected consequence, to be confirmed by proof obligations, not by eye:
+add/inv3/INV fails: the gluing invariant abstract_count = a + b is no
+longer preserved by the refined action.
+Everything else is identical to m1.eventb.">
+    <org.eventb.core.refinesMachine name="m0" org.eventb.core.target="m0"/>
+    <org.eventb.core.variable name="a" org.eventb.core.identifier="a"/>
+    <org.eventb.core.variable name="b" org.eventb.core.identifier="b"/>
+    <org.eventb.core.invariant name="inv1" org.eventb.core.label="inv1" org.eventb.core.predicate="a ≥ 0" org.eventb.core.theorem="false"/>
+    <org.eventb.core.invariant name="inv2" org.eventb.core.label="inv2" org.eventb.core.predicate="b ≥ 0" org.eventb.core.theorem="false"/>
+    <org.eventb.core.invariant name="inv3" org.eventb.core.label="inv3" org.eventb.core.predicate="abstract_count = a + b" org.eventb.core.theorem="false"/>
+    <org.eventb.core.event name="INITIALISATION" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="INITIALISATION">
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="a ≔ 0"/>
+        <org.eventb.core.action name="act2" org.eventb.core.label="act2" org.eventb.core.assignment="b ≔ 0"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="add" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="add">
+        <org.eventb.core.refinesEvent name="add" org.eventb.core.target="add"/>
+        <org.eventb.core.parameter name="delta" org.eventb.core.identifier="delta"/>
+        <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="delta ≥ 1"/>
+        <org.eventb.core.guard name="grd2" org.eventb.core.label="grd2" org.eventb.core.predicate="a + delta ≤ 1000"/>
+        <org.eventb.core.guard name="grd3" org.eventb.core.label="grd3" org.eventb.core.predicate="a + b + delta ≤ 1000"/>
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="a ≔ a + delta + delta"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="sub" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="sub">
+        <org.eventb.core.refinesEvent name="sub" org.eventb.core.target="sub"/>
+        <org.eventb.core.parameter name="delta" org.eventb.core.identifier="delta"/>
+        <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="delta ≥ 1"/>
+        <org.eventb.core.guard name="grd2" org.eventb.core.label="grd2" org.eventb.core.predicate="delta ≤ a"/>
+        <org.eventb.core.witness name="abstract_count&apos;" org.eventb.core.label="abstract_count&apos;" org.eventb.core.predicate="abstract_count&apos; = abstract_count − delta"/>
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="a ≔ a − delta"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="rebalance" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="rebalance">
+        <org.eventb.core.parameter name="k" org.eventb.core.identifier="k"/>
+        <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="k ≥ 1"/>
+        <org.eventb.core.guard name="grd2" org.eventb.core.label="grd2" org.eventb.core.predicate="k ≤ a"/>
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="a ≔ a − k"/>
+        <org.eventb.core.action name="act2" org.eventb.core.label="act2" org.eventb.core.assignment="b ≔ b + k"/>
+    </org.eventb.core.event>
+</org.eventb.core.machineFile>

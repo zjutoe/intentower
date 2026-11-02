@@ -3611,6 +3611,1149 @@
           ]
         }
       ]
+    },
+    {
+      "project": "artifacts/spike/counter-m0m1badadd-rodin",
+      "bpo_files": [
+        "m0.bpo",
+        "m1_badadd.bpo"
+      ],
+      "po_total": 20,
+      "kinds": {
+        "INV": 16,
+        "FIS": 1,
+        "GRD": 2,
+        "SIM": 1
+      },
+      "obligations": [
+        {
+          "id": "INITIALISATION/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≤1000",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count+delta≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta≥0",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count+delta≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta≤1000",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/act1/FIS",
+          "kind": "FIS",
+          "desc": "Feasibility of action",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 3,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥1",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "∃abstract_count'⦂ℤ·abstract_count'<abstract_count∧abstract_count'≥0",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥1",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "'",
+              "predicate": "abstract_count'<abstract_count∧abstract_count'≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count'≥0",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m0",
+          "bpo_file": "m0.bpo",
+          "hypothesis_count": 4,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_count≥1",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "'",
+              "predicate": "abstract_count'<abstract_count∧abstract_count'≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count'≤1000",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0=0+0",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/grd2/GRD",
+          "kind": "GRD",
+          "desc": "Guard strengthening (split)",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 8,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "a+delta≤1000",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "a+b+delta≤1000",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#add|org.eventb.core.guard#grd3"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta≤1000",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 8,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "a+delta≤1000",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "a+b+delta≤1000",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#add|org.eventb.core.guard#grd3"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "a+delta+delta≥0",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "add/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 8,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#add|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "a+delta≤1000",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#add|org.eventb.core.guard#grd2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "a+b+delta≤1000",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#add|org.eventb.core.guard#grd3"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count+delta=(a+delta+delta)+b",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "rebalance/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "k≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#rebalance|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "k≤a",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#rebalance|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "a − k≥0",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "k",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "rebalance/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "k≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#rebalance|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "k≤a",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#rebalance|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "b+k≥0",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "k",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "rebalance/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "k≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#rebalance|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "k≤a",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#rebalance|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count=a − k+(b+k)",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "k",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "b'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/act1/SIM",
+          "kind": "SIM",
+          "desc": "Action simulation",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count − delta<abstract_count∧abstract_count − delta≥0",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/grd1/GRD",
+          "kind": "GRD",
+          "desc": "Guard strengthening (split)",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count≥1",
+            "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "a − delta≥0",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "sub/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "m1_badadd",
+          "bpo_file": "m1_badadd.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "abstract_counu",
+              "predicate": "abstract_count≥0",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "abstract_counv",
+              "predicate": "abstract_count≤1000",
+              "source": "/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "a≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "b≥0",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_count=a+b",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta≥1",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#sub|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "delta≤a",
+              "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.event#sub|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_count − delta=a − delta+b",
+            "source": "/counter-m0m1badadd-rodin/m1_badadd.bum|org.eventb.core.machineFile#m1_badadd|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "a",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count",
+              "type": "ℤ"
+            },
+            {
+              "name": "b",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "a'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_count'",
+              "type": "ℤ"
+            }
+          ]
+        }
+      ]
     }
   ],
   "input_hashes": {
@@ -3653,6 +4796,16 @@
     "artifacts/spike/counter-m0m1broken-rodin/m1_broken.bcm": "9b9d0ed397f433024bf83e7a2313872f6fcfd40655e1394fa2013fe0899cfc43",
     "artifacts/spike/counter-m0m1broken-rodin/m1_broken.bpo": "4ebdc912efe996befab61f3e4c60a82119c036eb44392cd7527d5ebafdebdc09",
     "artifacts/spike/counter-m0m1broken-rodin/m1_broken.bps": "caef81ec6fd335380bb8e2b748fa1cf6967176b15e9e5ef01a3ca60955251e5f",
-    "artifacts/spike/counter-m0m1broken-rodin/m1_broken.bum": "373c03e7381ed93c32d02b6aa9bd23b3825f7846d87ec72bc9d2f81cf5e176b9"
+    "artifacts/spike/counter-m0m1broken-rodin/m1_broken.bum": "373c03e7381ed93c32d02b6aa9bd23b3825f7846d87ec72bc9d2f81cf5e176b9",
+    "artifacts/spike/counter-m0m1badadd-rodin/.project": "3c567455e8a419c4673abae78c06756dcf0fc855bf4b13287124bd3a3589eaad",
+    "artifacts/spike/counter-m0m1badadd-rodin/.settings/org.eclipse.core.resources.prefs": "4238e4eafab8309d5f1ee3c167db1e6bf254d5587daa652f1495da7c3942b4c4",
+    "artifacts/spike/counter-m0m1badadd-rodin/m0.bcm": "09f86fe8459e4f6018fc66b721946371e62109d4a06378b58dd05bfa1b663c0c",
+    "artifacts/spike/counter-m0m1badadd-rodin/m0.bpo": "b0cce0096aeff9a43eb8e4ef2c27604859cfa305fed64995ae0c3f21c559058e",
+    "artifacts/spike/counter-m0m1badadd-rodin/m0.bps": "bbb12886b9aab95d29aa17ba2b4ed71ce10960edca000c9316ba99f6a679a4cb",
+    "artifacts/spike/counter-m0m1badadd-rodin/m0.bum": "673b7e533192f83884fa659c21e36258b8b754a55db4ca7584577c18c03d0763",
+    "artifacts/spike/counter-m0m1badadd-rodin/m1_badadd.bcm": "83b1e0b87d52d9e14974c43dc57dfabab33f6c52193d2bbcc249df6c2f62e234",
+    "artifacts/spike/counter-m0m1badadd-rodin/m1_badadd.bpo": "47409dcae48375dcf24da9703ef7bdd9e1e90a03d432bcb1202e46a5fa459bf7",
+    "artifacts/spike/counter-m0m1badadd-rodin/m1_badadd.bps": "caef81ec6fd335380bb8e2b748fa1cf6967176b15e9e5ef01a3ca60955251e5f",
+    "artifacts/spike/counter-m0m1badadd-rodin/m1_badadd.bum": "1004bb958ea04b4824df4200ef3cab872ea7fd0b48f9c85365054bccce283918"
   }
 }

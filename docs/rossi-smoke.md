@@ -289,3 +289,32 @@ PO 形状不变：两项目各 20 条，`INV 16 / GRD 2 / SIM 1 / FIS 1`（加�
 **连带更新**：§12 的普查快照 280/340 → **286/346**（新增 6 条可编码的线性守卫：两项目 × 3 条义务的前提）；F0 外三类计数不变（`∈` 51 / `∗` 6 / `∃` 3）。`po::tests::each_obligation_carries_exactly_its_own_hypotheses` 钉的 `add/grd2/GRD` 前提表同步加了 `a+b+delta≤1000`。
 
 **仍未验证**：全量 `SMT_DISCHARGED` ≠ PASS。`gate`（T25/T27）之前本节不构成验收结论；`m0::sub/act1/FIS` 仍在 F0 外；空洞前提（SP-G8）未检查。
+
+## 15. T22：精化 PO 集成测试（正例全过 + 故意改错具体事件）
+
+新夹具 `models/counter/m1_badadd.eventb`：只改 `add` 的动作，`a := a + delta + delta`，而抽象步是 `abstract_count := abstract_count + delta`（具体事件多走一倍）。其余与 `m1.eventb` 完全一致 —— 跟 `m1_broken.eventb`（错的是耦合不变式）形成两类不同缺陷。
+
+```bash
+rossi export --build -o artifacts/spike/counter-m0m1badadd-rodin models/counter/m0.eventb models/counter/m1_badadd.eventb   # exit 0
+python3 scripts/po-inventory.py <5 projects> > artifacts/spike/po-inventory.json   # 5 项目 / 84 条 PO
+```
+
+测试骨架提到 `crates/intentower-cli/tests/common/mod.rs`，`integration_inv`（T21）与 `integration_refine`（T22）共用同一套“现跑 POG + 真 cvc5” harness，不重复代码；`assert_reproducible()` 逐字节比对现跑产物与入库产物（三个项目各 9 个文件），改了模型没重跑就会失败。
+
+**实测**（`cargo test --test integration_refine -- --nocapture`）：
+
+| 项 | 结果 |
+|---|---|
+| 精化义务形状（`counter-m0m1-rodin`） | `GRD` 2 / `SIM` 1 / **`SEQ` 0** |
+| 正例的 3 条精化义务 | 3/3 `SMT_DISCHARGED`，0 `UNSUPPORTED` |
+| 错事件变体（20 条） | 18 `SMT_DISCHARGED` / 1 `NOT_DISCHARGED` / 1 `UNSUPPORTED` |
+| 唯一失败项 | `m1_badadd::add/inv3/INV`（同一义务在正例里 `SMT_DISCHARGED`） |
+| 两种变异伤到不同义务 | 错事件：`add/inv3/INV`；错耦合：`rebalance/inv3/INV` + `sub/act1/SIM` + `sub/grd1/GRD` |
+
+为什么是 `add/inv3/INV`：witness 说 `abstract_count' = abstract_count + delta`，动作说 `a' + b = a + 2·delta + b`，两者与 `abstract_count = a + b` 一起不可满足（`delta ≥ 1`），所以 cvc5 对“前提 ∧ ¬目标”答 `sat`。守卫没变，所以 `add/grd2/GRD` 仍过 —— 这正说明测试区分的是动作而不是守卫。
+
+**如实记录、不扩语言**：`m0::sub/act1/FIS` 在两个变体里都是 `UNSUPPORTED`（`node outside F0: quantifier Exists`），测试直接钉住这个状态，没有为了变绿而加量词支持。
+
+**SEQ 为 0 的含义**：Rossi 0.2.3 对这一对模型不产生 SEQ 义务（`add` 的抽象动作确定、witness 可推；`sub` 带显式 `WITH`，没有选择余地）。所以 T22 只证到“精化守卫 + 模拟 + 耦合”，**序列一致性（SEQ）在本模型里没被任何义务覆盖**。要覆盖它需要带非确定抽象步的模型，属新任务。
+
+**普查快照未变**：§12 的 286/346 只覆盖 4 个交付项目，不含 T22 夹具（`a + delta + delta` 是纯 `+`，本来就在 F0 内）。

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.scMachineFile org.eventb.core.accurate="true" org.eventb.core.configuration="org.eventb.core.fwd">
+<org.eventb.core.scInvariant name="'" org.eventb.core.label="inv1" org.eventb.core.predicate="abstract_count≥0" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv1" org.eventb.core.theorem="false"/>
+<org.eventb.core.scInvariant name="(" org.eventb.core.label="inv2" org.eventb.core.predicate="abstract_count≤1000" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.invariant#inv2" org.eventb.core.theorem="false"/>
+<org.eventb.core.scVariable name="abstract_count" org.eventb.core.abstract="false" org.eventb.core.concrete="true" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.variable#abstract_count" org.eventb.core.type="ℤ"/>
+<org.eventb.core.scEvent name="abstract_counu" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="INITIALISATION" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#INITIALISATION">
+<org.eventb.core.scAction name="'" org.eventb.core.assignment="abstract_count ≔ 0" org.eventb.core.label="act1" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#INITIALISATION|org.eventb.core.action#act1"/>
+</org.eventb.core.scEvent>
+<org.eventb.core.scEvent name="abstract_counv" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="add" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add">
+<org.eventb.core.scGuard name="'" org.eventb.core.label="grd1" org.eventb.core.predicate="delta≥1" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd1" org.eventb.core.theorem="false"/>
+<org.eventb.core.scGuard name="(" org.eventb.core.label="grd2" org.eventb.core.predicate="abstract_count+delta≤1000" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.guard#grd2" org.eventb.core.theorem="false"/>
+<org.eventb.core.scParameter name="delta" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.parameter#delta" org.eventb.core.type="ℤ"/>
+<org.eventb.core.scAction name="deltb" org.eventb.core.assignment="abstract_count ≔ abstract_count+delta" org.eventb.core.label="act1" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#add|org.eventb.core.action#act1"/>
+</org.eventb.core.scEvent>
+<org.eventb.core.scEvent name="abstract_counw" org.eventb.core.accurate="true" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="sub" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub">
+<org.eventb.core.scGuard name="'" org.eventb.core.label="grd1" org.eventb.core.predicate="abstract_count≥1" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.guard#grd1" org.eventb.core.theorem="false"/>
+<org.eventb.core.scAction name="(" org.eventb.core.assignment="abstract_count :∣ abstract_count'&lt;abstract_count∧abstract_count'≥0" org.eventb.core.label="act1" org.eventb.core.source="/counter-m0m1badadd-rodin/m0.bum|org.eventb.core.machineFile#m0|org.eventb.core.event#sub|org.eventb.core.action#act1"/>
+</org.eventb.core.scEvent>
+</org.eventb.core.scMachineFile>
