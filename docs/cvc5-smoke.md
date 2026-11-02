@@ -10,7 +10,7 @@
 
 ## 1. 夹具与实测结果（原始输出，未加工）
 
-调用形式：`timeout 5 cvc5 <file>.smt2`（除标注的变体外，均不加任何选项）。
+调用形式：`timeout 5 cvc5 <file>.smt2`（除标注的变体外，均不加任何选项）。上表于修订后**全部重跑一遍**，9 行均与记录一致；`unsupported_option_and_card.smt2` 的行号因注释增加而从 8.19 移到 9.19。
 
 | 夹具 | 退出码 | stdout（原始） | stderr（原始） |
 |---|---|---|---|
@@ -19,7 +19,7 @@
 | `quantifier_outside_f0.smt2` | `0` | `sat` | 空 |
 | `sets_outside_f0.smt2` | `1` | `(error "Parse Error: sets_outside_f0.smt2:4.27: Symbol 'Set' not declared as a type")` | 空 |
 | `malformed.smt2` | `1` | `(error "Parse Error: malformed.smt2:4.1: Expected a RPAREN_TOK, got `(` (LPAREN_TOK).")` | 空 |
-| `unsupported_option_and_card.smt2` | `1` | `unsupported`<br>`(error "Parse Error: ...:8.19: Symbol 'card' not declared as a variable")` | 空 |
+| `unsupported_option_and_card.smt2` | `1` | `unsupported`<br>`(error "Parse Error: unsupported_option_and_card.smt2:9.19: Symbol 'card' not declared as a variable")` | 空 |
 | `nonlinear_qf_nia.smt2` | `124` | 空 | `cvc5 interrupted by SIGTERM.` |
 | `unknown_quantified.smt2` | `0` | `unknown` | 空 |
 | `sets_and_relations_available.smt2` | `0` | `sat` | 空 |
