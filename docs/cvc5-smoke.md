@@ -53,7 +53,8 @@
 | stdout 判定词 `sat` | `NOT_DISCHARGED` | 需 `--produce-models` 才能取见证值；退出码仍为 0 |
 | stdout 判定词 `unknown` | `UNKNOWN` | 已可复现：`unknown_quantified.smt2`，退出码 `0` |
 | 外部超时杀进程（`124` / SIGTERM） | `TIMEOUT` | 判定词从未打印 |
-| `(error "Parse Error: ...")`、`unsupported` | `UNSUPPORTED`（Intentower 自己生成的输入）或 `TOOL_ERROR`（其他） | 退出码 1 |
+| `(error "Parse Error: ...")` | `UNSUPPORTED`（Intentower 自己生成的输入）或 `TOOL_ERROR`（其他） | 退出码 `1` |
+| stdout 判定词 `unsupported` | `UNSUPPORTED` | 退出码 **`0`** —— 不能靠退出码识别 |
 | SIGABRT（`134`） | `TOOL_ERROR` | 见 §2.3 |
 
 ## 4. 未观测到 / 未执行（`not_run`）
