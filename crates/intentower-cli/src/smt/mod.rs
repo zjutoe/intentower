@@ -5,8 +5,11 @@
 
 pub mod arithmetic;
 pub mod atoms;
+pub mod logic;
 
 use std::fmt;
+
+use rossi::formula::{ExpressionKind, PredicateKind};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum SmtError {
@@ -43,6 +46,39 @@ impl fmt::Display for SmtError {
 }
 
 pub type SmtResult<T> = Result<T, SmtError>;
+
+/// Name a rejected expression node without dumping its whole subtree.
+pub(crate) fn describe_expression(kind: &ExpressionKind) -> String {
+    match kind {
+        ExpressionKind::Binary { op, .. } => format!("binary operator {op:?}"),
+        ExpressionKind::Associative { op, .. } => format!("n-ary operator {op:?}"),
+        ExpressionKind::Unary { op, .. } => format!("unary operator {op:?}"),
+        ExpressionKind::Atomic(op) => format!("atom {op:?}"),
+        ExpressionKind::SetExtension(_) => "set in extension".to_string(),
+        ExpressionKind::Bool(_) => "bool(P)".to_string(),
+        ExpressionKind::Quantified { .. } => "quantified expression".to_string(),
+        ExpressionKind::Extended { tag, .. } => format!("extension operator {tag}"),
+        ExpressionKind::BoundIdentifier(index) => format!("bound variable {index}"),
+        other => format!("{other:?}"),
+    }
+}
+
+/// Name a rejected predicate node without dumping its whole subtree.
+pub(crate) fn describe_predicate(kind: &PredicateKind) -> String {
+    match kind {
+        PredicateKind::Not(_) => "negation".to_string(),
+        PredicateKind::Binary { op, .. } => format!("logical operator {op:?}"),
+        PredicateKind::Associative { op, .. } => format!("n-ary logical operator {op:?}"),
+        PredicateKind::Quantified { op, .. } => format!("quantifier {op:?}"),
+        PredicateKind::Literal(op) => format!("literal {op:?}"),
+        PredicateKind::PredicateVariable(name) => format!("predicate variable `{name}`"),
+        PredicateKind::Simple(_) => "simple predicate".to_string(),
+        PredicateKind::Multiple(_) => "multiple assignment".to_string(),
+        PredicateKind::Application { function, .. } => format!("application of `{function}`"),
+        PredicateKind::Extended { tag, .. } => format!("extension operator {tag}"),
+        other => format!("{other:?}"),
+    }
+}
 
 /// Render an Event-B identifier as an SMT-LIB symbol. Plain names stay bare;
 /// anything else is quoted, which SMT-LIB allows. Names containing `|` or

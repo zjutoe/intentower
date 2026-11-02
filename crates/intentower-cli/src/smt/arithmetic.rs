@@ -12,7 +12,7 @@ use rossi::formula::tag::{AssocExprOp, BinaryExprOp, RelationalOp, UnaryExprOp};
 use rossi::formula::{Expression, ExpressionKind, Predicate, PredicateKind};
 
 use super::atoms;
-use super::{SmtError, SmtResult};
+use super::{SmtError, SmtResult, describe_expression, describe_predicate};
 use crate::po::Sort;
 
 /// An integer-valued expression in prefix form. Every sub-expression must
@@ -69,7 +69,7 @@ pub fn comparison(pred: &Predicate, types: &BTreeMap<String, Sort>) -> SmtResult
         }
         other => Err(SmtError::UnsupportedNode(format!(
             "not a relational predicate: {}",
-            predicate_kind_name(other)
+            describe_predicate(other)
         ))),
     }
 }
@@ -83,40 +83,7 @@ fn operands(children: &[Expression], types: &BTreeMap<String, Sort>) -> SmtResul
 
 /// Name the rejected node without dumping its whole subtree.
 fn unsupported(kind: &ExpressionKind) -> SmtError {
-    SmtError::UnsupportedNode(kind_name(kind))
-}
-
-fn kind_name(kind: &ExpressionKind) -> String {
-    match kind {
-        ExpressionKind::Binary { op, .. } => format!("binary operator {op:?}"),
-        ExpressionKind::Associative { op, .. } => format!("n-ary operator {op:?}"),
-        ExpressionKind::Unary { op, .. } => format!("unary operator {op:?}"),
-        ExpressionKind::Atomic(op) => format!("atom {op:?}"),
-        ExpressionKind::SetExtension(_) => "set in extension".to_string(),
-        ExpressionKind::Bool(_) => "bool(P)".to_string(),
-        ExpressionKind::Quantified { .. } => "quantified expression".to_string(),
-        ExpressionKind::Extended { tag, .. } => format!("extension operator {tag}"),
-        ExpressionKind::BoundIdentifier(index) => format!("bound variable {index}"),
-        other => format!("{other:?}"),
-    }
-}
-
-fn predicate_kind_name(kind: &PredicateKind) -> String {
-    match kind {
-        PredicateKind::Not(_) => "negation".to_string(),
-        PredicateKind::Binary { op, .. } => format!("logical operator {op:?}"),
-        PredicateKind::Associative { op, .. } => format!("n-ary logical operator {op:?}"),
-        PredicateKind::Quantified { op, .. } => format!("quantifier {op:?}"),
-        PredicateKind::Literal(op) => format!("literal {op:?}"),
-        PredicateKind::PredicateVariable(name) => format!("predicate variable `{name}`"),
-        PredicateKind::Simple(_) => "simple predicate".to_string(),
-        PredicateKind::Multiple(_) => "multiple assignment".to_string(),
-        PredicateKind::Application { function, .. } => {
-            format!("application of `{function}`")
-        }
-        PredicateKind::Extended { tag, .. } => format!("extension operator {tag}"),
-        other => format!("{other:?}"),
-    }
+    SmtError::UnsupportedNode(describe_expression(kind))
 }
 
 #[cfg(test)]

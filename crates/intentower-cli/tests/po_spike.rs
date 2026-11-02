@@ -277,7 +277,7 @@ fn report_typed_obligations() {
 fn f0_coverage_census_over_real_obligations() {
     use intentower_cli::po::load_project;
     use intentower_cli::smt::SmtError;
-    use intentower_cli::smt::arithmetic::comparison;
+    use intentower_cli::smt::logic::predicate;
 
     let mut encoded = 0;
     let mut total = 0;
@@ -286,7 +286,7 @@ fn f0_coverage_census_over_real_obligations() {
         for po in load_project(&repo(dir)).unwrap() {
             for pred in po.typed_hypotheses.iter().chain([&po.typed_goal]) {
                 total += 1;
-                match comparison(pred, &po.types) {
+                match predicate(pred, &po.types) {
                     Ok(smt) => {
                         encoded += 1;
                         assert!(smt.starts_with('('), "prefix form expected: {smt}");
@@ -310,22 +310,15 @@ fn f0_coverage_census_over_real_obligations() {
     }
     assert_eq!(total, 340, "census must cover every hypothesis and goal");
     assert_eq!(
-        encoded, 274,
+        encoded, 280,
         "regression: fewer predicates encode inside F0"
     );
     assert_eq!(
         rejected,
         BTreeMap::from([
-            ("UNSUPPORTED comparison In".to_string(), 49),
+            ("UNSUPPORTED comparison In".to_string(), 51),
             ("UNSUPPORTED n-ary operator Mul".to_string(), 6),
-            (
-                "UNSUPPORTED not a relational predicate: n-ary logical operator LAnd".to_string(),
-                8,
-            ),
-            (
-                "UNSUPPORTED not a relational predicate: quantifier Exists".to_string(),
-                3,
-            ),
+            ("UNSUPPORTED quantifier Exists".to_string(), 3),
         ]),
         "the set of predicates outside F0 must only change on purpose"
     );
