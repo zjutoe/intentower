@@ -137,7 +137,7 @@ fn the_fis_obligation_stays_unsupported_in_both_variants() {
             .find(|po| po.kind == Kind::Fis)
             .expect("m0::sub/act1/FIS must be generated");
         assert_eq!(fis.id, "sub/act1/FIS");
-        let rows = decide(&[fis.clone()]);
+        let rows = decide(std::slice::from_ref(fis));
         assert_eq!(rows[0].1, Status::Unsupported, "{}", fis.full_id());
         assert_eq!(
             count(&decide(&pos), Status::Unsupported),

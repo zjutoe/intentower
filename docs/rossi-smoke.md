@@ -348,3 +348,37 @@ cargo test --test report_schema    # 5 passed：2 正例 + 3 个负例各因自�
 `report_schema.rs` 还钉住 schema 自身不被悄悄放宽：`status` 枚举必须与代码里的 8 个 `Status` 完全相等、`kind` 枚举必须是 `INV/GRD/SIM/FIS/SEQ/OTHER`、`schema_version` 必须是 `"1.0"`、`implementation_formally_verified` 必须是 `const false`（模型证明永远不能声称实现已被形式化验证）。
 
 **尚未成立**：目前没有任何 CLI 会写出这种报告（`intentower verify` 落盘属 T27），fixture 由一次性 harness 生成；`gate.status` 的判定规则本身属 T25。schema 只保证"报告形状合法"，不保证结论正确。
+
+## 17. T24：PO 全集枚举与完整性（`src/gate/inventory.rs`）
+
+两个互不相干的 oracle 必须一致，义务数才可信：
+
+1. Rossi 类型化 loader（`po::load_project`，会解析前提与类型）；
+2. 直接扫 `.bpo` 字节，数 `<org.eventb.core.poSequent` 起始标签（完全不经过 loader；要求后一个字节不是名字字符，所以 `poSequentRef`、`poSequent#...` 引用不会被数进去）。
+
+实测（`cargo test --test inventory -- --nocapture`）：
+
+| 项目 | loader / 文件标签 | 类别 |
+|---|---|---|
+| `counter-rodin` | `counter.bpo` 6/6、`counter_ctx.bpo` 0/0 | INV 6 |
+| `refinement-rodin` | 4/4、14/14 | INV 13 / GRD 3 / SIM 1 / FIS 1 |
+| `counter-m0m1-rodin` | 7/7、13/13 | INV 16 / GRD 2 / SIM 1 / **FIS 1** |
+| `counter-m0m1broken-rodin` | 7/7、13/13 | 同上 |
+| `counter-m0m1badadd-rodin` | 7/7、13/13 | 同上 |
+
+FIS 必须在场：它就是"只枚举 INV/GRD/SIM"的实现会静默丢掉的那一类，所以 `kind_counts()` 是断言，不是日志。
+
+**负例（都是真破坏真实项目的副本）**：
+
+| 破坏 | 实测结果 |
+|---|---|
+| 把 `add/inv1/INV` 的 `poSequent` 元素复制一份 | 21 条义务，codes `["DUPLICATE_PO"]`，issue 带 `obligation_id = m1::add/inv1/INV`（Rossi **不去重**） |
+| `m1.bpo` 内容改成 `not xml at all` | codes `["PARSE_FAILURE"]`，仍读到 7 条义务 |
+| 追加一个空的 `<...poSequent name="ghost/inv9/INV"/>` | codes `["PARSE_FAILURE", "ZERO_PO"]`（Rossi 直接报错 `no goal for ghost/inv9/INV`，不静默丢） |
+| 空目录（无 `.bpo`） | codes `["NO_BPO_FILE", "ZERO_PO"]` |
+
+**必须记住的 Rossi 行为**：`PoFile::read` 对损坏文件**不报错**，会把该组件读成 0 条义务。此时 per-file 计数是 `0/0`，"loader 与文件一致"，光比数量会判成完整。所以 `scan()` 还要求文件里有 `<org.eventb.core.poFile` 根元素；缺根即 `PARSE_FAILURE`。上下文文件（`counter_ctx.bpo`）有根但 0 条义务，属正常，不误报。
+
+`MISSING_PO`（loader 少枚举）在真实破坏里反而造不出来 —— Rossi 既不去重也不静默丢，两个 oracle 总是同步。它由单元测试钉（`count_mismatch("m1.bpo", 19, 20)`），并且 loader 失败时跳过计数比较，否则每个文件都 mismatch，真因被淹没。
+
+`is_complete()` 只是"没有 issue"，不是 PASS。把它变成 PASS 条件之一是 T25 的 `gate/policy.rs`。
