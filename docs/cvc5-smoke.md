@@ -3,7 +3,8 @@
 - **Date**: 2026-11-02 · **Executed by**: Pi
 - **Plan reference**: §3 P1/T09、§1.1（cvc5 只作黑盒命令行）、SPEC-001 §状态映射
 - **求解器**：`cvc5 1.4.2 [git 282d5e0 on branch HEAD]`，unrestricted build，GCC 11.4.0，built 2026-10-08（`cvc5 --show-config`）
-- **夹具目录**：`tests/fixtures/smt/`（7 个 `.smt2`）
+- **夹具目录**：`tests/fixtures/smt/`（9 个 `.smt2`）
+- **修订**：初版有 7 个夹具与两处错误结论，同日补测后修正，见 §6
 
 ---
 
@@ -20,6 +21,10 @@
 | `malformed.smt2` | `1` | `(error "Parse Error: malformed.smt2:4.1: Expected a RPAREN_TOK, got `(` (LPAREN_TOK).")` | 空 |
 | `unsupported_option_and_card.smt2` | `1` | `unsupported`<br>`(error "Parse Error: ...:8.19: Symbol 'card' not declared as a variable")` | 空 |
 | `nonlinear_qf_nia.smt2` | `124` | 空 | `cvc5 interrupted by SIGTERM.` |
+| `unknown_quantified.smt2` | `0` | `unknown` | 空 |
+| `sets_and_relations_available.smt2` | `0` | `sat` | 空 |
+
+单独一行 `(set-option :sets-ext true)` 的最小输入 → 打印 `unsupported` 且 **退出码 `0`**（初版记录的 `exit=1` 是同一文件里后续解析错误造成的，掩盖了真相）。
 
 ### 变体
 
@@ -36,8 +41,8 @@
 1. **退出码 0 不等于成功**。`qf_lia_sat_counterexample.smt2` 里 `(get-value ...)` 失败并打印 `(error ...)`，但退出码仍是 `0`。判定必须看 stdout 的判定词，不能只看退出码。
 2. **`(set-logic QF_LIA)` 不会强制量化词自由**。`quantifier_outside_f0.smt2` 含 `forall`，cvc5 照样回答 `sat`（退出码 0）。**F0 子集必须由 Intentower 自己在编码阶段把关**（遇到 F0 之外的构造直接判 `UNSUPPORTED`），不能指望求解器拒绝。
 3. **cvc5 自带的 `--tlimit` 不可用**：超时后打印 `cvc5 interrupted by timeout.`（在 **stderr**）并以 SIGABRT 退出（`134`，核心转储）。T19 必须用**外部进程超时**（发 SIGTERM），实测得到退出码 `124` 与 stderr 的 `cvc5 interrupted by SIGTERM.`。
-4. **cvc5 会打印第四个判定词 `unsupported`**（见 `unsupported_option_and_card.smt2`），与 `sat`/`unsat`/`unknown` 并列。解析器必须把任何非 `sat`/`unsat`/`unknown` 的行当作非判定输出处理，**绝不可当作证明**。
-5. **集合/关系语法在 1.4.2 里的实情**（影响 F1/T20）：`Set` 类型在 `QF_LIA` 下被拒（`Symbol 'Set' not declared as a type`）；在 `ALL` 下成员运算符是 **`set.member`**（`member` 会被拒），而 **`card` 在本 build 不可用**（`set-option :sets-ext true` 直接打印 `unsupported`）。F1 的集合编码可用算子需在 T20 前重新确认。
+4. **cvc5 会打印第四个判定词 `unsupported`，且退出码为 `0`**（最小输入：单行 `(set-option :sets-ext true)`）。解析器必须把任何非 `sat`/`unsat`/`unknown` 的行当作非判定输出处理，**绝不可当作证明**。
+5. **集合/关系语法在 1.4.2 里用带命名空间的算子名**（影响 F1/T20）：`Set` 类型在 `QF_LIA` 下被拒（`Symbol 'Set' not declared as a type`）；在 `ALL` 下可用的是 `set.member` / `set.subset` / `set.union` / **`set.card`**，关系成员写作 `(set.member (tuple a b) R)`。裸名 `card`、`member`、`relation.member`、`relation.image`、类型 `Pair` 均被解析器拒绝。完整普查见 §6。
 6. **解析错误走 stdout，不是 stderr**，退出码 `1`。日志采集必须同时保留两路。
 
 ## 3. 观测结果 → PoStatus 映射（供 T19 实现，取自 SPEC-001 固定枚举）
@@ -46,20 +51,46 @@
 |---|---|---|
 | stdout 判定词 `unsat`（编码为 `H ∧ ¬Goal`） | `SMT_DISCHARGED` | 唯一可记为"已证明"的情形 |
 | stdout 判定词 `sat` | `NOT_DISCHARGED` | 需 `--produce-models` 才能取见证值；退出码仍为 0 |
-| stdout 判定词 `unknown` | `UNKNOWN` | 本次未观测到，见 §4 |
+| stdout 判定词 `unknown` | `UNKNOWN` | 已可复现：`unknown_quantified.smt2`，退出码 `0` |
 | 外部超时杀进程（`124` / SIGTERM） | `TIMEOUT` | 判定词从未打印 |
 | `(error "Parse Error: ...")`、`unsupported` | `UNSUPPORTED`（Intentower 自己生成的输入）或 `TOOL_ERROR`（其他） | 退出码 1 |
 | SIGABRT（`134`） | `TOOL_ERROR` | 见 §2.3 |
 
 ## 4. 未观测到 / 未执行（`not_run`）
 
-- **未得到 `unknown`**：所有超时路径都以进程被杀或 SIGABRT 结束，cvc5 从未打印 `unknown`。T19 仍需一个能真正产出 `unknown` 的夹具，否则 `UNKNOWN` 分支只能靠单元测试的桩输出覆盖。
+- `unknown` 已由 `unknown_quantified.smt2` 复现（3 次运行一致）；但**由真实 PO 编码产生的 `unknown` 仍未观测到**，要等 T11/T12 拿到 Rossi 的 PO 形状。
 - 未测：`--incremental` 模式、`(get-unsat-cores)` 输出格式、`--lang=smt2.6` 与默认方言差异、并发调用与内存上限。
 - 未测：cvc5 对 `(declare-const ...)`/`define-fun` 宏展开的深度限制（T20 编码会用到）。
 
 ## 5. 对后续任务的直接影响
 
 - **T19**：外部超时 + 判定词解析 + "退出码不可信" 三条必须写进实现与测试；`tests/fixtures/smt/` 即测试输入。
-- **T20（F1 集合）**：先确认可用算子（`set.member` 可用、`card` 不可用），再决定编码；不可假设标准 SMT-LIB sets 扩展全部可用。
+- **T20（F1 集合）**：可用算子已实测（`set.member`/`set.subset`/`set.union`/`set.card`，关系成员写作 `(set.member (tuple a b) R)`，见 §6 普查），但 `relation.image` 等仍不可用，编码前需逐个算子对照，不可假设标准 SMT-LIB sets 扩展全部可用。
 - **T29（负例测试）**：`malformed.smt2` 与 `sets_outside_f0.smt2` 可直接用作"不得误报为证明"的夹具。
 - 核心转储未污染仓库（`git status` 仅 `?? tests/`），但 T19 若误用 `--tlimit` 会在 CI 产生 core，应避免。
+
+## 6. T09 补测与自我修正（同日）
+
+初版 T09 有四处不完善，已补测：
+
+| # | 初版的问题 | 补测结果 |
+|---|---|---|
+| 1 | 断言 `card` 在本 build 不可用 | **错误**。裸名 `card` 被拒，但 `set.card` 可用（`sets_and_relations_available.smt2` → `sat`，exit 0）。结论反转为：F1 集合基数可编码 |
+| 2 | 记录 `unsupported` 时退出码为 `1` | **误导**。该 `1` 来自同文件后续的解析错误；`unsupported` 本身退出码是 `0`，比初版描述更危险 |
+| 3 | 声称求解器侧无 F0 护栏，但没测过缓解手段 | 已测 `--force-logic=QF_LIA`：含 `forall` 的公式**仍答 `sat`**（exit 0）。结论强化：量化词护栏只能由 Intentower 编码器实现，求解器无任何选项可强制 |
+| 4 | §4 承认没有真正的 `unknown` 夹具 | 已补 `unknown_quantified.smt2`（`ALL` + `forall/exists` + 未解释函数）→ `unknown`，exit 0，3 次一致 |
+
+**新增：cvc5 1.4.2 算子可用性普查（`set-logic ALL`，实测）**
+
+| 可用 | 不可用（`Parse Error: Symbol ... not declared`） |
+|---|---|
+| `set.member`、`set.subset`、`set.union`、`set.card`、`(tuple a b)`、`set.subset` 用于 `Relation`、`sin`、`exp`、`sqrt`、`Array` 的 `select` | `member`、`card`、`relation.member`、`relation.image`、`Pair`、`real.sin`、`real.exp`、`in-relation` |
+
+注意：超越函数用**裸名**（`sin`/`exp`/`sqrt`）可用，加 `real.` 前缀反而不可用 —— 与集合算子的命名空间规则相反，T21（F2 实数）不能凭直觉写算子名。
+
+**确定性检查**：6 个快夹具各跑 3 次，stdout+stderr+退出码完全一致；两个新夹具同样 3 次一致。满足计划对幂等的要求（同一输入同一判定）。
+
+**仍未做的两件事**（不掩饰）：
+
+1. 本文档的结果表是**手工逐条记录**，还没有一键复现脚本；T19 实现 CLI 时应把这张表变成 `cargo test` 的断言。
+2. 所有夹具都是**手写的 SMT-LIB**，不代表 Rossi 真实 PO 的编码形状。真实形状要等 T10/T11；届时应把 Rossi 生成的 `.bpo` 翻译产物也放进 `tests/fixtures/smt/`。
