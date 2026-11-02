@@ -264,10 +264,10 @@ intentower/
 | **T18** | 实现完整 PO 脚本生成：声明所有自由变量；断言 `H1 ∧ ... ∧ Hn ∧ ¬Goal`；调用 `(check-sat)`。 | `smt/encode.rs`；覆盖零/多个前提、变量重名/类型冲突、正确括号 |
 | **T19** | 实现 cvc5 子进程适配器：参数数组调用、独立超时、输出捕获、退出码处理；不通过 shell 拼命令。 | `solver/cvc5.rs`；测试 `sat`、`unsat`、`unknown`、超时、命令不存在、非零退出 |
 | **T20** | 将求解器结果映射到 PO 状态：`unsat→SMT_DISCHARGED`，`sat→NOT_DISCHARGED`（候选反例），其余分别归类。 | `verify.rs`；不能把 `unknown`、`timeout`、`unsupported` 当 PASS |
-| **T21** | 用来自**真实 Rossi POG** 的小型不变量 PO 做集成测试，必须调用真实 cvc5，不能仅断言生成的字符串。 | `tests/integration_inv.rs`；至少 2 条有效 PO 被放电（discharged） |
+| **T21** | 用来自**真实 Rossi POG** 的小型不变量 PO 做集成测试，必须调用真实 cvc5，不能仅断言生成的字符串。 | `tests/integration_inv.rs`；至少 2 条有效 PO 被判定已证明（discharged） |
 | **T22** | 用 M0→M1 的精化 PO 做集成测试。故意把具体事件改错（例如一次增加 2 而抽象一次增加 1），确认相关 PO 不再全部成功。 | `tests/integration_refine.rs`；正例通过、变异例拒绝；若出现 `UNSUPPORTED`，如实记录而非扩展整个语言 |
 
-**P2 Gate（强模型重点 Review）**：检查 Event-B→SMT 语义等价性、自由变量与类型、前提完整性、否定目标方向、退出码与错误处理。**SMT_DISCHARGED 只表示“在已实现且可信的编码/求解假设下，由 SMT 结果放电”，不是 Lean kernel 检查过的证明证书。**
+**P2 Gate（强模型重点 Review）**：检查 Event-B→SMT 语义等价性、自由变量与类型、前提完整性、否定目标方向、退出码与错误处理。**SMT_DISCHARGED 只表示“在已实现且可信的编码/求解假设下，由 SMT 结果判定已证明（discharged）”，不是 Lean kernel 检查过的证明证书。**
 
 **失败退路**：如果真实 PO 大量包含 F0 外的公式（如量词/集合），先尝试换一个更小而不失真的模型；仍无法闭环时暂停增加新语法，使用 Rodin 原有自动证明器做参照实验，记录原因，再重新决定是否扩展 F0。不要为赶进度实现不保真的近似翻译。
 
@@ -354,7 +354,7 @@ intentower/
 | 可记录的证据 | 可宣称 | 不可宣称 |
 |---|---|---|
 | `rossi validate` / `export --build` 成功 | 模型解析、静态检查、POG 执行成功 | PO 全部已证明 |
-| cvc5 对完整、保真编码的某 PO 返回 `unsat` | 在 SMT 翻译器与求解器的可信假设下，该 PO 被放电 | 经过独立小 Kernel 检查，或真实代码已证明 |
+| cvc5 对完整、保真编码的某 PO 返回 `unsat` | 在 SMT 翻译器与求解器的可信假设下，该 PO 被判定已证明（discharged） | 经过独立小 Kernel 检查，或真实代码已证明 |
 | cvc5 返回 `sat` | 否定公式可满足，得到潜在反例 | 必定是原始 Event-B 的有效反例（还须检查编码） |
 | cvc5 返回 `unknown` / 超时 | 未作出证明结论 | 模型正确 / 模型错误 |
 | Rossi 记录的证明可 replay | 已存证明在当前依赖条件下可被检查 | 自动找到新的证明 |
