@@ -382,3 +382,38 @@ FIS 必须在场：它就是"只枚举 INV/GRD/SIM"的实现会静默丢掉的�
 `MISSING_PO`（loader 少枚举）在真实破坏里反而造不出来 —— Rossi 既不去重也不静默丢，两个 oracle 总是同步。它由单元测试钉（`count_mismatch("m1.bpo", 19, 20)`），并且 loader 失败时跳过计数比较，否则每个文件都 mismatch，真因被淹没。
 
 `is_complete()` 只是"没有 issue"，不是 PASS。把它变成 PASS 条件之一是 T25 的 `gate/policy.rs`。
+
+## 18. T25：`gate` 聚合判定（重跑 POG + 重跑 SMT）
+
+`gate::policy::run(sources, project, work)` 每次先 `rm -rf` 再 `rossi export --build`，
+然后对**全部**义务重跑 cvc5，最后 `judge` 判定。入口只接受模型源文件，**不接受 report 路径**，
+所以旧 JSON / 伪造 JSON 没有入口。
+
+判定规则（`judge` 是纯函数，全部状态都有 table-driven 单测）：
+
+| 判定 | 条件 |
+|---|---|
+| `PASS` | 构建成功 ∧ 义务清单完整 ∧ 义务数 > 0 ∧ **每一条**都是 `SMT_DISCHARGED` |
+| `FAIL` | 至少一条 `NOT_DISCHARGED`（求解器给出候选反例，这是反对模型的证据） |
+| `INCOMPLETE` | 其余全部：构建失败、清单不完整（零/重复/缺失/`.bpo` 不可读）、或有义务未被判定（`UNSUPPORTED`/`UNKNOWN`/`TIMEOUT`/`TOOL_ERROR`/`STALE`/`MISSING`） |
+
+`FAIL` 优先于 `INCOMPLETE`：有反例时说"没能全部检查"会把它藏起来。
+
+实测（`cargo test --test gate_policy -- --nocapture`，全部真实工具）：
+
+| 输入 | 判定 | 义务 | 关键 counts / reason |
+|---|---|---|---|
+| `counter.eventb` + `counter_machine.eventb` | **PASS** | 6 | SMT_DISCHARGED 6，reasons 空 |
+| `m0.eventb` + `m1.eventb` | **INCOMPLETE** | 20 | 19 DISCHARGED + 1 UNSUPPORTED（`m0::sub/act1/FIS`） |
+| `m0.eventb` + `m1_badadd.eventb` | **FAIL** | 20 | NOT_DISCHARGED：`m1_badadd::add/inv3/INV` |
+| m0 + m1 的副本，删掉 `@grd3 a + b + delta <= 1000` | **FAIL** | 20 | NOT_DISCHARGED：`m1::add/grd2/GRD` |
+| 不存在的模型文件 | **INCOMPLETE** | 0 | 附 rossi stderr 原文 |
+| 工作目录里放一个假的 `"gate":{"status":"PASS"}` report.json | **INCOMPLETE** | 20 | 判定不变 |
+
+第 4 行是"不可直接采信旧 JSON"的实证：入库的 `.bpo` 仍然显示所有 GRD 已判定，只有重跑 POG 才暴露被删掉的守卫。
+
+**写错并被自己的 table-driven 测试抓住的地方**：`judge` 第一版只检查"构建成功 ∧ 清单完整 ∧ 非空"，漏了"全部 `SMT_DISCHARGED`"，于是 `UNKNOWN` 被判成 `PASS`。单测 `each_status_maps_to_the_expected_verdict` 立刻失败（`left: Pass, right: Incomplete`）。这条规则必须以 `all_discharged` 为合取项，别在后续重构里再丢。
+
+**当前诚实结论**：旗舰模型 `m0 + m1` 今天**不是 PASS**，是 INCOMPLETE —— `m0::sub/act1/FIS` 的 `∃` 在 F0 之外。任何"Intentower 已证明该精化"的说法都不成立。能 PASS 的只有 `counter.eventb + counter_machine.eventb`（6 条 INV 全判定）。
+
+退出码（0/1/2）与 report 写出属于 T27。
