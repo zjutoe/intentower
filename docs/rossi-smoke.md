@@ -318,3 +318,33 @@ python3 scripts/po-inventory.py <5 projects> > artifacts/spike/po-inventory.json
 **SEQ 为 0 的含义**：Rossi 0.2.3 对这一对模型不产生 SEQ 义务（`add` 的抽象动作确定、witness 可推；`sub` 带显式 `WITH`，没有选择余地）。所以 T22 只证到“精化守卫 + 模拟 + 耦合”，**序列一致性（SEQ）在本模型里没被任何义务覆盖**。要覆盖它需要带非确定抽象步的模型，属新任务。
 
 **普查快照未变**：§12 的 286/346 只覆盖 4 个交付项目，不含 T22 夹具（`a + delta + delta` 是纯 `+`，本来就在 F0 内）。
+
+## 16. T23：报告 schema 冻结（`schemas/report.schema.json`）
+
+字段按 §P3 的建议形状冻结，`schema_version` 固定为 `"1.0"`（示例里的 `0.1` 只是演示）。必填 10 项：`schema_version`、`model_id`、`inputs`、`tools`、`build_ok`、`po_total`、`obligations`、`issues`、`gate`、`scope`；`additionalProperties: false`，报告不能自己加字段。
+
+与计划示例的一处合并：输入哈希用 `inputs: [{role, path, sha256}]` 数组（`role ∈ model_source | po_artifact | policy | other`），取代示例里的 `model_sha256` + `po_source_sha256` 两个字段 —— 一个模型对应多个源文件与多个 `.bpo`，两个字段装不下，T26 的哈希链只能在数组上加。
+
+每条义务必填 `id`（组件限定名，如 `m1::add/grd2/GRD`）、`kind`、`status`、`elapsed_ms`，可选 `detail`。**任何结果不可缺 `status`**：由 schema 的 `required` 保证，并用负例 fixture 钉住。
+
+`scripts/validate-report.py` 用真实校验器（`jsonschema` 4.23.0，draft 2020-12）跑 schema，另外补三条 JSON Schema 表达不了、但都是"伪造 PASS"入口的跨字段护栏：`po_total == len(obligations)`、义务 id 不得重复、`gate.status == PASS` 只有在 `build_ok` 且 `po_total > 0` 且全部 `SMT_DISCHARGED` 时才允许。护栏只能否决报告，不能批准 —— 批准是 T25/T27 的 `gate`。
+
+**fixture（5 份，2 正 3 负）**，正例来自真实运行（真实义务 id/状态/逐条 `elapsed_ms`，真实 SHA256，真实 `rossi 0.2.3` / `cvc5 1.4.2 [git 282d5e0 on branch HEAD]`）：
+
+| fixture | 结果 |
+|---|---|
+| `counter-m0m1-incomplete.json` | 20 条：19 `SMT_DISCHARGED` + 1 `UNSUPPORTED` → `gate: INCOMPLETE`（`OUTSIDE_F0`） |
+| `counter-m0m1badadd-fail.json` | 20 条：18 discharged + 1 `NOT_DISCHARGED` + 1 `UNSUPPORTED` → `gate: FAIL`（`COUNTEREXAMPLE` + `OUTSIDE_F0`） |
+| `missing-status.invalid.json` | 被拒：`obligations/0: 'status' is a required property` |
+| `pass-with-unsupported.invalid.json` | 被拒：`PASS with non-discharged statuses: ['UNSUPPORTED']` |
+| `po-total-mismatch.invalid.json` | 被拒：`po_total 2 != 20 obligations` |
+
+```bash
+python3 scripts/validate-report.py tests/fixtures/report/counter-m0m1-incomplete.json tests/fixtures/report/counter-m0m1badadd-fail.json   # exit 0
+python3 scripts/validate-report.py --expect invalid tests/fixtures/report/*.invalid.json                                                  # exit 0
+cargo test --test report_schema    # 5 passed：2 正例 + 3 个负例各因自己的缺陷被拒，且 schema 的 status 枚举必须等于 verify::Status
+```
+
+`report_schema.rs` 还钉住 schema 自身不被悄悄放宽：`status` 枚举必须与代码里的 8 个 `Status` 完全相等、`kind` 枚举必须是 `INV/GRD/SIM/FIS/SEQ/OTHER`、`schema_version` 必须是 `"1.0"`、`implementation_formally_verified` 必须是 `const false`（模型证明永远不能声称实现已被形式化验证）。
+
+**尚未成立**：目前没有任何 CLI 会写出这种报告（`intentower verify` 落盘属 T27），fixture 由一次性 harness 生成；`gate.status` 的判定规则本身属 T25。schema 只保证"报告形状合法"，不保证结论正确。

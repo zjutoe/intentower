@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0",
+  "model_id": "MODEL-002",
+  "inputs": [
+    {
+      "role": "model_source",
+      "path": "models/counter/m0.eventb",
+      "sha256": "48560e02cadd9f454e3a4f0bb0c88bed195a93fb340ad6258b0f43f6132c618f"
+    },
+    {
+      "role": "model_source",
+      "path": "models/counter/m1_badadd.eventb",
+      "sha256": "5afb7f7a985695adc048e56e48e9bd35f701efbc4d7bc2043c9cec6752cc0d8e"
+    },
+    {
+      "role": "po_artifact",
+      "path": "artifacts/spike/counter-m0m1badadd-rodin/m0.bpo",
+      "sha256": "b0cce0096aeff9a43eb8e4ef2c27604859cfa305fed64995ae0c3f21c559058e"
+    },
+    {
+      "role": "po_artifact",
+      "path": "artifacts/spike/counter-m0m1badadd-rodin/m1_badadd.bpo",
+      "sha256": "47409dcae48375dcf24da9703ef7bdd9e1e90a03d432bcb1202e46a5fa459bf7"
+    }
+  ],
+  "tools": {
+    "rossi": "rossi 0.2.3",
+    "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+  },
+  "build_ok": true,
+  "po_total": 20,
+  "obligations": [
+    {
+      "elapsed_ms": 10,
+      "id": "m0::INITIALISATION/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m0::INITIALISATION/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m0::add/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m0::add/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "detail": "node outside F0: quantifier Exists",
+      "elapsed_ms": 0,
+      "id": "m0::sub/act1/FIS",
+      "kind": "FIS",
+      "status": "UNSUPPORTED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m0::sub/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m0::sub/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1_badadd::INITIALISATION/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1_badadd::INITIALISATION/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1_badadd::INITIALISATION/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1_badadd::add/grd2/GRD",
+      "kind": "GRD",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1_badadd::add/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1_badadd::add/inv3/INV",
+      "kind": "INV",
+      "status": "NOT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1_badadd::rebalance/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1_badadd::rebalance/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1_badadd::rebalance/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1_badadd::sub/act1/SIM",
+      "kind": "SIM",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1_badadd::sub/grd1/GRD",
+      "kind": "GRD",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1_badadd::sub/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1_badadd::sub/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    }
+  ],
+  "issues": [
+    {
+      "code": "COUNTEREXAMPLE",
+      "message": "cvc5 answered sat: hypotheses and the negated goal are satisfiable",
+      "obligation_id": "m1_badadd::add/inv3/INV"
+    },
+    {
+      "code": "OUTSIDE_F0",
+      "message": "node outside F0: quantifier Exists",
+      "obligation_id": "m0::sub/act1/FIS"
+    }
+  ],
+  "gate": {
+    "status": "FAIL",
+    "reasons": [
+      "1 of 20 obligations is NOT_DISCHARGED: candidate counterexample",
+      "1 of 20 obligations is UNSUPPORTED: outside F0"
+    ]
+  },
+  "scope": {
+    "eventb_model_smt_checked": true,
+    "implementation_formally_verified": false
+  }
+}

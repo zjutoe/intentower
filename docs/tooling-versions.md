@@ -81,3 +81,14 @@
 ## 6. 下一步
 
 P1 依赖已就绪：`rossi 0.2.3` + `cvc5 1.4.2` + `cargo 1.99.1`。建议顺序 **T09（cvc5 冒烟）→ T10（Rossi counter + `export --build`）→ T11（PO 清单）→ T12（类型化 PO API Spike）**；T08 需你确认 `strata` CLI 是否要加入 PATH。
+
+## 7. T23 新增的测试期依赖：`jsonschema`（实测，未安装）
+
+| 项 | 实测值 | 证据命令 |
+|---|---|---|
+| `python3` | `Python 3.13.5`，`/opt/anaconda3/bin/python3` | `python3 --version` |
+| `jsonschema` | `4.23.0` | `python3 -c "from importlib.metadata import version; print(version('jsonschema'))"` |
+| 校验器方言 | draft 2020-12（`Draft202012Validator.META_SCHEMA["$id"] = https://json-schema.org/draft/2020-12/schema`） | 同上 |
+| 安装动作 | **无**（环境已有，本次未安装/升级任何包） | — |
+
+用途：`scripts/validate-report.py` 用真实 JSON Schema 校验器检查 `schemas/report.schema.json` 与 `tests/fixtures/report/*.json`；`cargo test --test report_schema` 会调用它。缺该包时测试直接失败，这是有意的 fail-fast：不允许退化成手写字段检查来假装校验过。

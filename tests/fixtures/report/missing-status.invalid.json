@@ -1,0 +1,171 @@
+{
+  "schema_version": "1.0",
+  "model_id": "MODEL-001",
+  "inputs": [
+    {
+      "role": "model_source",
+      "path": "models/counter/m0.eventb",
+      "sha256": "48560e02cadd9f454e3a4f0bb0c88bed195a93fb340ad6258b0f43f6132c618f"
+    },
+    {
+      "role": "model_source",
+      "path": "models/counter/m1.eventb",
+      "sha256": "c244d65ce846201b29ad747c10f91eae393cbbf308f9a683061b9a2659e8e301"
+    },
+    {
+      "role": "po_artifact",
+      "path": "artifacts/spike/counter-m0m1-rodin/m0.bpo",
+      "sha256": "f0ce8a6b100732ccf28fd282b0a9591602e341d021b1360925f16c96e9b5d870"
+    },
+    {
+      "role": "po_artifact",
+      "path": "artifacts/spike/counter-m0m1-rodin/m1.bpo",
+      "sha256": "b75cb374191c18cbcdf91999783afba82ce30dc1aa8b584fec527af834c65a00"
+    }
+  ],
+  "tools": {
+    "rossi": "rossi 0.2.3",
+    "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+  },
+  "build_ok": true,
+  "po_total": 20,
+  "obligations": [
+    {
+      "elapsed_ms": 11,
+      "id": "m0::INITIALISATION/inv1/INV",
+      "kind": "INV"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m0::INITIALISATION/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m0::add/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m0::add/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "detail": "node outside F0: quantifier Exists",
+      "elapsed_ms": 0,
+      "id": "m0::sub/act1/FIS",
+      "kind": "FIS",
+      "status": "UNSUPPORTED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m0::sub/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m0::sub/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1::INITIALISATION/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1::INITIALISATION/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1::INITIALISATION/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1::add/grd2/GRD",
+      "kind": "GRD",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1::add/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1::add/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1::rebalance/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1::rebalance/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1::rebalance/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1::sub/act1/SIM",
+      "kind": "SIM",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1::sub/grd1/GRD",
+      "kind": "GRD",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "m1::sub/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "m1::sub/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    }
+  ],
+  "issues": [
+    {
+      "code": "OUTSIDE_F0",
+      "message": "node outside F0: quantifier Exists",
+      "obligation_id": "m0::sub/act1/FIS"
+    }
+  ],
+  "gate": {
+    "status": "INCOMPLETE",
+    "reasons": [
+      "1 of 20 obligations is UNSUPPORTED: outside F0"
+    ]
+  },
+  "scope": {
+    "eventb_model_smt_checked": true,
+    "implementation_formally_verified": false
+  }
+}

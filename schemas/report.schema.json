@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://intentower.local/schemas/report.schema.json",
+  "title": "Intentower verification report (T23, frozen for Phase 1)",
+  "description": "One report per verification run. Every obligation carries a status; a result without a status is invalid. A report is evidence about a run, never an authorization: only `gate` (T25/T27) may conclude PASS, and it re-runs the POG and the solver instead of trusting this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "model_id",
+    "inputs",
+    "tools",
+    "build_ok",
+    "po_total",
+    "obligations",
+    "issues",
+    "gate",
+    "scope"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "description": "Frozen by T23. A report with any other value is not this schema."
+    },
+    "model_id": {
+      "type": "string",
+      "pattern": "^MODEL-[0-9]{3}$",
+      "description": "Traceability id from the Intent -> Spec -> Model chain."
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/input" },
+      "description": "SHA256 of every input this run consumed: model sources and the POG artifacts read. T26 extends the chain, it does not redefine it."
+    },
+    "tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rossi", "cvc5"],
+      "properties": {
+        "rossi": { "$ref": "#/$defs/version" },
+        "cvc5": { "$ref": "#/$defs/version" },
+        "kernel": {
+          "$ref": "#/$defs/version",
+          "description": "Present only if a kernel-checked certificate was produced. Phase 1 has none."
+        }
+      }
+    },
+    "build_ok": {
+      "type": "boolean",
+      "description": "Rossi parsed, type-checked and generated the POG for these exact sources."
+    },
+    "po_total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of ALL generated obligations, not a subset. The validator rejects po_total != len(obligations); zero obligations can never be PASS."
+    },
+    "obligations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/obligation" }
+    },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/issue" },
+      "description": "Every non-success condition a reviewer must see: outside F0, tool errors, stale inputs, duplicate or missing obligations."
+    },
+    "gate": { "$ref": "#/$defs/gate" },
+    "scope": { "$ref": "#/$defs/scope" }
+  },
+  "$defs": {
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Exact version string as printed by the tool, e.g. `rossi 0.2.3`."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "sha256"],
+      "properties": {
+        "role": { "enum": ["model_source", "po_artifact", "policy", "other"] },
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "obligation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "status", "elapsed_ms"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_]+::[A-Za-z0-9_/.]+$",
+          "description": "Component-qualified obligation id exactly as the POG names it, e.g. `m1::add/grd2/GRD`."
+        },
+        "kind": { "enum": ["INV", "GRD", "SIM", "FIS", "SEQ", "OTHER"] },
+        "status": {
+          "enum": [
+            "SMT_DISCHARGED",
+            "NOT_DISCHARGED",
+            "UNKNOWN",
+            "TIMEOUT",
+            "UNSUPPORTED",
+            "TOOL_ERROR",
+            "STALE",
+            "MISSING"
+          ]
+        },
+        "elapsed_ms": { "type": "integer", "minimum": 0 },
+        "detail": {
+          "type": "string",
+          "description": "Why a status is not SMT_DISCHARGED: the rejected node, the solver error, and so on."
+        }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]{2,}$",
+          "description": "Machine-readable reason, e.g. OUTSIDE_F0, TOOL_ERROR, STALE_INPUT, DUPLICATE_PO, ZERO_PO, MISSING_PO."
+        },
+        "message": { "type": "string", "minLength": 1 },
+        "obligation_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reasons"],
+      "properties": {
+        "status": { "enum": ["PASS", "FAIL", "INCOMPLETE"] },
+        "reasons": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "PASS" } } },
+          "then": { "properties": { "reasons": { "maxItems": 0 } } }
+        },
+        {
+          "if": { "properties": { "status": { "enum": ["FAIL", "INCOMPLETE"] } } },
+          "then": { "properties": { "reasons": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventb_model_smt_checked",
+        "implementation_formally_verified"
+      ],
+      "properties": {
+        "eventb_model_smt_checked": {
+          "type": "boolean",
+          "description": "True only if SMT was actually run over the Event-B obligations. Checked is not proved."
+        },
+        "implementation_formally_verified": {
+          "const": false,
+          "description": "No Rust/Python code is verified by this pipeline; a model proof never says otherwise."
+        }
+      }
+    }
+  }
+}
