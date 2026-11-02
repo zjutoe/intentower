@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0"/>
+<org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="abstract_state" org.eventb.core.type="ℤ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="INITIALISATION/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#EVTALLHYPabstract_statf"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="0∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#INITIALISATION"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poSequent#INITIALISATION\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTabstract_statf" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="abstract_state'" org.eventb.core.type="ℤ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPabstract_statf" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#EVTIDENTabstract_statf" org.eventb.core.poStamp="0"/>
+<org.eventb.core.poSequent name="increase/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#EVTALLHYPabstract_statg"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="abstract_state+delta∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poSequent#increase\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTabstract_statg" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="delta" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="abstract_state'" org.eventb.core.type="ℤ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPabstract_statg" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#EVTIDENTabstract_statg" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="delta∈ℕ1" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd1"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_state+delta≤100" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd2"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="decrease/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#EVTALLHYPabstract_stath">
+<org.eventb.core.poPredicate name="'" org.eventb.core.predicate="abstract_state'&lt;abstract_state∧abstract_state'∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.action#act1"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="abstract_state'∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poSequent#decrease\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="decrease/act1/FIS" org.eventb.core.accurate="true" org.eventb.core.poDesc="Feasibility of action" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#EVTALLHYPabstract_stath"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∃abstract_state'⦂ℤ·abstract_state'&lt;abstract_state∧abstract_state'∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.action#act1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.action#act1"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#EVTALLHYPabstract_stath"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTabstract_stath" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="abstract_state'" org.eventb.core.type="ℤ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPabstract_stath" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#EVTIDENTabstract_stath" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_state&gt;0" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_abstract.bpo|org.eventb.core.poFile#refinement_abstract|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_state∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"/>
+</org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

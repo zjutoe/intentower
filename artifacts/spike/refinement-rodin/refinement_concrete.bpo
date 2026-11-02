@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0"/>
+<org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="abstract_state" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="concrete_state" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="step_size" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poPredicate name="concrete_statf" org.eventb.core.predicate="abstract_state∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="INITIALISATION/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_statf"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="0∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#INITIALISATION"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#INITIALISATION"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#INITIALISATION\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="INITIALISATION/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_statf"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="1∈ℕ1" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#INITIALISATION"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#INITIALISATION"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#INITIALISATION\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="INITIALISATION/inv3/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_statf"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="0=0" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#INITIALISATION"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#INITIALISATION"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#INITIALISATION\/inv3\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="INITIALISATION/inv4/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_statf"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="1≤10" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#INITIALISATION"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#INITIALISATION"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#INITIALISATION\/inv4\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTconcrete_statf" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="concrete_state'" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="step_size'" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="abstract_state'" org.eventb.core.type="ℤ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPconcrete_statf" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTIDENTconcrete_statf" org.eventb.core.poStamp="0"/>
+<org.eventb.core.poSequent name="increase/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_statg"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="concrete_state+steps∗step_size∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#increase\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="increase/inv3/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_statg"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="abstract_state+steps∗step_size=concrete_state+steps∗step_size" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#increase\/inv3\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="increase/grd1/GRD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Guard strengthening (split)" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_statg"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="steps∗step_size∈ℕ1" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd1"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#increase\/grd1\/GRD|org.eventb.core.poPredicateSet#SEQHYP"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="increase/grd2/GRD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Guard strengthening (split)" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_statg"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="abstract_state+steps∗step_size≤100" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd2"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd2"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#increase\/grd2\/GRD|org.eventb.core.poPredicateSet#SEQHYP"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTconcrete_statg" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="steps" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="delta" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="concrete_state'" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="abstract_state'" org.eventb.core.type="ℤ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPconcrete_statg" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTIDENTconcrete_statg" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="steps∈ℕ1" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd1"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="concrete_state+steps∗step_size≤100" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd2"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="decrease/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_stath"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="concrete_state − step_size∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#decrease"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#decrease\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="decrease/inv3/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_stath"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="concrete_state − step_size=concrete_state − step_size" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#decrease"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#decrease\/inv3\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD2"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="decrease/grd1/GRD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Guard strengthening (split)" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_stath"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="abstract_state&gt;0" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#decrease"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#decrease\/grd1\/GRD|org.eventb.core.poPredicateSet#SEQHYP"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="decrease/act1/SIM" org.eventb.core.accurate="true" org.eventb.core.poDesc="Action simulation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_stath"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="concrete_state − step_size&lt;abstract_state∧concrete_state − step_size∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.action#act1"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.action#act1"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#decrease"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#decrease\/act1\/SIM|org.eventb.core.poPredicateSet#SEQHYP"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTconcrete_stath" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="concrete_state'" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="abstract_state'" org.eventb.core.type="ℤ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPconcrete_stath" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTIDENTconcrete_stath" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="concrete_state≥step_size" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="change_step_size/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_stati"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="new_size∈ℕ1" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#change_step_size"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#change_step_size\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="change_step_size/inv4/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTALLHYPconcrete_stati"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="new_size≤10" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#change_step_size"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poSequent#change_step_size\/inv4\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTconcrete_stati" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="new_size" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="step_size'" org.eventb.core.type="ℤ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPconcrete_stati" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#EVTIDENTconcrete_stati" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="new_size∈ℕ1" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#change_step_size|org.eventb.core.guard#grd1"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="new_size≤10" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#change_step_size|org.eventb.core.guard#grd2"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/refinement-rodin/refinement_concrete.bpo|org.eventb.core.poFile#refinement_concrete|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="concrete_state∈ℕ" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="step_size∈ℕ1" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="abstract_state=concrete_state" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="step_size≤10" org.eventb.core.source="/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"/>
+</org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

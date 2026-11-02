@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<org.eventb.core.machineFile version="5" org.eventb.core.configuration="org.eventb.core.fwd">
+    <org.eventb.core.refinesMachine name="refinement_abstract" org.eventb.core.target="refinement_abstract"/>
+    <org.eventb.core.variable name="concrete_state" org.eventb.core.identifier="concrete_state"/>
+    <org.eventb.core.variable name="step_size" org.eventb.core.identifier="step_size"/>
+    <org.eventb.core.invariant name="inv1" org.eventb.core.label="inv1" org.eventb.core.predicate="concrete_state ∈ ℕ" org.eventb.core.theorem="false"/>
+    <org.eventb.core.invariant name="inv2" org.eventb.core.label="inv2" org.eventb.core.predicate="step_size ∈ ℕ1" org.eventb.core.theorem="false"/>
+    <org.eventb.core.invariant name="inv3" org.eventb.core.label="inv3" org.eventb.core.predicate="abstract_state = concrete_state" org.eventb.core.theorem="false"/>
+    <org.eventb.core.invariant name="inv4" org.eventb.core.label="inv4" org.eventb.core.predicate="step_size ≤ 10" org.eventb.core.theorem="false"/>
+    <org.eventb.core.event name="INITIALISATION" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="INITIALISATION">
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="concrete_state ≔ 0"/>
+        <org.eventb.core.action name="act2" org.eventb.core.label="act2" org.eventb.core.assignment="step_size ≔ 1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="increase" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="increase">
+        <org.eventb.core.refinesEvent name="increase" org.eventb.core.target="increase"/>
+        <org.eventb.core.parameter name="steps" org.eventb.core.identifier="steps"/>
+        <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="steps ∈ ℕ1"/>
+        <org.eventb.core.guard name="grd2" org.eventb.core.label="grd2" org.eventb.core.predicate="concrete_state + steps ∗ step_size ≤ 100"/>
+        <org.eventb.core.witness name="delta" org.eventb.core.label="delta" org.eventb.core.predicate="delta = steps ∗ step_size"/>
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="concrete_state ≔ concrete_state + steps ∗ step_size"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="decrease" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="decrease">
+        <org.eventb.core.refinesEvent name="decrease" org.eventb.core.target="decrease"/>
+        <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="concrete_state ≥ step_size"/>
+        <org.eventb.core.witness name="abstract_state&apos;" org.eventb.core.label="abstract_state&apos;" org.eventb.core.predicate="abstract_state&apos; = concrete_state − step_size"/>
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="concrete_state ≔ concrete_state − step_size"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="change_step_size" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="change_step_size">
+        <org.eventb.core.parameter name="new_size" org.eventb.core.identifier="new_size"/>
+        <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="new_size ∈ ℕ1"/>
+        <org.eventb.core.guard name="grd2" org.eventb.core.label="grd2" org.eventb.core.predicate="new_size ≤ 10"/>
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="step_size ≔ new_size"/>
+    </org.eventb.core.event>
+</org.eventb.core.machineFile>

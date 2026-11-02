@@ -1,0 +1,1352 @@
+{
+  "schema_version": "0.1",
+  "task": "T11",
+  "note": "PO inventory read from Rossi .bpo output only (SPEC-001 SP-G9). No SMT translation, no verdicts.",
+  "rossi_version": "rossi 0.2.3",
+  "projects": [
+    {
+      "project": "artifacts/spike/counter-rodin",
+      "bpo_files": [
+        "counter.bpo",
+        "counter_ctx.bpo"
+      ],
+      "po_total": 6,
+      "kinds": {
+        "INV": 6
+      },
+      "obligations": [
+        {
+          "id": "INITIALISATION/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "counter",
+          "bpo_file": "counter.bpo",
+          "hypothesis_count": 2,
+          "hypotheses": [
+            {
+              "name": "max_valuf",
+              "predicate": "max_value=100",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm1"
+            },
+            {
+              "name": "max_valug",
+              "predicate": "max_value>0",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≥0",
+            "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "STATUS",
+              "type": "ℙ(STATUS)"
+            },
+            {
+              "name": "max_value",
+              "type": "ℤ"
+            },
+            {
+              "name": "count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "counter",
+          "bpo_file": "counter.bpo",
+          "hypothesis_count": 2,
+          "hypotheses": [
+            {
+              "name": "max_valuf",
+              "predicate": "max_value=100",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm1"
+            },
+            {
+              "name": "max_valug",
+              "predicate": "max_value>0",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0≤max_value",
+            "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "STATUS",
+              "type": "ℙ(STATUS)"
+            },
+            {
+              "name": "max_value",
+              "type": "ℤ"
+            },
+            {
+              "name": "count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "decrement/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "counter",
+          "bpo_file": "counter.bpo",
+          "hypothesis_count": 5,
+          "hypotheses": [
+            {
+              "name": "max_valuf",
+              "predicate": "max_value=100",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm1"
+            },
+            {
+              "name": "max_valug",
+              "predicate": "max_value>0",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "count≥0",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "count≤max_value",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "count>0",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#decrement|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "count − 1≥0",
+            "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "STATUS",
+              "type": "ℙ(STATUS)"
+            },
+            {
+              "name": "max_value",
+              "type": "ℤ"
+            },
+            {
+              "name": "count",
+              "type": "ℤ"
+            },
+            {
+              "name": "count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "decrement/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "counter",
+          "bpo_file": "counter.bpo",
+          "hypothesis_count": 5,
+          "hypotheses": [
+            {
+              "name": "max_valuf",
+              "predicate": "max_value=100",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm1"
+            },
+            {
+              "name": "max_valug",
+              "predicate": "max_value>0",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "count≥0",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "count≤max_value",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "count>0",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#decrement|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "count − 1≤max_value",
+            "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "STATUS",
+              "type": "ℙ(STATUS)"
+            },
+            {
+              "name": "max_value",
+              "type": "ℤ"
+            },
+            {
+              "name": "count",
+              "type": "ℤ"
+            },
+            {
+              "name": "count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "increment/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "counter",
+          "bpo_file": "counter.bpo",
+          "hypothesis_count": 5,
+          "hypotheses": [
+            {
+              "name": "max_valuf",
+              "predicate": "max_value=100",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm1"
+            },
+            {
+              "name": "max_valug",
+              "predicate": "max_value>0",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "count≥0",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "count≤max_value",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "count<max_value",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#increment|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "count+1≥0",
+            "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "STATUS",
+              "type": "ℙ(STATUS)"
+            },
+            {
+              "name": "max_value",
+              "type": "ℤ"
+            },
+            {
+              "name": "count",
+              "type": "ℤ"
+            },
+            {
+              "name": "count'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "increment/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "counter",
+          "bpo_file": "counter.bpo",
+          "hypothesis_count": 5,
+          "hypotheses": [
+            {
+              "name": "max_valuf",
+              "predicate": "max_value=100",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm1"
+            },
+            {
+              "name": "max_valug",
+              "predicate": "max_value>0",
+              "source": "/counter-rodin/counter_ctx.buc|org.eventb.core.contextFile#counter_ctx|org.eventb.core.axiom#axm2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "count≥0",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "count≤max_value",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "count<max_value",
+              "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.event#increment|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "count+1≤max_value",
+            "source": "/counter-rodin/counter.bum|org.eventb.core.machineFile#counter|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "STATUS",
+              "type": "ℙ(STATUS)"
+            },
+            {
+              "name": "max_value",
+              "type": "ℤ"
+            },
+            {
+              "name": "count",
+              "type": "ℤ"
+            },
+            {
+              "name": "count'",
+              "type": "ℤ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "artifacts/spike/refinement-rodin",
+      "bpo_files": [
+        "refinement_abstract.bpo",
+        "refinement_concrete.bpo"
+      ],
+      "po_total": 18,
+      "kinds": {
+        "INV": 13,
+        "FIS": 1,
+        "SIM": 1,
+        "GRD": 3
+      },
+      "obligations": [
+        {
+          "id": "INITIALISATION/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "refinement_abstract",
+          "bpo_file": "refinement_abstract.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0∈ℕ",
+            "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "decrease/act1/FIS",
+          "kind": "FIS",
+          "desc": "Feasibility of action",
+          "machine": "refinement_abstract",
+          "bpo_file": "refinement_abstract.bpo",
+          "hypothesis_count": 2,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_state>0",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "∃abstract_state'⦂ℤ·abstract_state'<abstract_state∧abstract_state'∈ℕ",
+            "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.action#act1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "decrease/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "refinement_abstract",
+          "bpo_file": "refinement_abstract.bpo",
+          "hypothesis_count": 3,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "abstract_state>0",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "'",
+              "predicate": "abstract_state'<abstract_state∧abstract_state'∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.action#act1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_state'∈ℕ",
+            "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "increase/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "refinement_abstract",
+          "bpo_file": "refinement_abstract.bpo",
+          "hypothesis_count": 3,
+          "hypotheses": [
+            {
+              "name": "PRD0",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "delta∈ℕ1",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "abstract_state+delta≤100",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_state+delta∈ℕ",
+            "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0∈ℕ",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "1∈ℕ1",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "0=0",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "INITIALISATION/inv4/INV",
+          "kind": "INV",
+          "desc": "Invariant  establishment",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 0,
+          "hypotheses": [],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "1≤10",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+          },
+          "identifiers": [
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "change_step_size/inv2/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "new_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#change_step_size|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "new_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#change_step_size|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "new_size∈ℕ1",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "new_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "change_step_size/inv4/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "new_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#change_step_size|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "new_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#change_step_size|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "new_size≤10",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "new_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "decrease/act1/SIM",
+          "kind": "SIM",
+          "desc": "Action simulation",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 6,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state≥step_size",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "concrete_state − step_size<abstract_state∧concrete_state − step_size∈ℕ",
+            "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.action#act1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "decrease/grd1/GRD",
+          "kind": "GRD",
+          "desc": "Guard strengthening (split)",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 6,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state≥step_size",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_state>0",
+            "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "decrease/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 6,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state≥step_size",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "concrete_state − step_size∈ℕ",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "decrease/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 6,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state≥step_size",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#decrease|org.eventb.core.guard#grd1"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "concrete_state − step_size=concrete_state − step_size",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "increase/grd1/GRD",
+          "kind": "GRD",
+          "desc": "Guard strengthening (split)",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "steps∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "concrete_state+steps∗step_size≤100",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "steps∗step_size∈ℕ1",
+            "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "steps",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "increase/grd2/GRD",
+          "kind": "GRD",
+          "desc": "Guard strengthening (split)",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "steps∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "concrete_state+steps∗step_size≤100",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_state+steps∗step_size≤100",
+            "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.event#increase|org.eventb.core.guard#grd2"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "steps",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "increase/inv1/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "steps∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "concrete_state+steps∗step_size≤100",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "concrete_state+steps∗step_size∈ℕ",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "steps",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        },
+        {
+          "id": "increase/inv3/INV",
+          "kind": "INV",
+          "desc": "Invariant  preservation",
+          "machine": "refinement_concrete",
+          "bpo_file": "refinement_concrete.bpo",
+          "hypothesis_count": 7,
+          "hypotheses": [
+            {
+              "name": "concrete_statf",
+              "predicate": "abstract_state∈ℕ",
+              "source": "/refinement-rodin/refinement_abstract.bum|org.eventb.core.machineFile#refinement_abstract|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "concrete_state∈ℕ",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "step_size∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv2"
+            },
+            {
+              "name": "PRD2",
+              "predicate": "abstract_state=concrete_state",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+            },
+            {
+              "name": "PRD3",
+              "predicate": "step_size≤10",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv4"
+            },
+            {
+              "name": "PRD0",
+              "predicate": "steps∈ℕ1",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd1"
+            },
+            {
+              "name": "PRD1",
+              "predicate": "concrete_state+steps∗step_size≤100",
+              "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.event#increase|org.eventb.core.guard#grd2"
+            }
+          ],
+          "goal": {
+            "name": "SEQHYQ",
+            "predicate": "abstract_state+steps∗step_size=concrete_state+steps∗step_size",
+            "source": "/refinement-rodin/refinement_concrete.bum|org.eventb.core.machineFile#refinement_concrete|org.eventb.core.invariant#inv3"
+          },
+          "identifiers": [
+            {
+              "name": "abstract_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state",
+              "type": "ℤ"
+            },
+            {
+              "name": "step_size",
+              "type": "ℤ"
+            },
+            {
+              "name": "steps",
+              "type": "ℤ"
+            },
+            {
+              "name": "delta",
+              "type": "ℤ"
+            },
+            {
+              "name": "concrete_state'",
+              "type": "ℤ"
+            },
+            {
+              "name": "abstract_state'",
+              "type": "ℤ"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "input_hashes": {
+    "artifacts/spike/counter-rodin/.project": "ea98b1902b8e00837add412f33c57522f15c7210974a458d67685002639e24cc",
+    "artifacts/spike/counter-rodin/.settings/org.eclipse.core.resources.prefs": "4238e4eafab8309d5f1ee3c167db1e6bf254d5587daa652f1495da7c3942b4c4",
+    "artifacts/spike/counter-rodin/counter.bcm": "f6809bee8679e305da163e43cce2ab4dfb4f5518f4d8911625078052f92a0dc7",
+    "artifacts/spike/counter-rodin/counter.bpo": "e2a4dd87e953cc358a3543fccf593d7fb4157620369139b791dd375b799f7517",
+    "artifacts/spike/counter-rodin/counter.bps": "90f8fe1f8ca96a1837b1923493173455b43f985310611cd1028ea7e8620744a4",
+    "artifacts/spike/counter-rodin/counter.bum": "40eb22ebce8e0d4b428e1a2474a6bd06640f287daea0a3902673dd16d7098e82",
+    "artifacts/spike/counter-rodin/counter_ctx.bcc": "142cdc642999c4bf4d42c0781202f686db66749c1dfe7130012ab5374a42fe19",
+    "artifacts/spike/counter-rodin/counter_ctx.bpo": "b150146dcd9887bb7b2fa16c0f518e8a27f5889eb0765de02d1864319e34503d",
+    "artifacts/spike/counter-rodin/counter_ctx.bps": "cf1800075ae6f30926e9184d0b59e008922f73a6e5bea11e303f72c9a8b62d58",
+    "artifacts/spike/counter-rodin/counter_ctx.buc": "44c2a3fe91b9a5ecae47fdec35e9cf8af2c528369f47fcb2b67eab6bf91a2e0d",
+    "artifacts/spike/refinement-rodin/.project": "02c5be60d3156fcfec81d127feb4bcfee0a31791646e8dd4a02a497941241351",
+    "artifacts/spike/refinement-rodin/.settings/org.eclipse.core.resources.prefs": "4238e4eafab8309d5f1ee3c167db1e6bf254d5587daa652f1495da7c3942b4c4",
+    "artifacts/spike/refinement-rodin/refinement_abstract.bcm": "a6f7f89b02f3ec4ae79d3ff7c00007aef6a0bd877a692915c6f68f93dfeb91b7",
+    "artifacts/spike/refinement-rodin/refinement_abstract.bpo": "d9506ec0b138b610fc91a2e3e25270ba6fa2b3270dc220fbb18c29782801dba9",
+    "artifacts/spike/refinement-rodin/refinement_abstract.bps": "25444eebcce5609594710f08ab6bfcb98af26b6bd7d8dad67356bc8515858e71",
+    "artifacts/spike/refinement-rodin/refinement_abstract.bum": "f73961fa3be2b67174e202113e7f8b83f8813e976b1ef4de8084f988528e695d",
+    "artifacts/spike/refinement-rodin/refinement_concrete.bcm": "d11e633a3852ea087b399907871c5783ebb1830740a6be838f19a80933c5b56f",
+    "artifacts/spike/refinement-rodin/refinement_concrete.bpo": "e3c0a5ceb64b13da402d12fd5f040daef06e8a4edc484c6d977f438bcfdc4f21",
+    "artifacts/spike/refinement-rodin/refinement_concrete.bps": "5ca530a80135061ba94f5bcb704e1cd133e82cebc482d68122c7830cde524d31",
+    "artifacts/spike/refinement-rodin/refinement_concrete.bum": "f3b66fb1395c9b48d6dedcc18f5af7c4a342437604bd3570089a457b32834151"
+  }
+}

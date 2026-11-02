@@ -128,3 +128,13 @@ refinement_concrete.bpo:  INITIALISATION/inv1..inv4/INV, increase/inv1/INV,
 - **T12**：优先验证 `rossi-prove` 的 `PoProject / PoFile / ProverSequent` 是否直接给出已解析的假设/目标与类型；若给得出，就不自己写 XML 解析。
 - **T13**：精化 PO（`GRD`/`SIM`）确实会生成，counter M0→M1 可做；`FIS` 会出现在非确定性动作上，需一并处理或显式排除。
 - **SPEC-001 边界**：需在证据里写明"PO 全集 = Rossi POG 产物"，并列出本例未生成的类别（`SEQ`、公理一致性），避免过度声称。
+
+## 9. T11 补充：读取 `.bpo` 的三个坑（实测）
+
+`scripts/po-inventory.py` 从 `.bpo` 生成 `artifacts/spike/po-inventory.json`（两个项目共 **24 条 PO**：`INV` 19、`GRD` 3、`FIS` 1、`SIM` 1；两次运行字节一致）。过程中踩到三个坑，T12/T14 必须避开：
+
+1. **谓词集名字会重复**。`counter.bpo` 里 `SEQHYP` 出现 12 次。初版用名字做字典键，后者覆盖前者，导致 `INITIALISATION/inv1/INV` 的前提数从真实的 **2** 错算成 **5**，**不报错也不报错位置**。必须按引用 URI 的完整路径索引：`(文件, poSequent#<PO名>, poPredicateSet#<集名>)`。
+2. **名字里含 `|` 和 `/`，在 URI 里被转义为 `\|` 与 `\/`**。集合名实为 `EVTALLHYPcounter_ct|` 这类。按 `|` 裸切会把名字切成空段（实测 `ValueError: unparsable ref segment: ''`）。只能按**未转义的** `|` 切分，再反转义。
+3. **假设不内联且跳文件**。每个 sequent 的 `SEQHYP` 只有 `parentSet` 引用，需沿链上溯：`SEQHYP → EVTALLHYP<evt> → EVTIDENT<evt> → ALLHYP → ABSHYP → CTXHYP`，才能集齐公理 + 不变式 + 守卫。实测前提数：`INITIALISATION/inv1/INV` = 2（仅 context 公理），`increment/inv1/INV` = 5（2 公理 + 2 不变式 + 1 守卫）。
+
+另：`poIdentifier` 给出类型（`count : ℤ`、`count' : ℤ`、`STATUS : ℙ(STATUS)`），所以类型化原料在 XML 里就有；但谓词仍是**未解析的字符串**，T12 应优先用 `rossi-prove` 的类型化 API，而不是自己解析公式（计划明令禁止正则解析数学公式）。

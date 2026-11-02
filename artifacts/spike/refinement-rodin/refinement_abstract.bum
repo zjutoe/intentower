@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<org.eventb.core.machineFile version="5" org.eventb.core.configuration="org.eventb.core.fwd">
+    <org.eventb.core.variable name="abstract_state" org.eventb.core.identifier="abstract_state"/>
+    <org.eventb.core.invariant name="inv1" org.eventb.core.label="inv1" org.eventb.core.predicate="abstract_state ∈ ℕ" org.eventb.core.theorem="false"/>
+    <org.eventb.core.event name="INITIALISATION" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="INITIALISATION">
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="abstract_state ≔ 0"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="increase" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="increase">
+        <org.eventb.core.parameter name="delta" org.eventb.core.identifier="delta"/>
+        <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="delta ∈ ℕ1"/>
+        <org.eventb.core.guard name="grd2" org.eventb.core.label="grd2" org.eventb.core.predicate="abstract_state + delta ≤ 100"/>
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="abstract_state ≔ abstract_state + delta"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="decrease" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.label="decrease">
+        <org.eventb.core.guard name="grd1" org.eventb.core.label="grd1" org.eventb.core.predicate="abstract_state &gt; 0"/>
+        <org.eventb.core.action name="act1" org.eventb.core.label="act1" org.eventb.core.assignment="abstract_state :∣ abstract_state&apos; &lt; abstract_state ∧ abstract_state&apos; ∈ ℕ"/>
+    </org.eventb.core.event>
+</org.eventb.core.machineFile>
