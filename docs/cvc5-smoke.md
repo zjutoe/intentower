@@ -91,6 +91,12 @@
 
 **确定性检查**：6 个快夹具各跑 3 次，stdout+stderr+退出码完全一致；两个新夹具同样 3 次一致。满足计划对幂等的要求（同一输入同一判定）。
 
+**T15 补充：声明与负数字面量（实测）**
+
+- `(declare ((x Int)))` 在 cvc5 1.4.2 上报 `Parse Error: Expected SMT-LIBv2 command, got declare` —— 必须写 `(declare-fun x () Int)`。
+- 负整数：`-42` 与 `(- 42)` 都被接受（均 `sat`，exit 0）。编码器输出 SMT-LIB 标准形式 `(- 42)`。
+- Rossi 不给出负数字面量：`-42` 在 AST 里是 `Unary { op: UnMinus, child: IntegerLiteral(42) }`，所以“负数”必须在编码器里折叠（`src/smt/atoms.rs`）。
+
 **仍未做的两件事**（不掩饰）：
 
 1. 本文档的结果表是**手工逐条记录**，还没有一键复现脚本；T19 实现 CLI 时应把这张表变成 `cargo test` 的断言。
