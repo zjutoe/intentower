@@ -138,3 +138,33 @@ refinement_concrete.bpo:  INITIALISATION/inv1..inv4/INV, increase/inv1/INV,
 3. **假设不内联且跳文件**。每个 sequent 的 `SEQHYP` 只有 `parentSet` 引用，需沿链上溯：`SEQHYP → EVTALLHYP<evt> → EVTIDENT<evt> → ALLHYP → ABSHYP → CTXHYP`，才能集齐公理 + 不变式 + 守卫。实测前提数：`INITIALISATION/inv1/INV` = 2（仅 context 公理），`increment/inv1/INV` = 5（2 公理 + 2 不变式 + 1 守卫）。
 
 另：`poIdentifier` 给出类型（`count : ℤ`、`count' : ℤ`、`STATUS : ℙ(STATUS)`），所以类型化原料在 XML 里就有；但谓词仍是**未解析的字符串**，T12 应优先用 `rossi-prove` 的类型化 API，而不是自己解析公式（计划明令禁止正则解析数学公式）。
+
+## 10. T12：类型化 PO API（P1 go/no-go 判定：**GO**）
+
+跳过了 XML 解析。`crates/intentower-cli/tests/po_spike.rs`（`cargo test --test po_spike -- --nocapture`）用 `rossi-prove` 0.2.3 的公开 API 直接拿到类型化 PO，4 个测试全通过。
+
+用到的 API：
+
+| 调用 | 得到 |
+|---|---|
+| `PoFile::read(&[u8]) -> PoFile` | 解析 `.bpo`（不需我们碰 XML） |
+| `PoProject::insert("<component>.bpo", file)` / `::file(path)` | 按句柄路径注册整个项目 |
+| `PoFile::sequents() -> Iterator<Item = &PoSequentEntry>` | PO 名单（`name`、`stamp`） |
+| `PoProject::load(path, name) -> Result<ProverSequent, String>` | 一条 PO 的完整 sequent |
+| `ProverSequent::hyp_iter() / goal() / type_env()` | 假设列表、目标、已求解类型环境 |
+| `Predicate::kind() -> &PredicateKind`，`rossi::formula::tag::{RelationalOp, QuantPredOp}` | 结构而非文本：`Relational{op,left,right}`、`Quantified{op,decls,pred}` |
+| `PrettyPrinter::rodin_formula_string().print_formula_predicate(&Predicate)` | Rodin 规范文本（仅用于报告） |
+
+实测发现：
+
+1. **PO 身份是（组件 `.bpo`, 名字），不是名字**。`INITIALISATION/inv1/INV` 在 `refinement_abstract.bpo` 与 `refinement_concrete.bpo` 里都有；只按名字建表会静默覆盖（本 spike 靠断言把它抱出来了）。
+2. **Rossi 的加载器会追加 WD 合取项**（`PoSet::load` 里的 `add_wd_predicates`）。本例 24 条 PO 的假设数与 T11 XML 清单**逐条完全一致**，说明这两个模型未触发追加；含偏函数/部分应用的模型会多出条目。推论：前提列表必须按 API 给定的走，不能自己从模型文本数。
+3. **类型环境可直接映射到 SMT 排序**：`Int`、`Given("STATUS")`、`Pow(Given("STATUS"))`、`Prod(..)`，包括带撇的 after-变量 `count' : Int`。
+4. **目标类别可结构判定**：INV/GRD 是 `Relational{op}`（`Ge`/`Le`/`Gt`），FIS 是 `Quantified{op: Exists}`，SIM 是 `Associative{op: LAnd, ..}`。
+5. **必须整个项目一起注册**：假设链跳文件，只注册单个 `.bpo` 会 `dangling parent set` 报错。
+6. **Rodin 规范渲染不带空格**：`count+1≥0`、`max_value=100`；减号仍是 U+2212。写断言或比对时不要自己拼空格。
+7. crates.io 上的 `rossi 0.2.3` / `rossi-prove 0.2.3` 与本地 `v0.2.3` 源码一致（能编译，结论与 CLI 实测吐合）。
+
+依赖位置：目前只在 `crates/intentower-cli/Cargo.toml` 的 `[dev-dependencies]`（spike 专用）。T14 把 PO 读取搬进产品代码时需移到 `[dependencies]`，并记一条 ADR。
+
+未验证：`rossi-prove` 自带的 reasoner / registry / `.bpr` 证明树 API（与我们的 SMT 路线无关，本轮故意不碰）。
