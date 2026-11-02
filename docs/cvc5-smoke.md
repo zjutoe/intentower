@@ -101,3 +101,29 @@
 
 1. 本文档的结果表是**手工逐条记录**，还没有一键复现脚本；T19 实现 CLI 时应把这张表变成 `cargo test` 的断言。
 2. 所有夹具都是**手写的 SMT-LIB**，不代表 Rossi 真实 PO 的编码形状。真实形状要等 T10/T11；届时应把 Rossi 生成的 `.bpo` 翻译产物也放进 `tests/fixtures/smt/`。
+
+## T19：子进程适配器实测（`src/solver/cvc5.rs`，10 个 cargo test 断言）
+
+之前手工记的表，现在由 `cargo test` 跑（`tests/fixtures/smt/` 里的夹具）：
+
+| 夹具 / 情况 | 适配器结果 |
+|---|---|
+| `qf_lia_unsat.smt2` | `Unsat` |
+| `qf_lia_sat_counterexample.smt2` | `Sat` |
+| `unknown_quantified.smt2` | `Unknown` |
+| `unsupported_only.smt2`（新增） | `Unsupported` |
+| `nonlinear_qf_nia.smt2` + 1s 超时 | `Timeout`（1.01s 内返回，进程被 kill） |
+| `malformed.smt2` | `ToolError("solver exited 1; …")` |
+| 二进制不存在 | `ToolError("solver `…` not found")` |
+| 一个脚本里两个 `(check-sat)` | `ToolError` |
+| 同一段脚本跑两次 | 结果相同（幂等） |
+| 二进制路径含空格 | `Unsat`（证明是参数数组调用，不是 shell 拼串） |
+
+新学到的四件事（都是测试里撞出来的）：
+
+1. **必须加 `--produce-models`**：否则 `sat` 之后夹具里的 `(get-value …)` 会打印 `(error "cannot get value unless model generation is enabled (try --produce-models)")`，适配器按"stdout 出现 `(error` 即 ToolError"的规则判成工具错误 —— 明明有 verdict 也不算。SPEC-001 要"候选反例"，本来就得开模型。
+2. **两个 `(check-sat)` 时 cvc5 退出码仍是 0**：stdout 是 `sat` + `(error "cannot make multiple queries unless incremental solving is enabled …")`。只看退出码必然误判。
+3. **临时文件名必须每次唯一**：两个测试用同一 label 时互相删掉对方的 `.out`，`cleanup` 直接 panic。现在用 `pid + 全局序号 + label`。
+4. **超时只能自己做**：`try_wait` 轮询 + 到点 `kill`（cvc5 的 `--tlimit` 在这个 build 上 SIGABRT，见上文）。
+
+配置：`INTENTOWER_CVC5` 指定二进制（默认 PATH 上的 `cvc5`），`INTENTOWER_TIMEOUT_SECS` 指定超时（默认 30s，与 SPEC-001 D3 一致）。找不到 cvc5 时测试直接失败，不静默跳过。
