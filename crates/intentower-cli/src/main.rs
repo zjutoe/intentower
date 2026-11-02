@@ -3,6 +3,11 @@
 //! Both re-run the POG and the solver over the model sources named by
 //! `<模型目录>/models.json`; neither can be pointed at a previous report.
 //! Exit codes: 0 PASS, 1 FAIL, 2 INCOMPLETE or tool/usage error.
+//!
+//! T28 adds `intentower report`: it reads a written report back and renders a
+//! Markdown review summary. It runs nothing, so it can never authorize a PASS;
+//! it exits 2 when the report is unreadable, inconsistent or STALE, and
+//! otherwise echoes the verdict the report recorded.
 
 use std::collections::BTreeMap;
 use std::path::PathBuf;
@@ -59,6 +64,30 @@ fn command() -> Command {
             "gate",
             "Re-run the POG and SMT checks, write a report, exit 0 PASS / 1 FAIL / 2 INCOMPLETE",
         ))
+        .subcommand(
+            Command::new("report")
+                .about("Render a written report as a Markdown review summary (display only, runs nothing)")
+                .arg(
+                    Arg::new("report_json")
+                        .required(true)
+                        .value_name("REPORT_JSON")
+                        .help("a report.json written by verify or gate"),
+                )
+                .arg(
+                    Arg::new("format")
+                        .long("format")
+                        .value_parser(["md"])
+                        .default_value("md")
+                        .help("output format (only md is implemented)"),
+                )
+                .arg(
+                    Arg::new("out")
+                        .long("out")
+                        .required(true)
+                        .value_name("PATH")
+                        .help("Markdown file to write"),
+                ),
+        )
 }
 
 fn fail(message: impl std::fmt::Display) -> ExitCode {
@@ -66,9 +95,62 @@ fn fail(message: impl std::fmt::Display) -> ExitCode {
     ExitCode::from(2)
 }
 
+/// T28: display a past run. Nothing is re-checked except the input hashes,
+/// and the summary is written even when it says STALE, so the reviewer sees
+/// why the old verdict no longer applies.
+fn report_command(sub: &clap::ArgMatches) -> ExitCode {
+    let path = PathBuf::from(sub.get_one::<String>("report_json").unwrap());
+    let out = PathBuf::from(sub.get_one::<String>("out").unwrap());
+    let value = match report::read(&path) {
+        Ok(value) => value,
+        Err(err) => return fail(err),
+    };
+
+    let stale = report::freshness(&value);
+    let summary = report::render_md(&value, &path, &stale);
+    if let Some(parent) = out.parent().filter(|parent| !parent.as_os_str().is_empty()) {
+        std::fs::create_dir_all(parent)
+            .unwrap_or_else(|err| panic!("cannot create {parent:?}: {err}"));
+    }
+    std::fs::write(&out, summary).unwrap_or_else(|err| panic!("cannot write {out:?}: {err}"));
+
+    let verdict = value["gate"]["status"].as_str().unwrap();
+    let not_proved = value["obligations"]
+        .as_array()
+        .map(|rows| {
+            rows.iter()
+                .filter(|row| row["status"].as_str() != Some("SMT_DISCHARGED"))
+                .count()
+        })
+        .unwrap_or(0);
+    println!(
+        "{verdict} {} obligations, {not_proved} not proved",
+        value["obligations"]
+            .as_array()
+            .map(|rows| rows.len())
+            .unwrap_or(0)
+    );
+    for reason in &stale {
+        println!("  - STALE: {reason}");
+    }
+    println!("summary: {out:?}");
+
+    if !stale.is_empty() {
+        return ExitCode::from(2);
+    }
+    match verdict {
+        "PASS" => ExitCode::SUCCESS,
+        "FAIL" => ExitCode::from(1),
+        _ => ExitCode::from(2),
+    }
+}
+
 fn main() -> ExitCode {
     let matches = command().get_matches();
     let (name, sub) = matches.subcommand().expect("a subcommand");
+    if name == "report" {
+        return report_command(sub);
+    }
     let model_dir = PathBuf::from(sub.get_one::<String>("model_dir").unwrap());
     let model_id = sub.get_one::<String>("model_id").unwrap().clone();
     let out = PathBuf::from(sub.get_one::<String>("out").unwrap());
@@ -212,5 +294,53 @@ mod tests {
                 ])
                 .expect("{name} with a model dir and --out must parse");
         }
+    }
+
+    #[test]
+    fn report_takes_a_report_and_an_out_and_only_writes_markdown() {
+        for (args, kind) in [
+            (
+                vec!["intentower", "report"],
+                ErrorKind::MissingRequiredArgument,
+            ),
+            (
+                vec!["intentower", "report", "report.json"],
+                ErrorKind::MissingRequiredArgument,
+            ),
+            (
+                vec!["intentower", "report", "report.json", "--out"],
+                ErrorKind::InvalidValue,
+            ),
+        ] {
+            let err = command()
+                .try_get_matches_from(&args)
+                .expect_err("{args:?} must not parse");
+            assert_eq!(err.kind(), kind, "{args:?}");
+        }
+        command()
+            .try_get_matches_from([
+                "intentower",
+                "report",
+                "artifacts/counter/report.json",
+                "--format",
+                "md",
+                "--out",
+                "artifacts/counter/summary.md",
+            ])
+            .expect("report with a report path and --out must parse");
+        // No format other than md exists, so asking for one is an error rather
+        // than a silently different output.
+        let err = command()
+            .try_get_matches_from([
+                "intentower",
+                "report",
+                "artifacts/counter/report.json",
+                "--format",
+                "json",
+                "--out",
+                "summary.md",
+            ])
+            .expect_err("--format json must not parse");
+        assert_eq!(err.kind(), ErrorKind::InvalidValue);
     }
 }

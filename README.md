@@ -102,16 +102,16 @@ This is a research repository. There is **no released `intentower` executable ye
 4. Use Pi + Strata to execute **only T01** from the plan, then validate its explicit acceptance commands and review its handoff before assigning T02.
 5. Continue one small task at a time and stop at every phase gate for human approval.
 
-The planned CLI surface (not implemented yet) is:
+The CLI surface implemented so far (`intentower --help` is authoritative):
 
 ```sh
-intentower doctor
-intentower po models/counter --out artifacts/counter
-intentower verify models/counter --out artifacts/counter
-intentower gate models/counter --policy project.json --out artifacts/gated-counter
-intentower report artifacts/counter/report.json --format md
+intentower verify models/counter --model-id MODEL-001 --out artifacts/counter
+intentower gate models/counter --model-id MODEL-004 --policy project.json --out artifacts/gated-counter/report.json
+intentower report artifacts/counter/report.json --format md --out artifacts/counter/summary.md
 ```
 
+`doctor` and `po` are not implemented. Exit codes are `0` PASS, `1` FAIL, `2`
+INCOMPLETE or tool/usage error; `report` runs nothing and authorizes nothing.
 These commands are provisional. Verify actual flags against implemented `--help`; do not present examples here as successful test results.
 
 ## Evidence and acceptance

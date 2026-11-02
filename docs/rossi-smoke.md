@@ -502,3 +502,43 @@ MODEL-001/002 与 T23 fixture 里的 model_id 一致；003/004 是本次新分�
 实测退出 2，因为 MODEL-001（m0+m1）里 `m0::sub/act1/FIS` 的 `∃` 在 F0 之外，属 `UNSUPPORTED`。
 两种出路都需要人类决定：(a) 扩 F0 支持存在量词（新任务），或 (b) 把 §13 的正例改成 MODEL-004 这类全判定的模型对。
 命令本身现在可跑了（T23 之前连 `verify` 子命令都没有）。
+
+## 21. T28：`intentower report` — Markdown 审查摘要
+
+```
+intentower report <REPORT_JSON> [--format md] --out <SUMMARY_MD>
+退出码：报告 STALE / 读不进 / 不自洽 = 2；否则复述报告记录的判定 0/1/2
+```
+
+`report` **不运行任何东西**：它只把 `verify`/`gate` 写过的 JSON 复述成一份人读的
+Markdown，并重新哈希 `inputs` 判断这份证据是否还对应现在的文件。它不能授权任何
+事：`gate` 从不把报告当输入（T27 已测）。
+
+摘要固定六段：判定与原因 → 输入哈希（FRESH/STALE）→ 义务按 status/kind 计数 +
+**Not proved 表（每条非 `SMT_DISCHARGED` 的义务都点名）** → 证据边界 →
+未闭合风险（按 issue code 聚合）→ 复跑命令（从报告自己记的输入推出，不是存进去的）。
+
+实测（`cargo test --test cli_report` 7 个用例全绿；下面是手工复跑）：
+
+| 命令 | 退出码 | 结果 |
+|---|---|---|
+| `gate models/counter --model-id MODEL-004 --policy project.json --out /tmp/t28/gate-pass.json` | **0** | `PASS 6 obligations, inputs 5` |
+| `report /tmp/t28/gate-pass.json --format md --out /tmp/t28/summary-pass.md` | **0** | `PASS 6 obligations, 0 not proved`，Not proved 段是 `- none` |
+| `gate models/counter --model-id MODEL-002 --out /tmp/t28/gate-fail.json` | **1** | `FAIL`，两条未判定 |
+| `report /tmp/t28/gate-fail.json --format md --out /tmp/t28/summary-fail.md` | **1** | Not proved 表点名 `m0::sub/act1/FIS`（`node outside F0: quantifier Exists`）和 `m1_badadd::add/inv3/INV` |
+| `report /tmp/t28/gate-pass.json --format json --out …` | **2** | `invalid value 'json' for '--format <format>'`（只实现 md，不做"顺手"输出） |
+| `report models/counter --out …` | **2** | `"models/counter": Is a directory` — `report` 只吃报告 |
+| 改一个 `inputs[].sha256` 后 `report` | **2** | `STALE: models/counter/counter.eventb: recorded 0000… != current a07b0aa…`，摘要标题 `— STALE` |
+| 删掉一个 `po_artifact` 输入后 `report` | **2** | `…/m0.bpo: input was added after the report`（会重新列举 `.bpo` 目录） |
+| 删光 `po_artifact` 输入后 `report` | **2** | `no .bpo artifact is pinned: the obligation list cannot be traced to Rossi's POG output` |
+| 把 `po_total` 改成 5（义务仍 6 条）后 `report` | **2** | `po_total 5 != 6 obligations listed`，**不写摘要文件** |
+| 把 `schema_version` 改成 `2.0` 后 `report` | **2** | `schema_version 2.0 is not 1.0`，不写摘要文件 |
+
+`cargo test --offline`：132 passed / 0 failed（HEAD 上同一命令 124，本次 +8：
+`tests/cli_report.rs` 7 个 + `main.rs` 里 1 个参数解析用例）。`cargo fmt --all --check` 干净。
+
+顺带把 README 里"The planned CLI surface (not implemented yet)"改成已实现的三条
+（`verify` / `gate` / `report`），并注明 `doctor`、`po` 仍未实现。
+
+**未做**：`--format json`（无必要）、把摘要再喂回任何命令（禁止）、改
+`schemas/report.schema.json`（T23 冻结，本次没动）。
