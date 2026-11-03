@@ -141,6 +141,43 @@ fn command() -> Command {
                         .help("context budget for one feedback round"),
                 ),
         )
+        .subcommand(
+            Command::new("escalate")
+                .about("T34: map one report's failure categories to a prescribed next step (reads the report only; agent claims are not an input)")
+                .arg(
+                    Arg::new("report_json")
+                        .required(true)
+                        .value_name("REPORT_JSON")
+                        .help("a report.json written by verify or gate"),
+                )
+                .arg(
+                    Arg::new("stop_reason")
+                        .long("stop-reason")
+                        .value_name("REASON")
+                        .default_value("not_stopped")
+                        .help("why the loop stopped: pass | verify_cap_exhausted | repair_cap_exhausted | pi_error | not_stopped"),
+                )
+                .arg(
+                    Arg::new("verifications")
+                        .long("verifications")
+                        .value_parser(clap::value_parser!(usize))
+                        .default_value("0")
+                        .help("gate verifications the loop used"),
+                )
+                .arg(
+                    Arg::new("repairs")
+                        .long("repairs")
+                        .value_parser(clap::value_parser!(usize))
+                        .default_value("0")
+                        .help("repair rounds the loop used"),
+                )
+                .arg(
+                    Arg::new("out")
+                        .long("out")
+                        .value_name("PATH")
+                        .help("Markdown file to write (default: print to stdout)"),
+                ),
+        )
 }
 
 /// T30: one round of repair gets exactly one input. A packet that does not fit
@@ -173,6 +210,42 @@ fn feedback_command(sub: &clap::ArgMatches) -> ExitCode {
         feedback::grouped(&value).len().min(2),
     );
     println!("packet: {out:?}");
+    ExitCode::SUCCESS
+}
+
+/// T34: the escalation path. The only inputs are the gate report and the loop
+/// counters, so an agent talking about its own success cannot move a row.
+fn escalate_command(sub: &clap::ArgMatches) -> ExitCode {
+    let path = PathBuf::from(sub.get_one::<String>("report_json").unwrap());
+    let stop_reason = sub.get_one::<String>("stop_reason").unwrap().clone();
+    let verifications = *sub.get_one::<usize>("verifications").unwrap();
+    let repairs = *sub.get_one::<usize>("repairs").unwrap();
+    let value = match report::read(&path) {
+        Ok(value) => value,
+        Err(err) => return fail(err),
+    };
+
+    let record = feedback::escalation(&value, &stop_reason, verifications, repairs);
+    if let Some(out) = sub.get_one::<String>("out") {
+        let out = PathBuf::from(out);
+        if let Some(parent) = out.parent().filter(|parent| !parent.as_os_str().is_empty()) {
+            std::fs::create_dir_all(parent)
+                .unwrap_or_else(|err| panic!("cannot create {parent:?}: {err}"));
+        }
+        std::fs::write(&out, &record).unwrap_or_else(|err| panic!("cannot write {out:?}: {err}"));
+        println!("escalation: {out:?}");
+    } else {
+        print!("{record}");
+    }
+    println!(
+        "ESCALATE {} next={}",
+        value["model_id"].as_str().unwrap_or("?"),
+        feedback::next_step(
+            &feedback::grouped(&value),
+            &stop_reason,
+            feedback::is_stale(&value),
+        )
+    );
     ExitCode::SUCCESS
 }
 
@@ -272,6 +345,9 @@ fn main() -> ExitCode {
     }
     if name == "feedback" {
         return feedback_command(sub);
+    }
+    if name == "escalate" {
+        return escalate_command(sub);
     }
     let model_dir = PathBuf::from(sub.get_one::<String>("model_dir").unwrap());
     let model_id = sub.get_one::<String>("model_id").unwrap().clone();

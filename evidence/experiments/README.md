@@ -64,6 +64,19 @@ being trusted or silently deleted. The three main runs and the seeded run above 
 rounds, script exit 2, repair packets 3645 / 3645 bytes under the 8 KB budget.
 `harness/dry-pass.json`: `DRY_RUN=1` against MODEL-004 — 1 verification, `stop_reason: pass`, exit 0.
 
+After T34 the same two runs also write `escalation.md`. The post-T34 copies are kept as
+`harness/T34-dry-cap-exhausted-run.json` + `T34-dry-cap-exhausted-escalation.md`
+(`next=EXPERT_OR_SHRINK`, because one obligation is `UNSUPPORTED`) and
+`harness/T34-dry-pass-run.json` + `T34-dry-pass-escalation.md` (`next=NONE`, `DRY_RUN=1` against
+MODEL-006 with a pre-existing `th1`). The escalation record is decided only by the gate report and
+the orchestrator counters: an agent's own claim of having fixed the model is not an input, which
+`tests/feedback.rs::the_next_step_is_read_from_the_report_not_from_what_the_agent_claims` asserts by
+comparing the output byte for byte with and without the claim.
+
+`harness/T34-gate-exit0-no-report-stop.json` is a negative control run through a wrapper binary
+(`INTENTOWER_BIN`) that lets `gate` exit 0 while writing no `report.json`. The loop stops with exit 2
+instead of recording a pass: an exit code is not a verdict.
+
 ## 6. What these runs do **not** show
 
 1. **Open book.** `docs/T33-refinement-target-proposal.md` §Appendix A contains a complete working

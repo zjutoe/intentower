@@ -1,0 +1,4 @@
+{
+  "stop_reason": "gate exited 0 but wrote no report.json for round 1; there is no verdict to act on",
+  "exit": 2
+}

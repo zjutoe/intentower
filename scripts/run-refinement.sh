@@ -121,6 +121,11 @@ while [ "$verify" -lt "$MAX_VERIFY" ]; do
   echo "$gate_seconds" > "$round/gate.seconds"
   echo "round $verify: gate exit $gate_exit in ${gate_seconds}s ($(grep -oE 'PASS|FAIL|INCOMPLETE' "$round/gate.log" | head -1))"
 
+  # a verdict only exists if the report exists; an exit code alone never passes
+  if [ ! -f "$round/report.json" ]; then
+    stop 2 "gate exited $gate_exit but wrote no report.json for round $verify; there is no verdict to act on"
+  fi
+
   # keep what the agent verified for itself, labelled as the agent's own run
   for f in "$SCRATCH"/round-"$verify"*.json; do
     [ -f "$f" ] && cp "$f" "$round/agent-selfcheck-$(basename "$f")"
@@ -148,6 +153,28 @@ done
 
 # ---- baseline after the run ----
 "$BIN" baseline || stop 2 "baseline changed at the end of the run"
+
+# ---- T34: the next step, decided by the gate report and the counters ----
+# What the agent said about its own work is not an input to this step; only a
+# re-run of gate can change a row of the table.
+last_report=$(ls -1 "$RUN_DIR"/round-*/report.json 2>/dev/null | tail -1 || true)
+if [ -n "$last_report" ] && "$BIN" escalate "$last_report" --stop-reason "${stop_reason:-not_stopped}" \
+    --verifications "$verify" --repairs "$repairs" --out "$RUN_DIR/escalation.md"; then
+  :
+else
+  {
+    echo "# 下一步（升级路径）"
+    echo
+    if [ -n "$last_report" ]; then
+      echo "最后一轮的 gate 报告（$last_report）无法读取或校验失败：判定不可信，自动流程不得继续。"
+    else
+      echo "本轮没有任何 gate 报告可依据：判定能力本身缺失，自动流程不得继续。"
+    fi
+    echo
+    echo "**下一步：\`TOOLCHAIN_FIRST\`**"
+  } > "$RUN_DIR/escalation.md"
+fi
+cat "$RUN_DIR/escalation.md"
 
 # ---- run.json: every round, every LLM call, every gate verdict ----
 python3 - "$RUN_DIR" "$MODEL_DIR" "$MODEL_ID" "$M1_FILE" "$verify" "$repairs" "$gate_exit" "$stop_reason" <<'PY' || stop 2 "could not write run.json"
@@ -211,7 +238,7 @@ for d in sorted(root.glob("round-*")):
         "agent_selfcheck_reports": selfcheck,
     })
 # anything in the evidence directory that the orchestrator did not create is reported, not deleted
-expected = {"run.json", "stop.json"}
+expected = {"run.json", "stop.json", "escalation.md"}
 own = {"prompt.md", "pi.jsonl", "pi.err", "pi.exit", "pi.seconds", "gate.log",
        "gate.seconds", "report.json", "packet.md", "feedback.log"}
 for d in root.glob("round-*"):

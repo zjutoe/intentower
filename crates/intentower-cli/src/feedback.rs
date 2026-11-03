@@ -45,6 +45,158 @@ const MAX_QUOTED_KINDS: usize = 2;
 /// the evidence of the round that failed.
 const ROUND_OUT: &str = "artifacts/refine/report.json";
 
+/// T34: the escalation table. Every status the verifier can emit appears here
+/// exactly once — a test compares this list against [`Status`], so a failure
+/// can never end up with no prescribed next step.
+///
+/// The input to the mapping is the gate report and the loop counters. What the
+/// agent says about its own work is not an input: only a re-run of `gate` can
+/// change a row of this table.
+pub const ESCALATION: &[(&str, &str)] = &[
+    (
+        "SMT_DISCHARGED",
+        "无需动作。只有 baseline 未变、且报告可追溯到当前输入时，这条才算数。",
+    ),
+    (
+        "NOT_DISCHARGED",
+        "取 cvc5 给出的候选反例，交人类判断缺的是约束还是粘合关系；不得为消迹添加猜测性约束。",
+    ),
+    (
+        "UNSUPPORTED",
+        "缩小模型或交专家：这是 F0 的覆盖边界，不是模型错误。不得扩大 F0、不得改判分类、不得跳过该义务。",
+    ),
+    (
+        "UNKNOWN",
+        "保留不确定性，不得记为通过。缩小问题或调整求解参数后再试一轮；仍 UNKNOWN 即交人类。",
+    ),
+    (
+        "TIMEOUT",
+        "按 UNKNOWN 处理，并记录超时秒数。超时既不是通过，也不是失败证据。",
+    ),
+    (
+        "TOOL_ERROR",
+        "先修工具链（rossi / cvc5 版本、退出码、输入格式）。本轮判定不可信，不进入修复回路。",
+    ),
+    (
+        "STALE",
+        "证据与当前输入不一致：先重跑 gate 再谈下一步；旧报告不得作为依据。",
+    ),
+    (
+        "MISSING",
+        "义务清单与文本不一致，或 POG 覆盖存疑：停止修复，交强模型 / 专家复核 POG。",
+    ),
+];
+
+/// True when the report no longer traces to the inputs it was produced from.
+/// One definition, shared by [`next_step`] and [`escalation`].
+pub fn is_stale(report: &Value) -> bool {
+    !report::freshness(report).is_empty()
+}
+
+/// The one next step for a round, decided by its failure categories, whether
+/// the report still traces to its inputs, and the loop counters. Ordered
+/// precedence, first match wins:
+///
+/// 1. the report is not traceable to the current inputs -> re-establish the
+///    verdict first; every row below would rest on evidence that no longer holds
+/// 2. no failures at all -> nothing to escalate
+/// 3. a status that is not in [`ESCALATION`] -> stop; an unclassified failure
+///    must not be folded into a neighbouring category
+/// 4. `UNSUPPORTED` / `MISSING` -> expert, or shrink the model
+/// 5. `TOOL_ERROR` / `STALE` -> the verdict itself is untrustworthy
+/// 6. the loop ran out of verifications or repairs, or Pi failed -> Codex
+///    Review, because repeating the same attempt is not a plan
+/// 7. otherwise -> another repair round, if the loop still has budget
+pub fn next_step(
+    groups: &BTreeMap<String, Vec<String>>,
+    stop_reason: &str,
+    stale: bool,
+) -> &'static str {
+    if stale {
+        return "TOOLCHAIN_FIRST";
+    }
+    if groups.is_empty() {
+        return "NONE";
+    }
+    if groups
+        .keys()
+        .any(|status| !ESCALATION.iter().any(|(known, _)| *known == status))
+    {
+        return "UNCLASSIFIED_STOP";
+    }
+    if groups.contains_key("UNSUPPORTED") || groups.contains_key("MISSING") {
+        return "EXPERT_OR_SHRINK";
+    }
+    if groups.contains_key("TOOL_ERROR") || groups.contains_key("STALE") {
+        return "TOOLCHAIN_FIRST";
+    }
+    if stop_reason.contains("cap_exhausted") || stop_reason == "pi_error" {
+        return "CODEX_REVIEW";
+    }
+    "REPAIR_ROUND"
+}
+
+/// Render the escalation record for one round: the table of prescribed next
+/// steps, the single decided step, and what the loop counters say. Deterministic
+/// for the same report and counters.
+pub fn escalation(
+    report: &Value,
+    stop_reason: &str,
+    verifications: usize,
+    repairs: usize,
+) -> String {
+    let groups = grouped(report);
+    let verdict = report["gate"]["status"].as_str().unwrap_or("?");
+    let step = next_step(&groups, stop_reason, is_stale(report));
+    let mut out = String::new();
+    out.push_str("# 下一步（升级路径）\n\n");
+    out.push_str(&format!(
+        "- 模型：`{}`，本轮判定 `{verdict}`\n- 编排器用量：验证 {verifications} 次，修复 {repairs} 次\n- 停止原因：`{stop_reason}`\n- **下一步：`{step}`**\n\n",
+        report["model_id"].as_str().unwrap_or("?")
+    ));
+    out.push_str(
+        "下一步只由 gate 报告与编排器计数器决定。Agent 自述“已解决”不改变下面任何一行；\n只有重新运行 gate 得到的新报告才能改变它。\n\n",
+    );
+
+    let stale_note = report::freshness(report);
+    if !stale_note.is_empty() {
+        out.push_str(&format!(
+            "本报告已不可追溯到当前输入（`STALE`），下面的判定只作参考：{}\n\n",
+            stale_note.join("; ")
+        ));
+    }
+
+    if groups.is_empty() {
+        out.push_str("本轮没有未通过的义务，没有需要升级的失败类别。\n\n");
+    } else {
+        out.push_str("| 状态 | 条数 | 确定下一步 |\n|---|---|---|\n");
+        for (status, ids) in &groups {
+            let step_text = ESCALATION
+                .iter()
+                .find(|(known, _)| *known == status)
+                .map(|(_, text)| (*text).to_string())
+                .unwrap_or_else(|| {
+                    "不在升级表内：停止自动流程，交人类为它定规则。不得当作已通过，也不得并入相近类别。"
+                        .to_string()
+                });
+            out.push_str(&format!("| `{status}` | {} | {step_text} |\n", ids.len()));
+        }
+        out.push('\n');
+    }
+
+    if verdict == "PASS" && repairs > 0 {
+        out.push_str(&format!(
+            "本轮之前已修复 {repairs} 次并通过：改动的是 M1，闭环要人类读过 diff 才算成立，不由 Agent 自行认定。\n"
+        ));
+    }
+    if verdict != "PASS" && (repairs > 0 || stop_reason.contains("cap_exhausted")) {
+        out.push_str(&format!(
+            "重复失败：已修复 {repairs} 次、验证 {verifications} 次仍未通过。自动修复到此为止，交 Codex Review / 人类复核，并保留全部轮次证据。\n"
+        ));
+    }
+    out
+}
+
 /// Group the not-discharged obligations by status.
 pub fn grouped(report: &Value) -> BTreeMap<String, Vec<String>> {
     let mut groups: BTreeMap<String, Vec<String>> = BTreeMap::new();

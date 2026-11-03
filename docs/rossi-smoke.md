@@ -1229,3 +1229,74 @@ packet 3645 字节）与 `harness/dry-pass.json`（1 验证 / `pass` / exit 0）
 
 若日后要恢复上界守卫，做法是把成员断言换成集合相等，代价是每次人类批准后必须同步改这个测试
 （改测试本身成为批准信号）。本轮不做。生产代码未改，仅测试与文档。
+
+## 39. T34：失败类别 → 确定下一步（escalate）（2026-11-03）
+
+P4 复核指出 T34 未做：一轮跑完之后，"下一步该干什么" 仍由 Agent 自己解释。
+T34 的判据是 **所有失败类别有确定的下一步，不允许 Agent 宣称自己解决了**。
+不新增框架，只在既有 `feedback` 模块里加一张表和一条判定。
+
+单一事实来源在 Rust：`feedback::ESCALATION` 8 行，覆盖 `verify::Status` 全部 8 个变体
+（`SMT_DISCHARGED` / `NOT_DISCHARGED` / `UNSUPPORTED` / `UNKNOWN` / `TIMEOUT` /
+`TOOL_ERROR` / `STALE` / `MISSING`）。测试直接从枚举取状态列表比对表，表漏一行即失败。
+
+`next_step(groups, stop_reason, stale)` 有序判定，先命中先得：
+
+1. 报告已不可追溯（`STALE`）→ `TOOLCHAIN_FIRST`
+2. 无未通过义务 → `NONE`
+3. 出现表外状态 → `UNCLASSIFIED_STOP`（不并入邻近类别）
+4. `UNSUPPORTED` / `MISSING` → `EXPERT_OR_SHRINK`
+5. `TOOL_ERROR` / `STALE` → `TOOLCHAIN_FIRST`
+6. 轮次或修复用尽、Pi 失败 → `CODEX_REVIEW`
+7. 其余 → `REPAIR_ROUND`
+
+判定输入只有两项：**gate 写出的 report.json** 与 **编排器计数器**。
+`tests/feedback.rs::the_next_step_is_read_from_the_report_not_from_what_the_agent_claims`
+往报告里注入 `"agent_claim":"我已经修好了，可以判定通过"`，断言输出与不注入时逐字节相同。
+只有重跑 gate 产生的新报告才能改变任何一行。
+
+过程中发现并关掉一个漏洞：把 PASS 报告里钉住的 `model_source` 哈希改成全 0，
+原判定仍是 `NONE`（只附一行 STALE 警告）。不可追溯的 PASS 不等于完成，
+故新增第 1 条规则，现为 `TOOLCHAIN_FIRST`；对应测试
+`a_verdict_that_no_longer_traces_to_its_inputs_is_never_left_as_no_action`。
+
+CLI：`intentower escalate <REPORT_JSON> [--stop-reason] [--verifications] [--repairs] [--out]`。
+`scripts/run-refinement.sh` 在收尾基线校验之后、写 `run.json` 之前生成
+`$RUN_DIR/escalation.md`；无 gate 报告可用时写出 `TOOLCHAIN_FIRST` 兜底记录。
+`run.json` 的 `unexpected_entries` 白名单同步加入 `escalation.md`。
+
+实测（`DRY_RUN=1`，不消耗 LLM）：
+
+- `models/counter MODEL-002`：3 验证 / 2 修复 / `verify_cap_exhausted` / 脚本 exit 2，
+  `ESCALATE MODEL-002 next=EXPERT_OR_SHRINK`，表内 `NOT_DISCHARGED` 1 条 + `UNSUPPORTED` 1 条，
+  并输出"自动修复到此为止，交 Codex Review / 人类复核"。
+- `MODEL-006`（已有 th1）：1 验证 / `pass` / exit 0，`next=NONE`，
+  并声明"本轮没有未通过的义务，没有需要升级的失败类别"。
+- 真实 gate 报告：`MODEL-001`（INCOMPLETE，UNSUPPORTED）→ `EXPERT_OR_SHRINK`；
+  `MODEL-005`（PASS）→ `NONE`。
+
+证据：`evidence/experiments/harness/T34-dry-{pass,cap-exhausted}-run.json` 与同名
+`*-escalation.md`。测试：`tests/feedback.rs` 新增 11 项（共 19 项）。
+`cargo fmt --all -- --check` exit 0；`cargo clippy --offline --all-targets` 0 warning；
+`cargo test --offline` 169 passed / 0 failed。
+
+边界：`escalate` 是**判定与记录**，不是强制。脚本必须调用它才有记录；表里的下一步是给人和
+Codex 看的指令文本，不由程序执行。它不改变任何 gate 判定，也不扩大 F0。
+
+接线时另外发现并修掉三处：
+
+1. **退出码不等于判定**。用一个包装二进制让 `gate` 退出 0 但不写 `report.json`，
+   脚本原本记为 `pass`，`run.json` 里该轮 gate 记录为空 `{}`。现在 gate 之后立即检查
+   `report.json` 是否存在，缺失即 `stop 2`。证据
+   `evidence/experiments/harness/T34-gate-exit0-no-report-stop.json`（包装二进制产生，
+   已在 README 标明是负控）。
+2. **escalate 自身失败不得吞掉证据**。原先 `escalate` 失败会 `stop 2`，`run.json` 就写不出来。
+   现在失败（或根本没有报告）时写出兜底记录（`TOOLCHAIN_FIRST`）并继续收尾，
+   `run.json` 与 `unexpected_entries` 照常产生。
+3. **heredoc/双引号里的反引号是命令替换**。兜底文案里 `` `$last_report` `` 会被 bash 当命令执行，
+   打印出空字符串（并且会执行路径内容）。已去掉反引号。`prompts/refine.md` 是文件内容，
+   不受影响；脚本追加段已确认无反引号。
+
+四种接线场景实测（`DRY_RUN=1`）：正常通过 exit 0 / `next=NONE`；配额用尽 exit 2 /
+`next=EXPERT_OR_SHRINK`；gate 无报告 exit 2 / 停止；`escalate` 不可用 exit 0 / 兜底
+`TOOLCHAIN_FIRST` 且 `run.json` 完整。

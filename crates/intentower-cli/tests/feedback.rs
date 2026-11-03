@@ -304,3 +304,237 @@ fn the_cli_reports_the_packet_size_against_the_budget() {
     );
     assert!(written.len() <= feedback::BUDGET);
 }
+
+// ---- T34: failure category -> prescribed next step -------------------------
+
+use intentower_cli::verify::Status;
+
+/// Every status the verifier can emit, taken from the enum itself so the
+/// escalation table cannot drift away from it unnoticed.
+fn emitted_statuses() -> Vec<&'static str> {
+    [
+        Status::SmtDischarged,
+        Status::NotDischarged,
+        Status::Unknown,
+        Status::Timeout,
+        Status::Unsupported,
+        Status::ToolError,
+        Status::Stale,
+        Status::Missing,
+    ]
+    .iter()
+    .map(Status::as_str)
+    .collect()
+}
+
+/// Rewrite the failing rows of a fixture to one status, keeping the row count
+/// intact: `report::read` refuses a report whose `po_total` disagrees with the
+/// obligations it lists, so a tampered fixture must stay internally consistent.
+fn with_status(fixture: &str, status: &str) -> serde_json::Value {
+    let mut value = report(fixture);
+    for row in value["obligations"].as_array_mut().unwrap() {
+        let row = row.as_object_mut().unwrap();
+        if row["status"].as_str() != Some("SMT_DISCHARGED") {
+            row.insert("status".to_string(), serde_json::json!(status));
+        }
+    }
+    value
+}
+
+/// Run `escalate` on a report copy, as the loop does when a run stops.
+fn escalation(value: &serde_json::Value, label: &str, extra: &[&str]) -> String {
+    let dir = out_dir(label);
+    let src = dir.join("report.json");
+    std::fs::write(&src, serde_json::to_string(value).unwrap()).unwrap();
+    let mut args: Vec<String> = vec!["escalate".to_string(), src.to_str().unwrap().to_string()];
+    args.extend(extra.iter().map(|arg| arg.to_string()));
+    let output = Command::new(BIN)
+        .args(&args)
+        .current_dir(repo("."))
+        .output()
+        .unwrap_or_else(|err| panic!("cannot run {BIN}: {err}"));
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "stdout {} stderr {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    String::from_utf8(output.stdout).expect("escalation is utf8")
+}
+
+fn decided(text: &str) -> String {
+    let line = text
+        .lines()
+        .find(|line| line.starts_with("ESCALATE "))
+        .expect("the decision is reported on stdout");
+    line.split("next=").last().expect("a next step").to_string()
+}
+
+#[test]
+fn every_status_the_verifier_can_emit_has_exactly_one_next_step() {
+    let listed: Vec<&str> = feedback::ESCALATION
+        .iter()
+        .map(|(status, _)| *status)
+        .collect();
+    for status in emitted_statuses() {
+        assert!(
+            listed.contains(&status),
+            "{status} has no prescribed next step"
+        );
+    }
+    assert_eq!(
+        listed.len(),
+        emitted_statuses().len(),
+        "the escalation table lists each status exactly once"
+    );
+    for (status, step) in feedback::ESCALATION {
+        assert!(!step.trim().is_empty(), "{status} has an empty next step");
+    }
+}
+
+#[test]
+fn an_unsupported_obligation_goes_to_an_expert_not_to_a_wider_solver() {
+    let text = escalation(
+        &report(INCOMPLETE),
+        "esc-unsupported",
+        &["--verifications", "1"],
+    );
+    assert_eq!(decided(&text), "EXPERT_OR_SHRINK");
+    assert!(text.contains("缩小模型或交专家"), "{text}");
+    assert!(text.contains("不得扩大 F0"), "{text}");
+    assert!(text.contains("不得跳过该义务"), "{text}");
+}
+
+#[test]
+fn a_refuted_obligation_hands_the_counterexample_to_a_human() {
+    let text = escalation(
+        &with_status(FAIL, "NOT_DISCHARGED"),
+        "esc-notdischarged",
+        &["--verifications", "1"],
+    );
+    assert_eq!(decided(&text), "REPAIR_ROUND");
+    assert!(text.contains("候选反例"), "{text}");
+    assert!(
+        text.contains("不得为消迹添加猜测性约束"),
+        "a refuted PO must not be silenced by invented constraints: {text}"
+    );
+}
+
+#[test]
+fn unknown_and_timeout_are_never_recorded_as_a_pass() {
+    for status in ["UNKNOWN", "TIMEOUT"] {
+        let text = escalation(&with_status(FAIL, status), &format!("esc-{status}"), &[]);
+        assert_eq!(decided(&text), "REPAIR_ROUND");
+        assert!(
+            text.contains("不得记为通过") || text.contains("不是通过"),
+            "{text}"
+        );
+    }
+}
+
+#[test]
+fn a_tool_error_or_a_stale_report_is_repaired_before_any_model_repair() {
+    for status in ["TOOL_ERROR", "STALE"] {
+        let text = escalation(&with_status(FAIL, status), &format!("esc-{status}"), &[]);
+        assert_eq!(decided(&text), "TOOLCHAIN_FIRST", "{text}");
+    }
+}
+
+#[test]
+fn a_missing_obligation_stops_the_loop_and_goes_to_a_stronger_reviewer() {
+    let text = escalation(&with_status(FAIL, "MISSING"), "esc-missing", &[]);
+    assert_eq!(decided(&text), "EXPERT_OR_SHRINK");
+    assert!(text.contains("停止修复"), "{text}");
+}
+
+#[test]
+fn repeated_failure_hands_off_to_codex_review() {
+    let text = escalation(
+        &with_status(FAIL, "NOT_DISCHARGED"),
+        "esc-repeat",
+        &[
+            "--stop-reason",
+            "verify_cap_exhausted",
+            "--verifications",
+            "3",
+            "--repairs",
+            "2",
+        ],
+    );
+    assert_eq!(decided(&text), "CODEX_REVIEW");
+    assert!(text.contains("Codex Review"), "{text}");
+    assert!(text.contains("自动修复到此为止"), "{text}");
+}
+
+#[test]
+fn a_status_that_is_not_classified_stops_instead_of_being_folded_in() {
+    let text = escalation(&with_status(FAIL, "WEIRD"), "esc-weird", &[]);
+    assert_eq!(decided(&text), "UNCLASSIFIED_STOP");
+    assert!(text.contains("不在升级表内"), "{text}");
+    assert!(
+        text.contains("`WEIRD`"),
+        "the unclassified status is named: {text}"
+    );
+}
+
+#[test]
+fn a_pass_after_a_repair_still_waits_for_a_human_to_read_the_diff() {
+    let mut value = with_status(FAIL, "SMT_DISCHARGED");
+    value["gate"] = serde_json::json!({ "status": "PASS", "reasons": [] });
+    let text = escalation(
+        &value,
+        "esc-pass",
+        &["--stop-reason", "pass", "--repairs", "1"],
+    );
+    assert_eq!(decided(&text), "NONE");
+    assert!(text.contains("没有需要升级的失败类别"), "{text}");
+    assert!(
+        text.contains("闭环要人类读过 diff 才算成立"),
+        "the agent may not declare the loop closed: {text}"
+    );
+}
+
+#[test]
+fn the_next_step_is_read_from_the_report_not_from_what_the_agent_claims() {
+    let mut claimed = report(INCOMPLETE);
+    claimed["agent_claim"] = serde_json::json!("我已经修好了，可以判定通过");
+    let plain = escalation(
+        &report(INCOMPLETE),
+        "esc-claim-plain",
+        &["--verifications", "1"],
+    );
+    let with_claim = escalation(&claimed, "esc-claim", &["--verifications", "1"]);
+    assert_eq!(
+        plain, with_claim,
+        "an agent's own account of its work must not move a single row"
+    );
+    assert!(!with_claim.contains("我已经修好了"));
+}
+
+#[test]
+fn a_verdict_that_no_longer_traces_to_its_inputs_is_never_left_as_no_action() {
+    let mut value = with_status(FAIL, "SMT_DISCHARGED");
+    value["gate"] = serde_json::json!({ "status": "PASS", "reasons": [] });
+    let inputs = value["inputs"].as_array_mut().unwrap();
+    let mut tampered = false;
+    for input in inputs {
+        if input["role"] == serde_json::json!("model_source") {
+            input["sha256"] = serde_json::json!("0".repeat(64));
+            tampered = true;
+            break;
+        }
+    }
+    assert!(tampered, "the fixture pins its model source");
+    let text = escalation(
+        &value,
+        "esc-stale-pass",
+        &["--stop-reason", "pass", "--verifications", "1"],
+    );
+    assert_eq!(
+        decided(&text),
+        "TOOLCHAIN_FIRST",
+        "a PASS that cannot be traced to its inputs must not read as finished: {text}"
+    );
+    assert!(text.contains("STALE"), "{text}");
+}
