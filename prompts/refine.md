@@ -12,7 +12,7 @@
 | `docs/SPEC-001.md` | 已批准验证语义，含 F0 = QF_LIA 语言子集 |
 | `project.json` | 已批准策略基线 |
 | `AGENTS.md` | 工作规则：任务粒度、验证纪律、handoff 格式 |
-| `models/counter/models.json` | 模型 id → 源文件清单。**Agent 产物、未进基线（人类裁决 A3=b）**：不得自行增删改；要改必须在 handoff 里说明理由并等人类确认 |
+| `models/counter/models.json` | 模型 id → 源文件清单。**文件本身不在基线里，可以新增 id（append-only，人类裁决 A3=c）**；但 `MODEL-001`、`MODEL-004` 的源文件集合已被基线钉住，不得改指向、不得删除。要改必须在 handoff 里说明理由并等人类确认 |
 
 ## 2. 唯一可改的文件，以及可新建的文件
 

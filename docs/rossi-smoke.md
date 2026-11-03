@@ -650,3 +650,32 @@ Agent 未写入、未修改过这个文件。文件自身 SHA256：
 
 **遗留**：`approvals/baseline.json~` 是编辑器留下的 1 字节备份（未跟踪，内容只有一个空行），
 等人类决定是否删除。**T32 已解除阻塞**（`--policy approvals/baseline.json` 现在能找到文件）。
+
+## 25. A3 改判 (b) → (c)：按 ID 钉住源文件集合
+
+§24 把 A3 记成 (b)（`models.json` 不进基线）。人类复核后改判为 **(c)**。改判理由是一次真实注入实验，不是推测：
+
+```bash
+# 只改 models/counter/models.json 一行，把 MODEL-001 指向 counter 那一对；
+# 没有任何 .eventb 被改动，m0.eventb 的基线哈希依然 MATCH
+intentower verify models/counter --model-id MODEL-001 --out /tmp/hole.json
+# 实测：PASS 6 obligations, inputs 4，退出 0
+```
+
+SPEC-001 §13 明文要求这条命令退出 **2**。也就是说：**改一个未基线化的分派表，就能把
+已批准验收标准里的负例变成 PASS**，全程无报错、无哈希变化、无测试失败。
+（实验后已 `git checkout models/counter/models.json` 还原，哈希回到 `4073b0df…`。）
+
+**裁决 (c) 的规则**：
+
+- `models/counter/models.json` **文件本身不进基线**，允许新增 id（append-only），供 T33 实验用；
+- 基线新增 `model_ids` 段，钉住 SPEC-001 §13 点名的两个 id 的**源文件集合**：
+  `MODEL-001 = m0.eventb + m1.eventb`，`MODEL-004 = counter.eventb + counter_machine.eventb`；
+- 已钉住的 id **不得改指向、不得删除**；改/删属受保护变更，须人类批准；
+- `model_ids` 里只存路径集合，**不存文件哈希**：`m1.eventb` 正是 `prompts/refine.md` 唯一可写文件，
+  钉它的哈希会直接冻死精炼任务；内容改动由报告逐条哈希 + STALE 机制负责。
+
+路径一律写仓库根相对路径（`models/counter/m0.eventb`），而 `models.json` 内部是目录相对路径
+（`m0.eventb`）——T32 实现时必须显式解析这一层差异，不得两边猜。
+
+`approvals/baseline.json` 由人类重写以加入 `model_ids`（Agent 不写批准记录）。
