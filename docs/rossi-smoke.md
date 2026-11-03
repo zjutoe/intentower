@@ -787,3 +787,39 @@ SPEC-001 §24 明确 `verify` 不得把基线当判定依据，`gate` 的验收�
 
 **尚未批准**：P3 Gate 签字（8 类故障注入证据见 §17–§20、§23）。T33 实验记录属 P4 交付物，
 签字前不启动 T33。
+
+## 28. P3 Gate 签字包：8 类故障注入 + 附加项，逐条实测
+
+下表每一行都是**当场跑出来的**（2026-11-03），不是引用历史 JSON。命令与退出码在表下。
+
+| # | 故障类别 | 证据（测试名） | 结果 |
+|---|---|---|---|
+| 1 | 缺 PO / 没有 `.bpo` | `inventory::a_project_without_bpo_files_is_not_a_pass` | ok（`NO_BPO_FILE` / `ZERO_PO`） |
+| 2 | 重复 PO | `inventory::a_duplicated_obligation_in_a_bpo_is_duplicate_po` | ok（`DUPLICATE_PO`） |
+| 3 | 零 PO | `gate_policy::the_refinement_is_incomplete_while_one_obligation_is_outside_f0` + `policy::nothing_short_of_all_discharged_is_a_pass` | ok（`po_total == 0` 不能 PASS） |
+| 4 | `UNKNOWN` | `gate::policy::tests::each_status_maps_to_the_expected_verdict` | ok（→ INCOMPLETE） |
+| 5 | `TIMEOUT` | 同上状态映射 + cvc5 超时用例 | ok（→ INCOMPLETE） |
+| 6 | `UNSUPPORTED` | `gate_policy::the_refinement_is_incomplete_while_one_obligation_is_outside_f0` | ok（MODEL-001 → 退出 2） |
+| 7 | 损坏/自相矛盾的报告 | `cli_report::a_report_that_does_not_add_up_is_refused_and_no_summary_is_written` | ok（退出 2，不写摘要） |
+| 8 | 模型源码改变 | `provenance::editing_a_model_source_makes_the_report_stale` | ok（报告 STALE → 退出 2） |
+| 附 | 植入的 PASS 报告 | `gate_policy::a_planted_pass_report_changes_nothing` | ok（报告不是 gate 输入） |
+| 附 | **删除高层约束不得隐式更新批准基线** | 见下方实测 | ok（`intentower baseline` 退出 2） |
+
+### 附加项实测（T32 之后才可能做，之前只能记风险）
+
+```bash
+# 从已批准的 models/counter/m0.eventb 删掉 @inv2 与 add 的 @grd2（其余文件不动）
+./target/debug/intentower baseline
+#   - protected file changed: models/counter/m0.eventb: recorded 48560e02... != current d065f9b3...
+#   BASELINE CHANGED: 1 protected inputs moved. stop the round; only a human may re-baseline.
+#   exit=2
+./target/debug/intentower gate models/counter --model-id MODEL-004 --out /tmp/weaken.json
+#   exit=0        ← 求解器自己**看不出**约束被删：这就是必须有基线检查的理由
+git checkout models/counter/m0.eventb
+sha256sum models/counter/m0.eventb    # 48560e02... == approvals/baseline.json 记录值
+./target/debug/intentower baseline    # BASELINE OK, exit=0
+```
+
+工作树已复原（`git status --short` 干净），M0 哈希与基线记录一致。
+
+**P3 Gate 状态：证据齐备，等待人类签字。**签字前不启动 T33 实验（P4 交付物）。
