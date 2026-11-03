@@ -679,3 +679,20 @@ SPEC-001 §13 明文要求这条命令退出 **2**。也就是说：**改一个�
 （`m0.eventb`）——T32 实现时必须显式解析这一层差异，不得两边猜。
 
 `approvals/baseline.json` 由人类重写以加入 `model_ids`（Agent 不写批准记录）。
+
+### 25.1 基线已按 (c) 重写（人类写入，2026-11-03）
+
+`approvals/baseline.json` 新增 `model_ids` 段，文件自身哈希 `d2d028a3…` → **`0841ad3c…`**。
+校验（`python3` + `hashlib`，独立于 CLI 实现）：
+
+| 条目 | 结果 |
+|---|---|
+| 四条 `sha256`（INT-001 / SPEC-001 R1 / M0 / project.json） | 全部 MATCH |
+| `MODEL-001` 源文件集合 vs `models.json` | MATCH（`m0.eventb` + `m1.eventb`） |
+| `MODEL-004` 源文件集合 vs `models.json` | MATCH（`counter.eventb` + `counter_machine.eventb`） |
+| 未钉住的 id | `MODEL-002`、`MODEL-003` —— 按 (c) 允许，append-only |
+
+没有任何入库报告钉过旧基线哈希 `d2d028a3…`（`git grep` 为空），所以基线重写不会让已有证据变 STALE。
+
+**注意**：`--policy approvals/baseline.json` 生成的旧报告（如临时 `/tmp/bl.json`）现在会因策略哈希变化而 STALE——这是正确行为。
+ enforcement 尚未实现：§25 的注入实验目前**还检不出来**，要等 T32 的 protected-input 检查。
