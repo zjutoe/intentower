@@ -27,14 +27,20 @@ fn code_spans(text: &str) -> Vec<String> {
 
 #[test]
 fn every_path_the_prompt_names_exists() {
-    // `approvals/` is T32's file and `artifacts/refine/` is what the agent is
-    // told to produce, so neither exists yet; everything else must.
+    // `artifacts/refine/` is what the agent is told to produce, so it does not
+    // exist yet; every other repo path the prompt names must.
     let checked = [
-        "models/", "docs/", "crates/", "tests/", "scripts/", "schemas/",
+        "models/",
+        "docs/",
+        "crates/",
+        "tests/",
+        "scripts/",
+        "schemas/",
+        "approvals/",
     ];
     let mut found = 0;
     for span in code_spans(&prompt()) {
-        if span.starts_with("approvals/") || span.starts_with("artifacts/") {
+        if span.starts_with("artifacts/") {
             continue;
         }
         if !checked.iter().any(|prefix| span.starts_with(prefix)) {
@@ -65,6 +71,7 @@ fn the_prompt_names_one_writable_file_and_the_protected_ones() {
         "docs/INT-001.md",
         "docs/SPEC-001.md",
         "project.json",
+        "approvals/baseline.json",
         "AGENTS.md",
         "schemas/report.schema.json",
     ] {

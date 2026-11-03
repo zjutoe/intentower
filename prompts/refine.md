@@ -12,7 +12,7 @@
 | `docs/SPEC-001.md` | 已批准验证语义，含 F0 = QF_LIA 语言子集 |
 | `project.json` | 已批准策略基线 |
 | `AGENTS.md` | 工作规则：任务粒度、验证纪律、handoff 格式 |
-| `models/counter/models.json` | 模型 id → 源文件清单（id 语义仍待人类批准，不得自行增删改） |
+| `models/counter/models.json` | 模型 id → 源文件清单。**Agent 产物、未进基线（人类裁决 A3=b）**：不得自行增删改；要改必须在 handoff 里说明理由并等人类确认 |
 
 ## 2. 唯一可改的文件，以及可新建的文件
 
@@ -24,6 +24,7 @@
 
 1. M0 语义：`models/counter/m0.eventb` 一个字节都不能变。
 2. 已批准文档与策略：`docs/INT-001.md`、`docs/SPEC-001.md`、`project.json`、
+   `approvals/baseline.json`（人类冻结的基线，只读）、
    `AGENTS.md`、`Intentower_Phase1_Research_Development_Plan.md`、`schemas/report.schema.json`。
 3. 测试与验收工具：`crates/intentower-cli/tests/`、`tests/fixtures/`、`scripts/`。
    删测试、改断言、放宽 schema 都不算修复。

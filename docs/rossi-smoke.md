@@ -616,3 +616,37 @@ b3af782053102bac13b66e58045851cb9417f1b3343d796968a4487c78da730d  docs/INT-001.m
 48560e02cadd9f454e3a4f0bb0c88bed195a93fb340ad6258b0f43f6132c618f  models/counter/m0.eventb
 1a9adec1ee0c83059450a50d41aa19ba33074f16ef888e2710fa1d56d7c03342  project.json
 ```
+
+## 24. P1 基线冻结（人类写入）与 A3 裁决 (b)
+
+`approvals/baseline.json` 由**人类手写**并入库（commit `dcf01b6`，11 行）。
+Agent 未写入、未修改过这个文件。文件自身 SHA256：
+`d2d028a38b5e9771b9b7b6e761e38e532ae871f4d97bf6b9c2ff47ff7f49116e`。
+
+校验（`python3` + `hashlib` 逐条重算，并与 `sha256sum` 交叉）：
+
+| 基线条目 | 结果 |
+|---|---|
+| `docs/INT-001.md` `b3af78205310…` | MATCH |
+| `docs/SPEC-001.md` `7c52021f39bb…`（R1 后） | MATCH |
+| `models/counter/m0.eventb` `48560e02cadd…` | MATCH |
+| `project.json` `1a9adec1ee0c…` | MATCH |
+
+覆盖计划 §2.2 要求的最小集（INT / 批准 SPEC / M0 / policy）。**A2 关闭。**
+
+**A3 = (b)（人类裁决，2026-11-03）**：`models/counter/models.json` **不进基线**。
+
+- 模型清单是 Agent 产物、未基线化；T32 的 protected-input 检查只覆盖基线里那四项；
+- 改 `models.json` 仍必须在 handoff 里说明理由并等人类确认（已写进 `prompts/refine.md` §1）；
+- `project.json` 的 `"models": []` 保持为空，不改已批准策略，基线哈希不变。
+
+连带改动：`prompts/refine.md` §3 把 `approvals/baseline.json` 列入禁改清单；
+`tests/prompts.rs` 现在要求 prompt 点到的 `approvals/` 路径必须真实存在，
+并把 `approvals/baseline.json` 加进受保护断言。
+注入验证：从 prompt 删掉 `approvals/baseline.json` 那一行 →
+`the_prompt_names_one_writable_file_and_the_protected_ones` **FAILED**；恢复后 4 passed。
+
+`cargo test --offline`：**137 passed / 0 failed**；`cargo fmt --all -- --check` 干净。
+
+**遗留**：`approvals/baseline.json~` 是编辑器留下的 1 字节备份（未跟踪，内容只有一个空行），
+等人类决定是否删除。**T32 已解除阻塞**（`--policy approvals/baseline.json` 现在能找到文件）。
