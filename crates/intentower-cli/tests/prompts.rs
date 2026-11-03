@@ -1,7 +1,7 @@
-//! T29: `prompts/refine.md` is a real prompt, not a wish. It names the files
-//! that exist, the one file the agent may change, the hard limits, and the
-//! current measured state. These checks fail if the prompt drifts away from
-//! the repository it points at.
+//! T29 / T30: `prompts/refine.md` and `prompts/repair.md` are real prompts, not
+//! wishes. They name the files that exist, the one file the agent may change,
+//! the hard limits, and the current measured state. These checks fail if a
+//! prompt drifts away from the repository it points at.
 
 use std::path::{Path, PathBuf};
 
@@ -11,8 +11,8 @@ fn repo(path: &str) -> PathBuf {
         .join(path)
 }
 
-fn prompt() -> String {
-    std::fs::read_to_string(repo("prompts/refine.md")).expect("prompts/refine.md exists")
+fn prompt(name: &str) -> String {
+    std::fs::read_to_string(repo(name)).unwrap_or_else(|err| panic!("{name} exists: {err}"))
 }
 
 /// Inline code spans only: fenced blocks are stripped first, and a token with
@@ -26,9 +26,9 @@ fn code_spans(text: &str) -> Vec<String> {
 }
 
 #[test]
-fn every_path_the_prompt_names_exists() {
+fn every_path_either_prompt_names_exists() {
     // `artifacts/refine/` is what the agent is told to produce, so it does not
-    // exist yet; every other repo path the prompt names must.
+    // exist yet; every other repo path a prompt names must.
     let checked = [
         "models/",
         "docs/",
@@ -38,30 +38,29 @@ fn every_path_the_prompt_names_exists() {
         "schemas/",
         "approvals/",
     ];
-    let mut found = 0;
-    for span in code_spans(&prompt()) {
-        if span.starts_with("artifacts/") {
-            continue;
+    for name in ["prompts/refine.md", "prompts/repair.md"] {
+        let mut found = 0;
+        for span in code_spans(&prompt(name)) {
+            if span.starts_with("artifacts/") {
+                continue;
+            }
+            if !checked.iter().any(|prefix| span.starts_with(prefix)) {
+                continue;
+            }
+            let path = repo(&span);
+            assert!(path.exists(), "{name} names a missing path: {span}");
+            found += 1;
         }
-        if !checked.iter().any(|prefix| span.starts_with(prefix)) {
-            continue;
-        }
-        let path = repo(&span);
         assert!(
-            path.exists(),
-            "prompts/refine.md names a missing path: {span}"
+            found >= 8,
+            "{name}: only {found} repo paths named; a prompt must name its inputs and its forbidden files"
         );
-        found += 1;
     }
-    assert!(
-        found >= 8,
-        "only {found} repo paths named; the prompt must name its inputs and its forbidden files"
-    );
 }
 
 #[test]
 fn the_prompt_names_one_writable_file_and_the_protected_ones() {
-    let text = prompt();
+    let text = prompt("prompts/refine.md");
     assert!(
         text.contains("`models/counter/m1.eventb`（只有这一个）"),
         "the single writable file must be stated"
@@ -84,7 +83,7 @@ fn the_prompt_names_one_writable_file_and_the_protected_ones() {
 
 #[test]
 fn the_prompt_carries_the_limits_and_the_verification_commands() {
-    let text = prompt();
+    let text = prompt("prompts/refine.md");
     assert!(text.contains("QF_LIA"), "the F0 subset must be restated");
     assert!(
         text.contains("候选验证最多 **3 次**，自动修复最多 **2 次**"),
@@ -121,7 +120,7 @@ fn the_prompt_carries_the_limits_and_the_verification_commands() {
 
 #[test]
 fn the_prompt_states_the_current_measured_state_instead_of_a_promised_pass() {
-    let text = prompt();
+    let text = prompt("prompts/refine.md");
     assert!(
         text.contains("m0::sub/act1/FIS"),
         "the known UNSUPPORTED PO is named"

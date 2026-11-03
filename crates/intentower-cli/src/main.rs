@@ -8,6 +8,11 @@
 //! `approvals/baseline.json` against the working tree and exits 2 the moment a
 //! protected input moves. It reads only; it never refreshes the baseline.
 //!
+//! T30 adds `intentower feedback`: it renders the one feedback packet a repair
+//! round is allowed to receive — this round's failed obligations with their
+//! real sequent text, the model fragment, the tool's own words — and refuses to
+//! emit a packet over the approved 8 KB budget rather than truncating one.
+//!
 //! T28 adds `intentower report`: it reads a written report back and renders a
 //! Markdown review summary. It runs nothing, so it can never authorize a PASS;
 //! it exits 2 when the report is unreadable, inconsistent or STALE, and
@@ -21,6 +26,7 @@ use clap::{Arg, Command};
 use serde_json::json;
 
 use intentower_cli::baseline;
+use intentower_cli::feedback;
 use intentower_cli::gate::policy::{self, Verdict};
 use intentower_cli::report;
 
@@ -111,6 +117,63 @@ fn command() -> Command {
                         .help("baseline paths are resolved against this directory"),
                 ),
         )
+        .subcommand(
+            Command::new("feedback")
+                .about("Render the repair feedback packet for one failed round (≤ 8 KB; exits 2 rather than truncating)")
+                .arg(
+                    Arg::new("report_json")
+                        .required(true)
+                        .value_name("REPORT_JSON")
+                        .help("a report.json written by verify or gate, with a non-PASS verdict"),
+                )
+                .arg(
+                    Arg::new("out")
+                        .long("out")
+                        .required(true)
+                        .value_name("PATH")
+                        .help("Markdown packet to write"),
+                )
+                .arg(
+                    Arg::new("max_bytes")
+                        .long("max-bytes")
+                        .value_parser(clap::value_parser!(usize))
+                        .default_value("8192")
+                        .help("context budget for one feedback round"),
+                ),
+        )
+}
+
+/// T30: one round of repair gets exactly one input. A packet that does not fit
+/// the budget is an error, never a shortened packet.
+fn feedback_command(sub: &clap::ArgMatches) -> ExitCode {
+    let path = PathBuf::from(sub.get_one::<String>("report_json").unwrap());
+    let out = PathBuf::from(sub.get_one::<String>("out").unwrap());
+    let budget = *sub.get_one::<usize>("max_bytes").unwrap();
+    let value = match report::read(&path) {
+        Ok(value) => value,
+        Err(err) => return fail(err),
+    };
+
+    let packet = match feedback::render(&value, budget) {
+        Ok(packet) => packet,
+        Err(err) => return fail(err),
+    };
+    if let Some(parent) = out.parent().filter(|parent| !parent.as_os_str().is_empty()) {
+        std::fs::create_dir_all(parent)
+            .unwrap_or_else(|err| panic!("cannot create {parent:?}: {err}"));
+    }
+    std::fs::write(&out, &packet).unwrap_or_else(|err| panic!("cannot write {out:?}: {err}"));
+    println!(
+        "PACKET {} bytes of {budget}: {} failed obligations, {} quoted in full",
+        feedback::bytes_of(&packet),
+        feedback::grouped(&value)
+            .values()
+            .map(Vec::len)
+            .sum::<usize>(),
+        feedback::grouped(&value).len().min(2),
+    );
+    println!("packet: {out:?}");
+    ExitCode::SUCCESS
 }
 
 /// T32: the protected-input check. Run it before and after every refinement
@@ -206,6 +269,9 @@ fn main() -> ExitCode {
     }
     if name == "baseline" {
         return baseline_command(sub);
+    }
+    if name == "feedback" {
+        return feedback_command(sub);
     }
     let model_dir = PathBuf::from(sub.get_one::<String>("model_dir").unwrap());
     let model_id = sub.get_one::<String>("model_id").unwrap().clone();

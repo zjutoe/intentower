@@ -189,7 +189,8 @@ pub fn read(path: &Path) -> Result<Value, String> {
 }
 
 /// The inputs the report claims to be evidence about.
-fn recorded(report: &Value) -> Vec<Input> {
+/// The inputs the report pins, as recorded (no re-hashing).
+pub fn recorded(report: &Value) -> Vec<Input> {
     report["inputs"]
         .as_array()
         .map(|rows| {
@@ -295,7 +296,9 @@ fn counts(rows: &[&Value], field: &str) -> BTreeMap<String, usize> {
 
 /// The command that would re-run this verdict, derived from the inputs the
 /// report itself names. Printed so a reviewer can re-check it, not stored.
-fn reproduce(report: &Value, report_path: &Path) -> String {
+/// The command that would re-run this exact verdict, rebuilt from the inputs
+/// the report pins. Public because the repair packet must carry it verbatim.
+pub fn reproduce(report: &Value, report_path: &Path) -> String {
     let inputs = recorded(report);
     let dir = inputs
         .iter()
