@@ -750,3 +750,40 @@ SPEC-001 §24 明确 `verify` 不得把基线当判定依据，`gate` 的验收�
   现在的防线是它已入 git 历史（`d38255f`），以及 `gate --policy approvals/baseline.json`
   会把它的哈希钉进报告。要自动发现基线被换，需要 T31/T34 把基线哈希本身记进实验记录。
 - 检查与 `verify`/`gate` 解耦，意味着**忘记跑它就没有保护**。T31 的脚本必须把它做成必经步骤。
+
+## 27. P4 参数（人类批准，2026-11-03）
+
+三项决定：
+
+1. **上下文预算 = 每轮反馈 ≤ 8 KB**（Agent 建议、人类采纳）。理由用实测体积，不靠估：
+
+   | 反馈部件 | 实测字节 | 来源 |
+   |---|---|---|
+   | 单条失败义务的 sequent（XML，最坏） | **1701** | `m0.bpo` `sub/inv2/INV`；`sub/act1/FIS` 为 1124 |
+   | 义务状态表（MODEL-001 全部 20 条） | **1888** | `report.json` 的 `obligations` 数组 |
+   | 单条义务行（id/kind/status/detail） | 131 | 同上 |
+   | 单条 issue 行（code/message/obligation_id） | 110 | `report.json` 的 `issues` |
+   | 相关模型片段：`m1.eventb` 全文 | 811 | 当前唯一可写文件 |
+   | 只读片段：`m0.eventb` 全文 | 554 | 已批准 M0 |
+   | 复现命令 + 退出码 | ~120 | `report` 的 reproduce 行 |
+
+   最坏组合（1 条失败 sequent + 状态表 + 两个模型片段 + issue + 命令）≈ **5.2 KB**，
+   8 KB 够放 **2 条**失败 sequent 还有余量。超过 2 条失败时按失败类型分组，
+   每类只发 1 条代表 + 计数（T30 的"按类型分组"要求）。
+   8 KB ≈ 2–3 K token，相对 131072 的上下文上限很宽 —— 预算不是为了塞得下，
+   是为了**逼出可归因的反馈**：不得整份重发模型、不得整份重发报告。
+   `prompts/refine.md`（5008 B）每轮只发一次，不计入反馈预算。
+
+2. **`strata` 不在 PATH 时允许直接调 `pi`**（人类批准）。实测：`which strata` 无结果；
+   `pi` = `/home/mye/.nvm/versions/node/v25.1.0/bin/pi`，版本 `1.5.0`。
+   T31 需要的非交互能力已核对 `pi --help`（不猜）：
+   `--print/-p`（处理提示后退出）、`--no-session`（不留会话）、
+   `--tools/-t`（工具白名单）、`--exclude-tools/-xt`、`--no-builtin-tools`、
+   `--mode text|json|rpc`、`--session-id`、`--append-system-prompt`。
+   这条决定是**降级许可**，不是永久方案：`strata` 装上后应回到计划里的调用方式。
+
+3. **上限确认：候选验证最多 3 次，自动修复最多 2 次**（与 `prompts/refine.md` §6 一致，
+   也与 `AGENTS.md` §6 的两次修复上限一致）。超限即停止并交回失败分析，不得续期。
+
+**尚未批准**：P3 Gate 签字（8 类故障注入证据见 §17–§20、§23）。T33 实验记录属 P4 交付物，
+签字前不启动 T33。
