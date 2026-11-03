@@ -1,0 +1,111 @@
+{
+  "model_dir": "models/thermostat",
+  "model_id": "MODEL-006",
+  "refinement_file": "models/thermostat/th1.eventb",
+  "caps": {
+    "max_verifications": 3,
+    "max_repairs": 2,
+    "feedback_budget_bytes": 8192
+  },
+  "verifications_used": 2,
+  "repairs_used": 1,
+  "gate_exit": 0,
+  "stop_reason": "pass",
+  "dry_run": false,
+  "seeded_from": {
+    "path": "evidence/experiments/models/th1-seed-input.eventb",
+    "sha256": "5ae432f7882fca6d1700e667b72150e1dce936b642a968bbac5cef746d89aaff"
+  },
+  "prompt_condition": "no_selfcheck",
+  "llm_models_seen": [
+    "strata-ai90/qwen3.8-flash-next-iq3_s"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "llm": {
+        "calls": 0,
+        "models": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0,
+        "total_tokens": 0,
+        "max_context_tokens": 0,
+        "pi_exit": 0,
+        "pi_seconds": 0,
+        "gate_seconds": 0
+      },
+      "prompt_bytes": null,
+      "gate": {
+        "verdict": "FAIL",
+        "po_total": 33,
+        "status_counts": {
+          "SMT_DISCHARGED": 31,
+          "NOT_DISCHARGED": 2
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [
+          "2 obligation(s) NOT_DISCHARGED (candidate counterexample): th1::chill/inv6/INV, th1::warm/inv5/INV"
+        ],
+        "report": "artifacts/refine/run-20261103T150220Z-2383667/round-1/report.json"
+      },
+      "packet_bytes": 2850,
+      "agent_selfcheck_reports": []
+    },
+    {
+      "round": 2,
+      "llm": {
+        "calls": 15,
+        "models": [
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s"
+        ],
+        "input_tokens": 21799,
+        "output_tokens": 6928,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 350970,
+        "cache_write_tokens": 0,
+        "total_tokens": 379697,
+        "max_context_tokens": 31909,
+        "pi_exit": 0,
+        "pi_seconds": 157,
+        "gate_seconds": 0
+      },
+      "prompt_bytes": 8626,
+      "gate": {
+        "verdict": "PASS",
+        "po_total": 33,
+        "status_counts": {
+          "SMT_DISCHARGED": 33
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [],
+        "report": "artifacts/refine/run-20261103T150220Z-2383667/round-2/report.json"
+      },
+      "packet_bytes": null,
+      "agent_selfcheck_reports": []
+    }
+  ],
+  "unexpected_entries": []
+}

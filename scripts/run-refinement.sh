@@ -20,6 +20,13 @@
 #   ALLOW_EXISTING_M1=1  let a run start when the refinement file already exists
 #   INTENTOWER_BIN=...   path to the intentower binary
 #   PI_TIMEOUT / GATE_TIMEOUT   seconds; every external tool gets a timeout
+#   SEED_M1=<file>       start from a deliberately imperfect M1: it is copied to the
+#                        refinement file and round 1 is verified without any LLM call,
+#                        so the only way to a fix is gate -> packet -> Pi.
+#   NO_SELFCHECK=1       the prompt forbids the agent from running gate itself, so the
+#                        orchestrator's repair packet is its only source of information.
+#   Both knobs are recorded in run.json (seeded_from, prompt_condition): a run made under
+#   them is a different condition and must never be merged into the main results table.
 #
 set -uo pipefail
 
@@ -62,9 +69,19 @@ grep -q "\"$MODEL_ID\"" "$MODEL_DIR/models.json" || stop 2 "$MODEL_ID is not lis
 if [ -f "$M1_FILE" ] && [ "${ALLOW_EXISTING_M1:-0}" != 1 ]; then
   stop 2 "$M1_FILE already exists; move it out of the way so the run measures a real refinement (ALLOW_EXISTING_M1=1 overrides for harness tests)"
 fi
+seed_sha=""
+if [ -n "${SEED_M1:-}" ]; then
+  [ -f "$SEED_M1" ] || stop 2 "SEED_M1 points at a file that does not exist: $SEED_M1"
+  seed_sha=$(sha256sum "$SEED_M1" | cut -d' ' -f1)
+fi
 
 # ---- baseline before the run ----
 "$BIN" baseline || stop 2 "baseline changed before the run"
+
+if [ -n "${SEED_M1:-}" ]; then
+  cp "$SEED_M1" "$M1_FILE" || stop 2 "could not seed $M1_FILE from $SEED_M1"
+  echo "seeded $M1_FILE from $SEED_M1 (sha256 $seed_sha); round 1 runs no LLM call"
+fi
 
 verify=0
 repairs=0
@@ -77,6 +94,14 @@ while [ "$verify" -lt "$MAX_VERIFY" ]; do
   mkdir -p "$round"
 
   # ---- the LLM step ----
+  if [ "$verify" -eq 1 ] && [ -n "${SEED_M1:-}" ]; then
+    # the seeded model is verified as it stands: no LLM gets a chance to rewrite it
+    # first, which is what hid the repair circuit in the earlier runs
+    echo "round $verify: seeded model, no LLM call"
+    : > "$round/pi.jsonl"
+    echo 0 > "$round/pi.exit"
+    echo 0 > "$round/pi.seconds"
+  else
   if [ "$verify" -eq 1 ]; then
     prompt=$(cat prompts/refine.md)
   else
@@ -88,8 +113,12 @@ while [ "$verify" -lt "$MAX_VERIFY" ]; do
   prompt+="模型目录: $MODEL_DIR"$'\n'
   prompt+="model id: $MODEL_ID"$'\n'
   prompt+="唯一可写模型文件: $M1_FILE"$'\n'
-  prompt+="自查命令: $BIN gate $MODEL_DIR --model-id $MODEL_ID --out $SCRATCH/round-$verify.json"$'\n'
-  prompt+="自查报告只准写到上面 $SCRATCH 路径；不得读写 artifacts/refine/ 下的任何文件，那是编排器的证据目录。"$'\n'
+  if [ "${NO_SELFCHECK:-0}" = 1 ]; then
+    prompt+="本轮禁止运行 gate 或任何验证命令（包括上文和反馈包里“修完必须重跑”的指令）：编排器会在你之后自己跑 gate。你对模型状态的唯一信息来源是上面的反馈包。"$'\n'
+  else
+    prompt+="自查命令: $BIN gate $MODEL_DIR --model-id $MODEL_ID --out $SCRATCH/round-$verify.json"$'\n'
+  fi
+  prompt+="自查报告只准写到上面 $SCRATCH 路径；不得读写 artifacts/refine/ 下的任何文件（包括编排器的 report.json、packet.md、run.json），那是编排器的证据目录。"$'\n'
   prompt+="这是第 $verify / $MAX_VERIFY 次候选验证，已用 $repairs / $MAX_REPAIR 次自动修复。"$'\n'
   prompt+="只允许新建或修改这一个模型文件：$M1_FILE。上文提到的其它模型文件一律只读。"$'\n'
   printf '%s' "$prompt" > "$round/prompt.md"
@@ -107,6 +136,7 @@ while [ "$verify" -lt "$MAX_VERIFY" ]; do
     echo "$pi_exit" > "$round/pi.exit"
     echo $(( $(date +%s) - start )) > "$round/pi.seconds"
     echo "round $verify: pi exit $pi_exit in $(cat "$round/pi.seconds")s, log $round/pi.jsonl"
+  fi
   fi
 
   # ---- protected inputs after the LLM touched the tree ----
@@ -177,10 +207,10 @@ fi
 cat "$RUN_DIR/escalation.md"
 
 # ---- run.json: every round, every LLM call, every gate verdict ----
-python3 - "$RUN_DIR" "$MODEL_DIR" "$MODEL_ID" "$M1_FILE" "$verify" "$repairs" "$gate_exit" "$stop_reason" <<'PY' || stop 2 "could not write run.json"
+python3 - "$RUN_DIR" "$MODEL_DIR" "$MODEL_ID" "$M1_FILE" "$verify" "$repairs" "$gate_exit" "$stop_reason" "${SEED_M1:-}" "${seed_sha:-}" "${NO_SELFCHECK:-0}" <<'PY' || stop 2 "could not write run.json"
 import json, pathlib, re, sys
 
-run_dir, model_dir, model_id, m1, verify, repairs, gate_exit, reason = sys.argv[1:9]
+run_dir, model_dir, model_id, m1, verify, repairs, gate_exit, reason, seed, seed_sha, noself = sys.argv[1:12]
 root = pathlib.Path(run_dir)
 rounds = []
 for d in sorted(root.glob("round-*")):
@@ -260,6 +290,8 @@ summary = {
     "gate_exit": int(gate_exit),
     "stop_reason": reason,
     "dry_run": not any(r["llm"]["calls"] for r in rounds),
+    "seeded_from": {"path": seed, "sha256": seed_sha} if seed else None,
+    "prompt_condition": "no_selfcheck" if noself == "1" else "selfcheck_allowed",
     "llm_models_seen": sorted({m for r in rounds for m in r["llm"]["models"]}),
     "rounds": rounds,
     "unexpected_entries": unexpected,

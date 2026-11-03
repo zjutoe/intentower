@@ -1,0 +1,54 @@
+MACHINE th1
+REFINES
+    th0
+VARIABLES
+    temperature heater
+INVARIANTS
+    @inv1 temperature >= 0
+    @inv2 temperature <= 100
+    @inv3 heater >= 0
+    @inv4 heater <= 1
+    @inv5 heater = 1 => temperature <= 70
+    @inv6 heater = 0 => temperature >= 30
+    @inv7 temp = temperature
+EVENTS
+    EVENT INITIALISATION
+    THEN
+        @act1 temperature := 50
+        @act2 heater := 0
+    END
+
+    EVENT warm
+    REFINES warm
+    WHERE
+        @grd1 heater = 1
+        @grd2 temperature < 70
+    THEN
+        @act1 temperature := temperature + 1
+    END
+
+    EVENT chill
+    REFINES chill
+    WHERE
+        @grd1 heater = 0
+        @grd2 temperature > 30
+    THEN
+        @act1 temperature := temperature - 1
+    END
+
+    EVENT switch_on
+    WHERE
+        @grd1 heater = 0
+        @grd2 temperature <= 70
+    THEN
+        @act1 heater := 1
+    END
+
+    EVENT switch_off
+    WHERE
+        @grd1 heater = 1
+        @grd2 temperature >= 30
+    THEN
+        @act1 heater := 0
+    END
+END

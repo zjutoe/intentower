@@ -1415,3 +1415,78 @@ echo $?   # 0
 `pi.jsonl` 原件未提交；脚本层缺回归测试（本轮接线曾出 3 个缺陷，见 §39）。
 
 **本节仍不是签署。** 签名与否、以及 §4 的 7 条局限与 §5 的 7 条残余风险是否按原样保留，由人类决定。
+
+## 42. 修复回路的有界尝试（§4.2 关闭尝试，人类指示"跑有界尝试"）
+
+### 42.1 为什么做
+
+`approvals/P4-GATE.md` §4 的七条局限里，只有 §4.2（修复回路没有真实模型证据）能靠一次实验关闭。
+5 次真实跑全部 `repairs_used: 0`：Agent 在自己回合内自查 gate 并改好模型，编排器的
+`gate → 修复包 → 下一次 Pi 调用` 只有 `DRY_RUN` 走过。
+
+### 42.2 两个开关（写入 `run.json`，防止被误当主跑）
+
+- `SEED_M1=<file>`：把一份不完美 M1 复制到 `M1_FILE`，**轮 1 不调用 LLM**，让编排器自己的
+  `gate` 先看到失败。没有这个开关，Agent 永远在编排器看之前就把模型修好了。
+- `NO_SELFCHECK=1`：prompt 明确禁止本轮跑 `gate` 或任何验证命令，并显式覆盖
+  `prompts/repair.md` 与修复包里"修完必须重跑"的指令，使修复包成为 Agent 对模型状态的
+  唯一信息来源。
+
+`run.json` 记录 `seeded_from: {path, sha256}` 与 `prompt_condition: no_selfcheck | selfcheck_allowed`。
+上限不变：3 次验证 / 2 次修复。种子：`evidence/experiments/models/th1-seed-input.eventb`
+（sha256 `5ae432f7…`，probe v1 形状，2 个可修 `NOT_DISCHARGED`）。
+
+### 42.3 接线中暴露的两个缺陷（都是 `DRY_RUN` 测不出来的）
+
+1. **`SEED_M1` 分支的 `fi` 位置错**：真实跑 exit 1，`set -u` 报 `prompt: unbound variable`。
+   播种分支提前闭合，跳过了 prompt 构造。`DRY_RUN` 走的是另一分支，所以之前没暴露。
+   修复后 `bash -n` 与 `DRY_RUN` 播种跑均正常（3 验证 / 2 修复 / `verify_cap_exhausted`）。
+2. **`NO_SELFCHECK` 分支漏写"不得读写 `artifacts/refine/`"**：第一次真实跑（`seedfix-1a`）里
+   Agent 去读了编排器的 `report.json`、`pog/`、`run.json`。该跑也是 `repairs_used: 1` + PASS，
+   但"修复包是唯一信息来源"这一条件**不成立**，故**不**作为闭环证据。规则现已在两个分支都输出。
+   发现方式只有读 transcript 的工具调用列表，跑本身的 exit code 与 run.json 都是"成功"。
+
+### 42.4 有效那跑（`evidence/experiments/repair/seedfix-1-run.json`）
+
+| 项 | 实测 |
+|---|---|
+| 轮 1 | 无 LLM 调用；`gate` exit 1 `FAIL` 33 义务 = 31 SMT_DISCHARGED + 2 NOT_DISCHARGED（`th1::warm/inv5/INV`、`th1::chill/inv6/INV`）；修复包 2,850 B |
+| 轮 2 | prompt = `prompts/repair.md` + 该包，8,871 B；5 次 LLM 调用，49,722 tokens，峰值上下文 10,779，69 s；`gate` exit 0 `PASS` 33/33 |
+| 汇总 | `verifications_used: 2`，`repairs_used: 1`，`stop_reason: pass`，脚本 exit 0 |
+| 条件成立性（按 `round-2/pi.jsonl` 的 `tool_execution_start` 计数） | 5 次工具调用（3 bash / 1 edit / 1 write），**0 次**跑 `intentower gate` 或 `verify`，**0 次**读写 `artifacts/refine/` |
+| 基线 | 跑前、每次 Pi 调用后、收尾均 `BASELINE OK: 5 hashes, 3 model ids pinned` |
+| 证据目录 | `unexpected_entries: []` |
+| 模型改动 | 保留原守卫，新增 `@grd3 temperature <= 69` / `@grd3 temperature >= 31`（`repair/th1-seedfix-1-fixed.eventb`，sha256 `1033ea8d…`）——与参考解（收紧 `grd2`）不同但同样正确 |
+
+即 `gate → 修复包 → 下一次 Pi 调用 → gate` 这条路径**第一次由真实模型走通**。
+`escalate` 对该轮输出 `next=NONE`，并附注"本轮之前已修复 1 次并通过：改动的是 M1，
+闭环要人类读过 diff 才算成立，不由 Agent 自行认定"（`repair/seedfix-1-escalation.md`）。
+
+### 42.5 归档与确定性对照
+
+`evidence/experiments/repair/`：`seedfix-1-run.json`、两轮 `report.json`、轮 1 `packet.md`、
+轮 2 `prompt.md`、`escalation.md`、修好的 `th1`；以及条件不成立的首次尝试
+`seedfix-1a-flawed-condition-{run.json,prompt.md}` 与它的 `th1`。
+`evidence/experiments/harness/T35-dry-seeded-{run.json,escalation.md,packet.md}` 为同条件的
+`DRY_RUN` 版本（无 LLM，3 验证 / 2 修复 / `verify_cap_exhausted`，exit 2）。
+
+### 42.6 本次不证明什么
+
+- **1 例修好不是修复成功率**；种子是已知可修的缺口，Agent 仍能读到 `docs/` 里的参考 `th1`。
+- 主表 5 跑的 `repairs_used: 0` 不因本次改变，`evidence/experiments/README.md` §6.2 保留原文并
+  加状态标注，未删除。
+- "禁止自查"靠 prompt 措辞生效，**不是机制强制**：没有东西能阻止一个不听话的 Agent 跑 `gate`。
+- 脚本层仍无回归测试；本次发现的 2 个缺陷已修，但同样没有测试覆盖。
+
+### 42.7 复现
+
+```bash
+SEED_M1=evidence/experiments/models/th1-seed-input.eventb NO_SELFCHECK=1 ./scripts/run-refinement.sh
+# 无 LLM 的确定性版本：前面加 DRY_RUN=1
+```
+
+### 42.8 状态
+
+`approvals/P4-GATE.md` 已按本次结果修订（`amended_at`，原稿在提交 `9dba878`）：§4.2 改为
+"原判定已被一次有界尝试补上，但仍不构成修复成功率"，§4.3 加入 `NO_SELFCHECK` 那跑 0 次自查的
+对照，§4.7 的脚本缺陷数 3 → 5。**仍为 `status: PROPOSED`，§7 签名留空，Agent 不代填。**

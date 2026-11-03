@@ -1,0 +1,132 @@
+{
+  "model_dir": "models/thermostat",
+  "model_id": "MODEL-006",
+  "refinement_file": "models/thermostat/th1.eventb",
+  "caps": {
+    "max_verifications": 3,
+    "max_repairs": 2,
+    "feedback_budget_bytes": 8192
+  },
+  "verifications_used": 3,
+  "repairs_used": 2,
+  "gate_exit": 1,
+  "stop_reason": "verify_cap_exhausted",
+  "dry_run": true,
+  "seeded_from": {
+    "path": "evidence/experiments/models/th1-seed-input.eventb",
+    "sha256": "5ae432f7882fca6d1700e667b72150e1dce936b642a968bbac5cef746d89aaff"
+  },
+  "prompt_condition": "no_selfcheck",
+  "llm_models_seen": [],
+  "rounds": [
+    {
+      "round": 1,
+      "llm": {
+        "calls": 0,
+        "models": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0,
+        "total_tokens": 0,
+        "max_context_tokens": 0,
+        "pi_exit": 0,
+        "pi_seconds": 0,
+        "gate_seconds": 0
+      },
+      "prompt_bytes": null,
+      "gate": {
+        "verdict": "FAIL",
+        "po_total": 33,
+        "status_counts": {
+          "SMT_DISCHARGED": 31,
+          "NOT_DISCHARGED": 2
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [
+          "2 obligation(s) NOT_DISCHARGED (candidate counterexample): th1::chill/inv6/INV, th1::warm/inv5/INV"
+        ],
+        "report": "artifacts/refine/run-20261103T150214Z-2383251/round-1/report.json"
+      },
+      "packet_bytes": 2850,
+      "agent_selfcheck_reports": []
+    },
+    {
+      "round": 2,
+      "llm": {
+        "calls": 0,
+        "models": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0,
+        "total_tokens": 0,
+        "max_context_tokens": 0,
+        "pi_exit": 0,
+        "pi_seconds": 0,
+        "gate_seconds": 1
+      },
+      "prompt_bytes": 8626,
+      "gate": {
+        "verdict": "FAIL",
+        "po_total": 33,
+        "status_counts": {
+          "SMT_DISCHARGED": 31,
+          "NOT_DISCHARGED": 2
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [
+          "2 obligation(s) NOT_DISCHARGED (candidate counterexample): th1::chill/inv6/INV, th1::warm/inv5/INV"
+        ],
+        "report": "artifacts/refine/run-20261103T150214Z-2383251/round-2/report.json"
+      },
+      "packet_bytes": 2850,
+      "agent_selfcheck_reports": []
+    },
+    {
+      "round": 3,
+      "llm": {
+        "calls": 0,
+        "models": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0,
+        "total_tokens": 0,
+        "max_context_tokens": 0,
+        "pi_exit": 0,
+        "pi_seconds": 0,
+        "gate_seconds": 0
+      },
+      "prompt_bytes": 8626,
+      "gate": {
+        "verdict": "FAIL",
+        "po_total": 33,
+        "status_counts": {
+          "SMT_DISCHARGED": 31,
+          "NOT_DISCHARGED": 2
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [
+          "2 obligation(s) NOT_DISCHARGED (candidate counterexample): th1::chill/inv6/INV, th1::warm/inv5/INV"
+        ],
+        "report": "artifacts/refine/run-20261103T150214Z-2383251/round-3/report.json"
+      },
+      "packet_bytes": null,
+      "agent_selfcheck_reports": []
+    }
+  ],
+  "unexpected_entries": []
+}
