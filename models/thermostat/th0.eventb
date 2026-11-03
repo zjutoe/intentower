@@ -1,0 +1,26 @@
+MACHINE th0
+VARIABLES
+    temp
+INVARIANTS
+    @inv1 temp >= 0
+    @inv2 temp <= 100
+EVENTS
+    EVENT INITIALISATION
+    THEN
+        @act1 temp := 50
+    END
+
+    EVENT warm
+    WHERE
+        @grd1 temp < 100
+    THEN
+        @act1 temp := temp + 1
+    END
+
+    EVENT chill
+    WHERE
+        @grd1 temp > 0
+    THEN
+        @act1 temp := temp - 1
+    END
+END

@@ -1,0 +1,4 @@
+{
+  "MODEL-005": ["th0.eventb"],
+  "MODEL-006": ["th0.eventb", "th1.eventb"]
+}
