@@ -1086,9 +1086,11 @@ intentower baseline                            BASELINE OK: 4 hashes, 2 model id
 intentower gate models/thermostat --model-id MODEL-005    PASS 6 obligations, inputs 2   exit 0
 ```
 
-**开放项（需人类动作）**：`approvals/baseline.json` 仍只钉 4 哈希 / 2 model id，
-`th0.eventb` 未被保护。补丁与实跑证据（候选文件 + 篡改负向测试 exit 2）写在
-`approvals/MODEL-005.md` §3；agent 未刷新基线（AGENTS.md §3）。
+**已闭合（2026-11-03 06:24 UTC）**：人类手工把两行写进 `approvals/baseline.json`
+（`th0.eventb` 哈希 + `MODEL-005` 的 model id），基线现为 5 哈希 / 3 model id。
+`intentower baseline` → `BASELINE OK: 5 hashes, 3 model ids pinned` exit 0。
+两条篡改路径在 `/tmp` 副本上均 exit 2（改 th0 内容；把 MODEL-005 改指 th1.eventb）。
+agent 未刷新基线（AGENTS.md §3）。补丁与完整证据见 `approvals/MODEL-005.md` §3。
 `MODEL-006` 故意不钉：其源集合含 Agent 产物。
 
 `docs/SPEC-001.md` §13 不含 MODEL-005/006 —— 若要写进规范需单独的增补任务与批准。
