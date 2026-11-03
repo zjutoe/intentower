@@ -1074,3 +1074,21 @@ intentower baseline                            BASELINE OK: 4 hashes, 2 model id
 
 `approvals/baseline.json` 未改动。`approvals/P3-GATE.md` 仅改日期字符串，
 其 `status: VOID` 与历史正文保留。
+
+## 34. MODEL-005 已批准；基线钉住待人类写入（2026-11-03）
+
+人类批准 `models/thermostat/th0.eventb` 作为 T33 的抽象机 `MODEL-005`。
+记录：`approvals/MODEL-005.md`（含 sha256）。意图措辞另为草案 `docs/INT-002.md`，**未批准**。
+
+实测：
+
+```
+intentower gate models/thermostat --model-id MODEL-005    PASS 6 obligations, inputs 2   exit 0
+```
+
+**开放项（需人类动作）**：`approvals/baseline.json` 仍只钉 4 哈希 / 2 model id，
+`th0.eventb` 未被保护。补丁与实跑证据（候选文件 + 篡改负向测试 exit 2）写在
+`approvals/MODEL-005.md` §3；agent 未刷新基线（AGENTS.md §3）。
+`MODEL-006` 故意不钉：其源集合含 Agent 产物。
+
+`docs/SPEC-001.md` §13 不含 MODEL-005/006 —— 若要写进规范需单独的增补任务与批准。
