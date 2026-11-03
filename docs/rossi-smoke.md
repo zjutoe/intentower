@@ -1170,3 +1170,48 @@ cvc5/rossi 版本、LLM 调用数、provider/model、input/output/cache 读与�
 验收：`bash -n scripts/run-refinement.sh` exit 0；上表 6 个场景全部按预期退出码停止；
 两次真实运行 exit 0；`intentower baseline` 在每个检查点均 exit 0；
 `cargo test --offline` 158 passed / 0 failed（脚本不改生产代码）。
+
+## 37. T33 实验：MODEL-005 → MODEL-006 三次主跑 + 一次播种补充跑（2026-11-03）
+
+对 `models/thermostat/th0.eventb`（MODEL-005，人类批准并已入 baseline）跑
+`scripts/run-refinement.sh`，`th1.eventb` 由 Pi 生成，每次跑前删除。全部记录在
+`evidence/experiments/`（README + 4 份 run.json + 6 份模型 + 2 份 harness 回归）。
+
+| 运行 | 结论 | PO | 验证/修复 | pi 调用 | total tokens | 峰值上下文 | pi 秒 | gate 秒 |
+|---|---|---|---|---|---|---|---|---|
+| A | PASS | 33/33 SMT_DISCHARGED | 1 / 0 | 16 | 286636 | 23588 | 151 | 1 |
+| B | PASS | 33/33 SMT_DISCHARGED | 1 / 0 | 20 | 403786 | 30354 | 231 | 0 |
+| C | PASS | 33/33 SMT_DISCHARGED | 1 / 0 | 13 | 220304 | 24412 | 147 | 1 |
+| 播种（补充） | PASS | 33/33 SMT_DISCHARGED | 1 / 0 | 26 | 444375 | 26260 | 215 | 0 |
+
+播种输入 `models/th1-seed-input.eventb` 是合法但守卫过松的 M1，预 gate
+（`seed-1-pregate.json`，exit 1）报 `2 obligation(s) NOT_DISCHARGED:
+th1::chill/inv6/INV, th1::warm/inv5/INV`。三次主跑的 th1 形状不同（A/B 阈值 70/30，C 阈值 80/20），
+sha256 各不相同，见 README 表。
+
+对 §36 的两处更正：
+1. §36 列出的证据文件含 `report.md`，实际产物是 `gate.log` / `gate.seconds` / `report.json`，没有 `report.md`。
+2. §36 说"两次真实运行"，其中第一次的证据目录后被误删；本轮 T33 重新产生了完整可复现证据。
+
+本轮暴露的两个 harness 缺陷（已修，见 `scripts/run-refinement.sh`）：
+- Pi 把 `round-2/`、`round-3/` 和 `summary.md`、`negative-control-report.json` 写进证据目录，
+  run.json 写入器在缺 `pi.jsonl` 的目录上崩溃（07:16 那次 attempt 的产物已随 `artifacts/refine/` 清理丢失，仅存控制台记录）。
+  修法：agent 自查输出改到 `/tmp/intentower-refine-scratch/`，回拷为 `agent-selfcheck-*`；
+  无 `pi.jsonl` 的 `round-*` 不计为轮次；非编排器创建的路径写进 `run.json: unexpected_entries`（报告而非信任或删除）。
+  四次真实运行均 `unexpected_entries: []`。
+
+实验边界（README §6 同步记录，勿过度解读）：
+- **开卷**：`docs/T33-refinement-target-proposal.md` 附录 A 有完整可用的 th1，agent 读到过它。
+  本轮测的是闭环，不是盲生成。闭卷变体未跑。
+- **编排器的修复回路没有被真实模型触发**：真实运行里 agent 在自己的回合内用同一个 `gate` 自查自修
+  （播种跑里 agent 自查报告为 `FAIL 33`，随后自己改好，`repairs_used` 仍为 0）。
+  gate → feedback packet → 下一次 Pi 这条路径只有 DRY_RUN 证据。
+- **P4 的"3 次验证"上限只约束编排器**：播种跑单轮内 agent 调 `gate` 约十次。
+- agent 会读验证器源码（`crates/intentower-cli/src/gate/*.rs`）并对其它模型（MODEL-001）跑 gate。
+  未违反 baseline，但 agent 可访问范围尚无成文规则，交 T34 / 人类裁定。
+
+验收：`intentower baseline` 每个检查点 exit 0（5 hashes, 3 model ids）；跑完
+`rm -f models/thermostat/th1.eventb` 后 `git status` 只余 `scripts/run-refinement.sh` 与新增 `evidence/`；
+`cargo test --offline` 158 passed / 0 failed；harness 回归
+`harness/dry-cap-exhausted.json`（3 验证 / 2 修复 / `verify_cap_exhausted` / 三轮均 FAIL / 脚本 exit 2 /
+packet 3645 字节）与 `harness/dry-pass.json`（1 验证 / `pass` / exit 0）。

@@ -34,6 +34,9 @@ PI_TIMEOUT=${PI_TIMEOUT:-900}
 GATE_TIMEOUT=${GATE_TIMEOUT:-600}
 BIN=${INTENTOWER_BIN:-./target/debug/intentower}
 RUN_DIR=artifacts/refine/run-$(date -u +%Y%m%dT%H%M%SZ)-$$  # PID keeps two runs in the same second apart
+# The agent's own gate self-checks go here, never into RUN_DIR: in the first run 2
+# the agent wrote round-2/report.json and round-3/ inside the evidence directory.
+SCRATCH=${SCRATCH:-/tmp/intentower-refine-scratch/$(basename "$RUN_DIR")}
 
 stop() { # stop <exit> <reason>
   echo "STOP: $2" >&2
@@ -47,7 +50,7 @@ PY
   exit "$1"
 }
 
-mkdir -p "$RUN_DIR" || exit 2
+mkdir -p "$RUN_DIR" "$SCRATCH" || exit 2
 echo "run dir: $RUN_DIR"
 
 # ---- preflight: tools present, model pair named, M1 not pre-existing ----
@@ -85,7 +88,8 @@ while [ "$verify" -lt "$MAX_VERIFY" ]; do
   prompt+="模型目录: $MODEL_DIR"$'\n'
   prompt+="model id: $MODEL_ID"$'\n'
   prompt+="唯一可写模型文件: $M1_FILE"$'\n'
-  prompt+="验证命令: $BIN gate $MODEL_DIR --model-id $MODEL_ID --out $round/report.json"$'\n'
+  prompt+="自查命令: $BIN gate $MODEL_DIR --model-id $MODEL_ID --out $SCRATCH/round-$verify.json"$'\n'
+  prompt+="自查报告只准写到上面 $SCRATCH 路径；不得读写 artifacts/refine/ 下的任何文件，那是编排器的证据目录。"$'\n'
   prompt+="这是第 $verify / $MAX_VERIFY 次候选验证，已用 $repairs / $MAX_REPAIR 次自动修复。"$'\n'
   prompt+="只允许新建或修改这一个模型文件：$M1_FILE。上文提到的其它模型文件一律只读。"$'\n'
   printf '%s' "$prompt" > "$round/prompt.md"
@@ -116,6 +120,11 @@ while [ "$verify" -lt "$MAX_VERIFY" ]; do
   gate_seconds=$(( $(date +%s) - start ))
   echo "$gate_seconds" > "$round/gate.seconds"
   echo "round $verify: gate exit $gate_exit in ${gate_seconds}s ($(grep -oE 'PASS|FAIL|INCOMPLETE' "$round/gate.log" | head -1))"
+
+  # keep what the agent verified for itself, labelled as the agent's own run
+  for f in "$SCRATCH"/round-"$verify"*.json; do
+    [ -f "$f" ] && cp "$f" "$round/agent-selfcheck-$(basename "$f")"
+  done
 
   if [ "$gate_exit" -eq 0 ]; then
     stop_reason=pass
@@ -148,6 +157,8 @@ run_dir, model_dir, model_id, m1, verify, repairs, gate_exit, reason = sys.argv[
 root = pathlib.Path(run_dir)
 rounds = []
 for d in sorted(root.glob("round-*")):
+    if not (d / "pi.jsonl").is_file():
+        continue  # a directory the agent created, not a round the orchestrator ran
     pi = {"calls": 0, "models": [], "input_tokens": 0, "output_tokens": 0,
           "reasoning_tokens": 0, "cache_read_tokens": 0, "cache_write_tokens": 0,
           "total_tokens": 0, "max_context_tokens": 0}
@@ -190,13 +201,28 @@ for d in sorted(root.glob("round-*")):
             "report": str(report_path),
         }
     packet = d / "packet.md"
+    selfcheck = sorted(p.name for p in d.glob("agent-selfcheck-*"))
     rounds.append({
         "round": int(d.name.split("-")[1]),
         "llm": pi,
         "prompt_bytes": (d / "prompt.md").stat().st_size if (d / "prompt.md").is_file() else None,
         "gate": gate,
         "packet_bytes": packet.stat().st_size if packet.is_file() else None,
+        "agent_selfcheck_reports": selfcheck,
     })
+# anything in the evidence directory that the orchestrator did not create is reported, not deleted
+expected = {"run.json", "stop.json"}
+own = {"prompt.md", "pi.jsonl", "pi.err", "pi.exit", "pi.seconds", "gate.log",
+       "gate.seconds", "report.json", "packet.md", "feedback.log"}
+for d in root.glob("round-*"):
+    if (d / "pi.jsonl").is_file():
+        expected.add(str(d.relative_to(root)))
+        for p in d.rglob("*"):
+            rel = str(p.relative_to(root))
+            if p.name in own or "pog" in p.parts or p.name.startswith("agent-selfcheck-"):
+                expected.add(rel)
+unexpected = sorted(str(p.relative_to(root)) for p in root.rglob("*")
+                    if str(p.relative_to(root)) not in expected)
 summary = {
     "model_dir": model_dir,
     "model_id": model_id,
@@ -209,6 +235,7 @@ summary = {
     "dry_run": not any(r["llm"]["calls"] for r in rounds),
     "llm_models_seen": sorted({m for r in rounds for m in r["llm"]["models"]}),
     "rounds": rounds,
+    "unexpected_entries": unexpected,
 }
 (root / "run.json").write_text(json.dumps(summary, indent=2) + "\n")
 print(f"run.json: {verify} verifications, {repairs} repairs, stop={reason}")

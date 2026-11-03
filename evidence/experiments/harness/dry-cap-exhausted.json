@@ -1,0 +1,133 @@
+{
+  "model_dir": "models/counter",
+  "model_id": "MODEL-002",
+  "refinement_file": "models/counter/m1_badadd.eventb",
+  "caps": {
+    "max_verifications": 3,
+    "max_repairs": 2,
+    "feedback_budget_bytes": 8192
+  },
+  "verifications_used": 3,
+  "repairs_used": 2,
+  "gate_exit": 1,
+  "stop_reason": "verify_cap_exhausted",
+  "dry_run": true,
+  "llm_models_seen": [],
+  "rounds": [
+    {
+      "round": 1,
+      "llm": {
+        "calls": 0,
+        "models": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0,
+        "total_tokens": 0,
+        "max_context_tokens": 0,
+        "pi_exit": 0,
+        "pi_seconds": 0,
+        "gate_seconds": 0
+      },
+      "prompt_bytes": 5766,
+      "gate": {
+        "verdict": "FAIL",
+        "po_total": 20,
+        "status_counts": {
+          "SMT_DISCHARGED": 18,
+          "UNSUPPORTED": 1,
+          "NOT_DISCHARGED": 1
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [
+          "1 obligation(s) NOT_DISCHARGED (candidate counterexample): m1_badadd::add/inv3/INV",
+          "1 obligation(s) UNSUPPORTED (not decided): m0::sub/act1/FIS"
+        ],
+        "report": "artifacts/refine/run-20261103T074259Z-2284593/round-1/report.json"
+      },
+      "packet_bytes": 3645,
+      "agent_selfcheck_reports": []
+    },
+    {
+      "round": 2,
+      "llm": {
+        "calls": 0,
+        "models": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0,
+        "total_tokens": 0,
+        "max_context_tokens": 0,
+        "pi_exit": 0,
+        "pi_seconds": 0,
+        "gate_seconds": 1
+      },
+      "prompt_bytes": 9551,
+      "gate": {
+        "verdict": "FAIL",
+        "po_total": 20,
+        "status_counts": {
+          "SMT_DISCHARGED": 18,
+          "UNSUPPORTED": 1,
+          "NOT_DISCHARGED": 1
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [
+          "1 obligation(s) NOT_DISCHARGED (candidate counterexample): m1_badadd::add/inv3/INV",
+          "1 obligation(s) UNSUPPORTED (not decided): m0::sub/act1/FIS"
+        ],
+        "report": "artifacts/refine/run-20261103T074259Z-2284593/round-2/report.json"
+      },
+      "packet_bytes": 3645,
+      "agent_selfcheck_reports": []
+    },
+    {
+      "round": 3,
+      "llm": {
+        "calls": 0,
+        "models": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0,
+        "total_tokens": 0,
+        "max_context_tokens": 0,
+        "pi_exit": 0,
+        "pi_seconds": 0,
+        "gate_seconds": 0
+      },
+      "prompt_bytes": 9551,
+      "gate": {
+        "verdict": "FAIL",
+        "po_total": 20,
+        "status_counts": {
+          "SMT_DISCHARGED": 18,
+          "UNSUPPORTED": 1,
+          "NOT_DISCHARGED": 1
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [
+          "1 obligation(s) NOT_DISCHARGED (candidate counterexample): m1_badadd::add/inv3/INV",
+          "1 obligation(s) UNSUPPORTED (not decided): m0::sub/act1/FIS"
+        ],
+        "report": "artifacts/refine/run-20261103T074259Z-2284593/round-3/report.json"
+      },
+      "packet_bytes": null,
+      "agent_selfcheck_reports": []
+    }
+  ],
+  "unexpected_entries": []
+}

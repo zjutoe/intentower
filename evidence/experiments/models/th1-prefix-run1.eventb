@@ -1,0 +1,65 @@
+// MODEL-006 refinement layer for the approved abstract machine th0 (MODEL-005).
+//
+// Refinement idea: the abstract temperature `temp` is implemented by a concrete
+// temperature `temperature` driven by a heater whose state is `heater`, encoded
+// as an integer 0/1 (the approved F0 subset is Boolean + QF_LIA; a BOOLEAN
+// variable is outside it, see docs/T33-refinement-target-proposal.md §4.1).
+// The heater may only push the temperature inside the hysteresis band [30, 70],
+// which is strictly inside the abstract safety interval [0, 100].
+//
+// Only deterministic assignment `:=` and quantifier-free integer arithmetic are
+// used: no `:|`, no quantifiers, no sets, no division.
+MACHINE th1
+REFINES
+    th0
+VARIABLES
+    temperature heater
+INVARIANTS
+    @inv1 temperature >= 0
+    @inv2 temperature <= 100
+    @inv3 heater >= 0
+    @inv4 heater <= 1
+    @inv5 heater = 1 => temperature <= 70
+    @inv6 heater = 0 => temperature >= 30
+    @inv7 temp = temperature
+EVENTS
+    EVENT INITIALISATION
+    THEN
+        @act1 temperature := 50
+        @act2 heater := 0
+    END
+
+    EVENT warm
+    REFINES warm
+    WHERE
+        @grd1 heater = 1
+        @grd2 temperature < 70
+    THEN
+        @act1 temperature := temperature + 1
+    END
+
+    EVENT chill
+    REFINES chill
+    WHERE
+        @grd1 heater = 0
+        @grd2 temperature > 30
+    THEN
+        @act1 temperature := temperature - 1
+    END
+
+    EVENT heat_on
+    WHERE
+        @grd1 heater = 0
+        @grd2 temperature <= 70
+    THEN
+        @act1 heater := 1
+    END
+
+    EVENT heat_off
+    WHERE
+        @grd1 heater = 1
+        @grd2 temperature >= 30
+    THEN
+        @act1 heater := 0
+    END
+END

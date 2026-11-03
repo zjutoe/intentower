@@ -1,0 +1,78 @@
+{
+  "model_dir": "models/thermostat",
+  "model_id": "MODEL-006",
+  "refinement_file": "models/thermostat/th1.eventb",
+  "caps": {
+    "max_verifications": 3,
+    "max_repairs": 2,
+    "feedback_budget_bytes": 8192
+  },
+  "verifications_used": 1,
+  "repairs_used": 0,
+  "gate_exit": 0,
+  "stop_reason": "pass",
+  "dry_run": false,
+  "llm_models_seen": [
+    "strata-ai90/qwen3.8-flash-next-iq3_s"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "llm": {
+        "calls": 20,
+        "models": [
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s",
+          "strata-ai90/qwen3.8-flash-next-iq3_s"
+        ],
+        "input_tokens": 16773,
+        "output_tokens": 11074,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 375939,
+        "cache_write_tokens": 0,
+        "total_tokens": 403786,
+        "max_context_tokens": 30354,
+        "pi_exit": 0,
+        "pi_seconds": 231,
+        "gate_seconds": 0
+      },
+      "prompt_bytes": 5766,
+      "gate": {
+        "verdict": "PASS",
+        "po_total": 33,
+        "status_counts": {
+          "SMT_DISCHARGED": 33
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [],
+        "report": "artifacts/refine/run-20261103T072840Z-2281565/round-1/report.json"
+      },
+      "packet_bytes": null,
+      "agent_selfcheck_reports": [
+        "agent-selfcheck-round-1-rerun.json",
+        "agent-selfcheck-round-1.json"
+      ]
+    }
+  ],
+  "unexpected_entries": []
+}

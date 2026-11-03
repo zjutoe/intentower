@@ -1,0 +1,52 @@
+{
+  "model_dir": "models/counter",
+  "model_id": "MODEL-004",
+  "refinement_file": "models/counter/m1.eventb",
+  "caps": {
+    "max_verifications": 3,
+    "max_repairs": 2,
+    "feedback_budget_bytes": 8192
+  },
+  "verifications_used": 1,
+  "repairs_used": 0,
+  "gate_exit": 0,
+  "stop_reason": "pass",
+  "dry_run": true,
+  "llm_models_seen": [],
+  "rounds": [
+    {
+      "round": 1,
+      "llm": {
+        "calls": 0,
+        "models": [],
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0,
+        "total_tokens": 0,
+        "max_context_tokens": 0,
+        "pi_exit": 0,
+        "pi_seconds": 0,
+        "gate_seconds": 0
+      },
+      "prompt_bytes": 5752,
+      "gate": {
+        "verdict": "PASS",
+        "po_total": 6,
+        "status_counts": {
+          "SMT_DISCHARGED": 6
+        },
+        "tools": {
+          "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+          "rossi": "rossi 0.2.3"
+        },
+        "reasons": [],
+        "report": "artifacts/refine/run-20261103T074300Z-2284950/round-1/report.json"
+      },
+      "packet_bytes": null,
+      "agent_selfcheck_reports": []
+    }
+  ],
+  "unexpected_entries": []
+}
