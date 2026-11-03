@@ -1,0 +1,11 @@
+{
+     "approved_by": "zjutoe",
+     "approved_at": "2026-11-03",
+     "note": "P1 baseline, human-written and frozen. Agents may read it but never refresh it (AGENTS.md §3).",
+     "sha256": {
+       "docs/INT-001.md": "b3af782053102bac13b66e58045851cb9417f1b3343d796968a4487c78da730d",
+       "docs/SPEC-001.md": "7c52021f39bb3c23df2def8cbc14d2f92620136f452b0cef29c903d8aa2021d6",
+       "models/counter/m0.eventb": "48560e02cadd9f454e3a4f0bb0c88bed195a93fb340ad6258b0f43f6132c618f",
+       "project.json": "1a9adec1ee0c83059450a50d41aa19ba33074f16ef888e2710fa1d56d7c03342"
+     }
+}
