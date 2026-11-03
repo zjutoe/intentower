@@ -2,13 +2,20 @@
 
 ```yaml
 gate: P3
-status: SIGNED
+status: VOID
+voided_by: zjutoe
+voided_at: 2026-11-04
+void_reason: 签字发生在 §30 环境异常窗口内（02:50–03:53 会话的模型身份不成立），且本文件 §2 自认没有逐条复核证据表。人类裁定作废并重签。
+void_record: docs/rossi-smoke.md §31；重签草案 approvals/P3-GATE-R2.md
 signed_by: zjutoe
 signed_at: 2026-11-03
 channel: Pi 会话（cwd /home/mye/src/llm/intentower）中的指示："1. 帮我签字"
 written_by: agent（受人类指示代写本记录；见下方"批准渠道的边界"）
 scope: Intentower_Phase1_Research_Development_Plan.md §P3 Gate（第 309 行）
 ```
+
+> **本签字已作废（2026-11-04 人类裁定），仅作历史记录保留。**
+> 不得据此认为 P3 已通过。当前有效的 P3 判定见 `approvals/P3-GATE-R2.md`（尚未签署）。
 
 ## 1. 签的是什么
 

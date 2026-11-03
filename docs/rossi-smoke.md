@@ -836,3 +836,123 @@ sha256sum models/counter/m0.eventb    # 48560e02... == approvals/baseline.json �
 解锁：T30 / T31 可开工；T33 待 T30/T31 就绪。
 签字**不覆盖**的 4 项残余风险（基线自身可被替换、忘记跑 baseline 即无保护、
 POG 覆盖边界、SMT 非内核证书）仍然开放，逐条列在记录第 3 节。
+
+## 30. 环境异常：02:50–03:53 会话的模型身份不成立（2026-11-03）
+
+**事实（全部实测，非推断）**
+
+| 项 | 实测值 | 来源 |
+|---|---|---|
+| 会话切换 | 02:50:55 `model_change → bonsai-local/bonsai2-27b`；03:53:43 切回 `strata` | `~/.pi/agent/sessions/--home-mye-src-llm-intentower--/2026-11-02T15-17-43-170Z_01a19cd6-….jsonl` |
+| 该窗口内标记为 `bonsai2-27b` 的请求 | **92 次** | 同上（按 provider/model 计数） |
+| bonsai 服务状态 | `bonsai2-27b.service` = **inactive (dead)**，自 2026-09-30，且 `disabled` | `systemctl --user status bonsai2-27b` |
+| 8080 实际持有者 | `strata-server.service`（2026-10-29 起），model `qwen3.8-flash-next-iq3_s`，`n_ctx=131072` | `ps`、`GET /v1/models` |
+| Strata 是否校验请求里的模型名 | **不校验**：别名未命中就直接用自己的 model 应答 | `~/tool/Strata/serve/server.py:2750`；`docs/DETAILS.md`“Any other name is still served” |
+
+**决定性证据**：报错 `prompt (66812 tokens) + max tokens (65536) exceeds the context (131072) … at most 64252 here`
+与 Strata 的算法完全吻合：`room = 131072 − CTX_SLACK(8) − 66812 = 64252`（`serve/server.py:199, 3265-3277`）。
+回答这些请求的引擎是 131072 上下文的 Qwen IQ3_S，不是 262144 上下文的 llama-server。
+
+**作废范围**
+
+- 该窗口内任何“由 Bonsai-2 27B 完成 / 由 Bonsai 验证”的归因：**不成立**，实际驱动模型是 `qwen3.8-flash-next-iq3_s`（IQ3_S，131072 上下文）。
+- 该会话转录里 `provider=bonsai-local` 的标签只反映 Pi 的**配置意图**，不反映实际应答引擎；转录本身不改写（保留原始证据）。
+- 仓库内检索 `bonsai`（排除 `target/`、`.git/`）= **0 命中**，故没有需要撤回的 Bonsai 结论文档。
+
+**不作废的范围**：§27 的字节实测、§28 的 8 类故障注入、`cargo test`/`intentower verify|gate|baseline`/rossi/cvc5 的退出码——这些是机器上真实执行的命令结果，与哪个 LLM 发起无关。
+
+**对 P3 签字的影响（需人类决定，Agent 未改动 `approvals/`）**：签字发生在该窗口内（03:02）。
+`approvals/P3-GATE.md` 属受保护文件（AGENTS.md §3），Agent 不自行编辑。该记录的证据表不含模型归因，
+因此本次异常不直接使任何一条证据失效；但“签字由哪个模型参与”这一环境事实已被更正，
+是否重新确认签字由人类裁定。若裁定作废，按该记录 §2 的自失效条款处理，不得通过改验收标准补救。
+
+**已执行的纠正动作（2026-11-03）**
+
+1. 从 `~/.pi/agent/models.json` 删除 `bonsai-local` provider（服务未运行却与 strata 共用 8080 → 静默冒充）；
+   同步删除 `~/.pi/agent/settings.json` 里 `bonsai-local/bonsai2-27b` 的 compaction 覆盖。
+   复核：`pi --list-models` 只剩 `strata qwen3.8-flash-next-iq3_s 131.1K / 32.8K`。
+2. `~/.pi/agent/models.json` 中 strata 的 `contextWindow=131072 / maxTokens=32768` 与服务端 `--max-context 131072` 一致。
+3. `~/tool/Strata/strata-iq3_s.json` 加入 `"fit_max_tokens": true`（`serve/runconfig.py:26`）：
+   `max_tokens` 超出剩余空间时缩到 room 而不是 400。**需重启 `strata-server.service` 才生效**（重启由人类择时执行，
+   因为当前 Pi 会话本身由该服务驱动）。
+4. 预防：不保留服务端未运行的 provider 定义；Strata 不校验模型名，死掉的 provider 会变成静默冒充，
+   只有端口/进程核对（本节表格）能发现。
+
+## 31. P3 重签：T30 收口 + 证据在 ai86 上逐条重跑（2026-11-04）
+
+**人类裁定（2026-11-04）**：`approvals/P3-GATE.md` 的签字**作废**，需重签。
+理由：签字发生在 §30 异常窗口内（02:50–03:53 的会话模型身份不成立），且 §2 自认
+"没有证据表明人类逐条复核了 §28 的 10 行证据表"。作废记录保留在原文件，不删除。
+
+### T30 收口（重签的前置：测试必须给出可信信号）
+
+`cargo test` 在改动前后**间歇失败**，5 次里 2 次失败，都在 `tests/feedback.rs`：
+`the_committed_failure_fits_the_budget_and_names_the_obligation`、
+`the_packet_sends_the_round_to_its_own_report_not_to_the_one_that_failed`。
+
+根因（实测，非猜测）：`out_dir(label)` = `temp_dir()/intentower-feedback-{pid}-{label}`，
+同一次测试运行里所有测试共用一个进程；`packet()` 把 label 写死成 `"packet"`，
+四个测试共用同一目录，而 `out_dir` 开头 `remove_dir_all` —— 并发测试互相删掉对方的 `packet.md`。
+失败是读取竞态，不是产品缺陷。
+
+最小修复：`packet(fixture)` → `packet(fixture, label)`，四个调用点各给唯一 label
+（`budget` / `grouped` / `overbudget` / `round`）。顺带清掉本次改动造成的孤儿
+（`tests/prompts.rs` 里未使用的 `Command` 导入与 `BIN` 常量、`feedback.rs` 两处 clippy）。
+
+```
+cargo fmt --all -- --check                exit 0
+cargo clippy --offline --all-targets      0 warnings
+cargo test --offline                      5 次连续：156 passed / 0 failed（每次 exit 0）
+```
+
+测试构成（156 = 155 + 0 doc-test）：lib 72、main 3、baseline 11、cli 1、cli_gate 8、
+cli_report 7、feedback 8、gate_policy 7、integration_inv 6、integration_refine 6、
+inventory 6、po_spike 6、prompts 4、provenance 6、report_schema 5、doc-tests 0。
+
+### 重跑的证据表（ai86，2026-11-04，工具链见 `docs/tooling-versions-ai86.md`）
+
+每条都是当场 `cargo test --offline <filter>` 实跑，exit 0 = 该测试通过。
+
+| §28 条目 | 测试 | 命令结果 |
+|---|---|---|
+| 缺 PO | `inventory::a_project_without_bpo_files_is_not_a_pass` | exit 0，1 passed |
+| 重复 PO | `inventory::a_duplicated_obligation_in_a_bpo_is_duplicate_po` | exit 0，1 passed |
+| 零 PO / 部分 | `gate_policy::the_refinement_is_incomplete_while_one_obligation_is_outside_f0` | exit 0，1 passed |
+| 状态映射 | `gate::policy::tests::each_status_maps_to_the_expected_verdict` | exit 0，1 passed |
+| 判定下限 | `gate::policy::tests::nothing_short_of_all_discharged_is_a_pass` | exit 0，1 passed |
+| TIMEOUT（真杀慢求解器） | `solver::cvc5::tests::our_timeout_kills_a_slow_solver` | exit 0，1 passed |
+| UNKNOWN/TIMEOUT/UNSUPPORTED 不 PASS | `verify::tests::unknown_timeout_and_unsupported_never_pass` | exit 0，1 passed |
+| 损坏报告 | `cli_report::a_report_that_does_not_add_up_is_refused_and_no_summary_is_written` | exit 0，1 passed |
+| 源码改变 → STALE | `provenance::editing_a_model_source_makes_the_report_stale` | exit 0，1 passed |
+| 植入 PASS 报告无效 | `gate_policy::a_planted_pass_report_changes_nothing` | exit 0，1 passed |
+
+### 附加项：删高层约束 / 改 model-id 指向
+
+**这次不碰工作树。** §28 是在仓库里改 `m0.eventb` 再 `git checkout` 还原；本次把整棵仓库
+（除 `target/`、`.git/`）复制到 `/tmp/p3r2` 再注入，已批准文件在工作树中**从未被改动**
+（`git status` 见证据）。
+
+```
+A0 intentower baseline --root /tmp/p3r2                      exit 0   BASELINE OK: 4 hashes, 2 model ids pinned
+A1 同副本删 m0.eventb 的 @inv2 与 add/@grd2
+   intentower baseline --root /tmp/p3r2                      exit 2   protected file changed: models/counter/m0.eventb
+   intentower gate models/counter --model-id MODEL-004       exit 0   PASS 6 obligations
+   intentower gate models/counter --model-id MODEL-001       exit 2   INCOMPLETE 16 obligations（15 SMT_DISCHARGED + 1 UNSUPPORTED）
+A2 未注入的对照：MODEL-001                                    exit 2   INCOMPLETE 20 obligations（19 SMT_DISCHARGED + 1 UNSUPPORTED）
+B1 副本里把 MODEL-004 改指向 ["m0.eventb","m1_broken.eventb"]
+   intentower baseline --root /tmp/p3r2                      exit 2   pinned model id MODEL-004 was repointed
+```
+
+**对 §28 附加项表述的一处更正（重签必须说清）**：§28 用 `--model-id MODEL-004` 演示
+"求解器看不出约束被删"，但 MODEL-004 的源文件是 `counter.eventb` + `counter_machine.eventb`，
+**根本不读 `m0.eventb`**，所以那一行演示比原文听起来弱。真正成立的证据是：
+删约束后 `gate` 对 MODEL-001 仍只按义务清单判定（exit 2，原因是与篡改无关的 `UNSUPPORTED`），
+清单从 20 条缩到 16 条（被删的不变量/守卫连带少生成 4 条 PO），
+**没有任何一行输出说"输入被改过"**；只有 `intentower baseline` exit 2 拦下。
+结论不变（基线是唯一拦截点），但证据强度按上面这样记。
+
+### 仍未闭合
+
+- 重签记录见 `approvals/P3-GATE-R2.md`，状态 `PROPOSED`：**签名行为空，等人类逐条确认后填写**。
+  Agent 不代填签名（§2 的边界正是上次签字的问题所在）。
+- `approvals/baseline.json` 未改动，验收标准未改动。
