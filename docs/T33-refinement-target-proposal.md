@@ -1,7 +1,7 @@
 # T33 精化目标提案：MODEL-005 / MODEL-006（恒温器）
 
 status: **PROPOSED — 需人工批准后方可用于 T33 实验**
-date: 2026-11-04
+date: 2026-11-03
 machine: ai86
 parent: T33（`Intentower_Phase1_Research_Development_Plan.md` §P4）
 task_size: 仅提案 + 可行性探针，未运行 T33 实验，未修改任何已批准文件
@@ -48,7 +48,7 @@ END
 
 `th1.eventb` **故意不存在**：它必须由 T33 中的 Agent 生成。
 
-## 3. 实测证据（ai86，2026-11-04，全部真实运行）
+## 3. 实测证据（ai86，2026-11-03，全部真实运行）
 
 ### 3.1 M0 单独
 

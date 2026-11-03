@@ -176,7 +176,7 @@ PO 总数与类别分布、`m0::sub/act1/FIS` 的 `UNSUPPORTED` 结论均与 ai8
 
 ---
 
-## 7. 更新（2026-11-04，P3 重签时）
+## 7. 更新（2026-11-03，P3 重签时）
 
 §6.1 与 §6.2 记录的 WIP 缺陷已修复，原始记录保留不删：
 
@@ -195,5 +195,5 @@ PO 总数与类别分布、`m0::sub/act1/FIS` 的 `UNSUPPORTED` 结论均与 ai8
 - `cargo test --offline`：**158 passed / 0 failed**
 - `cargo fmt --all -- --check` exit 0；`cargo clippy --offline --all-targets` 0 warnings
 
-日期口径待人工裁定：本文 §6/§7 与 `docs/rossi-smoke.md` §31 写的 `2026-11-04`
-与本机时钟（`2026-11-03 05:5x UTC`）差一天，原始记录保留未改。
+日期口径：人类裁定（2026-11-03）以 **2026-11-03 UTC**（本机时钟）为准；
+本文与相关记录里误写的日期已按此校正，改动清单见 `docs/rossi-smoke.md` §33。

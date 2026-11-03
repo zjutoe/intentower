@@ -17,7 +17,7 @@ pub const M0M1: &str = "counter-m0m1-rodin";
 pub const M0M1BROKEN: &str = "counter-m0m1broken-rodin";
 pub const M0M1BADADD: &str = "counter-m0m1badadd-rodin";
 
-/// Test fixture for the theory-gap ruling (human, 2026-11-04): a legal
+/// Test fixture for the theory-gap ruling (human, 2026-11-03): a legal
 /// Event-B pair whose refinement declares a Boolean variable.
 pub const BOOLSORT: &str = "crates/intentower-cli/tests/fixtures/boolsort";
 pub const BOOLSORT_PROJECT: &str = "boolsort-rodin";

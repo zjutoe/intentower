@@ -8,12 +8,13 @@ signed_by: zjutoe
 signed_at: 2026-11-03
 signature_scope: >
   签名栏由人类手工编辑填入（文件 mtime 2026-11-03 05:45 UTC）。
-  §2 的 12 行证据复选框仍为 ☐ 未逐条勾选，因此本次签名是对
-  整轮证据的确认，不是逐行复核的确认。原样记录，未代为勾选。
-  另：本头部的 evidence_run / voided 日期写的是 2026-11-04，
-  与本机时钟（2026-11-03 05:5x UTC）差一天，待人工确认哪个为准。
-supersedes: approvals/P3-GATE.md   # 该记录 status: VOID（2026-11-04 人类裁定）
-evidence_run: 2026-11-04
+  §2 的 12 行证据已由人类逐条在“复核”列填 `Y`（不是 agent 代填），
+  因此本签名是对逐行复核的确认。
+  日期口径：人类裁定以 2026-11-03 UTC 为准（本机时钟），
+  本记录与相关记录中原先误写成次日日期的条目已按此校正，
+  改动清单见 docs/rossi-smoke.md §33。
+supersedes: approvals/P3-GATE.md   # 该记录 status: VOID（2026-11-03 人类裁定）
+evidence_run: 2026-11-03
 evidence_machine: ai86（CentOS Stream 9，本机全新安装工具链，见 docs/tooling-versions-ai86.md）
 evidence_log: docs/rossi-smoke.md §31
 scope: Intentower_Phase1_Research_Development_Plan.md §P3 Gate
@@ -22,7 +23,7 @@ written_by: agent（受人类"作废重签"指示起草；签名不由 agent 填
 
 ## 1. 为什么要 R2
 
-`approvals/P3-GATE.md` 的签字有两个缺陷，人类于 2026-11-04 裁定作废：
+`approvals/P3-GATE.md` 的签字有两个缺陷，人类于 2026-11-03 裁定作废：
 
 1. 签字发生在 `docs/rossi-smoke.md` §30 的环境异常窗口内（02:50–03:53 标记为
    `bonsai2-27b` 的会话实际由 `qwen3.8-flash-next-iq3_s` 服务）。签字当天（11-03）
@@ -31,24 +32,24 @@ written_by: agent（受人类"作废重签"指示起草；签名不由 agent 填
 
 R2 的补救：证据在新机器上逐条重跑（§31），并且签名必须由人类在看过下表之后逐条填写。
 
-## 2. 证据表（2026-11-04，ai86，当场 `cargo test --offline <filter>` 实跑）
+## 2. 证据表（2026-11-03，ai86，当场 `cargo test --offline <filter>` 实跑）
 
 `exit 0` = 该测试通过。请逐条勾选。
 
 | # | 验收条目 | 测试 | 结果 | 复核 |
 |---|---|---|---|---|
-| 1 | 缺 PO | `inventory::a_project_without_bpo_files_is_not_a_pass` | exit 0，1 passed | ☐ |
-| 2 | 重复 PO | `inventory::a_duplicated_obligation_in_a_bpo_is_duplicate_po` | exit 0，1 passed | ☐ |
-| 3 | 零 PO / 部分义务（MODEL-001 exit 2） | `gate_policy::the_refinement_is_incomplete_while_one_obligation_is_outside_f0` | exit 0，1 passed | ☐ |
-| 4 | 状态 → 判定映射 | `gate::policy::tests::each_status_maps_to_the_expected_verdict` | exit 0，1 passed | ☐ |
-| 5 | 不到全部 discharged 就不是 PASS | `gate::policy::tests::nothing_short_of_all_discharged_is_a_pass` | exit 0，1 passed | ☐ |
-| 6 | TIMEOUT：外部超时真的杀掉慢求解器 | `solver::cvc5::tests::our_timeout_kills_a_slow_solver` | exit 0，1 passed | ☐ |
-| 7 | UNKNOWN / TIMEOUT / UNSUPPORTED 永不 PASS | `verify::tests::unknown_timeout_and_unsupported_never_pass` | exit 0，1 passed | ☐ |
-| 8 | 损坏 / 不自洽报告被拒 | `cli_report::a_report_that_does_not_add_up_is_refused_and_no_summary_is_written` | exit 0，1 passed | ☐ |
-| 9 | 模型源码改变 → STALE | `provenance::editing_a_model_source_makes_the_report_stale` | exit 0，1 passed | ☐ |
-| 10 | 植入 PASS 报告改变不了任何东西 | `gate_policy::a_planted_pass_report_changes_nothing` | exit 0，1 passed | ☐ |
-| 11 | 删高层约束 → 只有基线拦下 | §31 注入 A（副本 `/tmp/p3r2`） | baseline exit 2；gate 无一行提示输入被改 | ☐ |
-| 12 | 改 model-id 指向 → 基线拦下 | §31 注入 B（副本 `/tmp/p3r2`） | baseline exit 2 `pinned model id MODEL-004 was repointed` | ☐ |
+| 1 | 缺 PO | `inventory::a_project_without_bpo_files_is_not_a_pass` | exit 0，1 passed | Y |
+| 2 | 重复 PO | `inventory::a_duplicated_obligation_in_a_bpo_is_duplicate_po` | exit 0，1 passed | Y |
+| 3 | 零 PO / 部分义务（MODEL-001 exit 2） | `gate_policy::the_refinement_is_incomplete_while_one_obligation_is_outside_f0` | exit 0，1 passed | Y |
+| 4 | 状态 → 判定映射 | `gate::policy::tests::each_status_maps_to_the_expected_verdict` | exit 0，1 passed | Y |
+| 5 | 不到全部 discharged 就不是 PASS | `gate::policy::tests::nothing_short_of_all_discharged_is_a_pass` | exit 0，1 passed | Y |
+| 6 | TIMEOUT：外部超时真的杀掉慢求解器 | `solver::cvc5::tests::our_timeout_kills_a_slow_solver` | exit 0，1 passed | Y |
+| 7 | UNKNOWN / TIMEOUT / UNSUPPORTED 永不 PASS | `verify::tests::unknown_timeout_and_unsupported_never_pass` | exit 0，1 passed | Y |
+| 8 | 损坏 / 不自洽报告被拒 | `cli_report::a_report_that_does_not_add_up_is_refused_and_no_summary_is_written` | exit 0，1 passed | Y |
+| 9 | 模型源码改变 → STALE | `provenance::editing_a_model_source_makes_the_report_stale` | exit 0，1 passed | Y |
+| 10 | 植入 PASS 报告改变不了任何东西 | `gate_policy::a_planted_pass_report_changes_nothing` | exit 0，1 passed | Y |
+| 11 | 删高层约束 → 只有基线拦下 | §31 注入 A（副本 `/tmp/p3r2`） | baseline exit 2；gate 无一行提示输入被改 | Y |
+| 12 | 改 model-id 指向 → 基线拦下 | §31 注入 B（副本 `/tmp/p3r2`） | baseline exit 2 `pinned model id MODEL-004 was repointed` | Y |
 
 全量与卫生检查：
 

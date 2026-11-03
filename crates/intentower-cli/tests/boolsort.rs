@@ -1,4 +1,4 @@
-//! Theory-gap classification (human ruling, 2026-11-04).
+//! Theory-gap classification (human ruling, 2026-11-03).
 //!
 //! A model that is syntactically and type-correct Event-B but declares a
 //! **Boolean** variable cannot be encoded by the F0 subset, whose arithmetic

@@ -74,7 +74,7 @@ pub fn status_for(outcome: &Outcome) -> Status {
 /// set-typed variable in an integer position): the model is well-formed and the
 /// limit is our encoder's theory coverage, which is exactly what `UNSUPPORTED`
 /// means and how the plan routes it (shrink the model / escalate to an expert).
-/// Human ruling 2026-11-04 recorded this after a legal Boolean-variable model
+/// Human ruling 2026-11-03 recorded this after a legal Boolean-variable model
 /// produced 16 `TOOL_ERROR` rows and pointed at a tool that had not failed.
 /// A bug in our own pipeline — an undeclared variable, an unusable name — stays
 /// `TOOL_ERROR`, because the obligation was never actually attempted.
@@ -243,7 +243,7 @@ mod tests {
     fn a_sort_outside_the_f0_theory_is_unsupported_not_a_tool_error() {
         // A legal Event-B machine whose variable is Boolean: the model is not
         // broken and no tool failed, our QF_LIA encoder is the limit. Ruling
-        // recorded by the human on 2026-11-04 after a Boolean model produced
+        // recorded by the human on 2026-11-03 after a Boolean model produced
         // 16 TOOL_ERROR rows.
         let mut po = obligation(&["n ≥ 0"], "flag = n", &["n"]);
         po.types.insert("flag".to_string(), crate::po::Sort::Bool);

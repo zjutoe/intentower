@@ -878,9 +878,9 @@ POG 覆盖边界、SMT 非内核证书）仍然开放，逐条列在记录第 3 
 4. 预防：不保留服务端未运行的 provider 定义；Strata 不校验模型名，死掉的 provider 会变成静默冒充，
    只有端口/进程核对（本节表格）能发现。
 
-## 31. P3 重签：T30 收口 + 证据在 ai86 上逐条重跑（2026-11-04）
+## 31. P3 重签：T30 收口 + 证据在 ai86 上逐条重跑（2026-11-03）
 
-**人类裁定（2026-11-04）**：`approvals/P3-GATE.md` 的签字**作废**，需重签。
+**人类裁定（2026-11-03）**：`approvals/P3-GATE.md` 的签字**作废**，需重签。
 理由：签字发生在 §30 异常窗口内（02:50–03:53 的会话模型身份不成立），且 §2 自认
 "没有证据表明人类逐条复核了 §28 的 10 行证据表"。作废记录保留在原文件，不删除。
 
@@ -909,7 +909,7 @@ cargo test --offline                      5 次连续：156 passed / 0 failed（
 cli_report 7、feedback 8、gate_policy 7、integration_inv 6、integration_refine 6、
 inventory 6、po_spike 6、prompts 4、provenance 6、report_schema 5、doc-tests 0。
 
-### 重跑的证据表（ai86，2026-11-04，工具链见 `docs/tooling-versions-ai86.md`）
+### 重跑的证据表（ai86，2026-11-03，工具链见 `docs/tooling-versions-ai86.md`）
 
 每条都是当场 `cargo test --offline <filter>` 实跑，exit 0 = 该测试通过。
 
@@ -975,13 +975,13 @@ channel:   manual edit
 
 **两点必须指出（不代改）：**
 
-1. §2 的 12 行证据复选框仍是 `☐`，而 `review: reviewed`。上次签字的问题正是
-   "证据表里没有这一轮跑的是哪个模型"，所以逐条勾选不是形式。若人类确实逐条
-   看过，请勾上；若是对整轮的信任性确认，`signature_scope` 已按后者记录。
+1. §2 的 12 行证据复选框当时仍是 `☐`，而 `review: reviewed`。上次签字的问题正是
+   "证据表里没有这一轮跑的是哪个模型"，所以逐条勾选不是形式。
+   **已闭合（2026-11-03，人类）：§2 “复核”列 12 行已全部填 `Y`**，
+   由人类手工填写，agent 未代填；`signature_scope` 已改按“逐行复核”记录。
 2. 日期不一致：`P3-GATE.md` 的 `voided_at`、R2 头部的 `evidence_run`、
-   §31 标题都写 `2026-11-04`，而本机时钟是 `2026-11-03 05:5x UTC`
-   （签名日期 `2026-11-03` 与本机一致）。请裁定以人类日历还是机器时钟为准，
-   agent 不自行改写批准记录里的日期。
+   §31 标题都写成了次日日期，而本机时钟是 `2026-11-03 05:5x UTC`。
+   **已裁定（2026-11-03，人类）：以 2026-11-03 UTC 为准。** 校正清单见 §33。
 
 ### 分类裁定：理论缺口 → `UNSUPPORTED`（已实现）
 
@@ -1035,3 +1035,42 @@ intentower baseline                                 BASELINE OK: 4 hashes, 2 mod
 `approvals/baseline.json` 未改动；`models/counter/` 内容未改动
 （此前 `git status` 里的 `M models/counter/*` 是 rsync 造成的 stat 脏，
 `git diff HEAD -- models/counter/` 为空）。
+
+## 33. §32 两项待裁定已闭合 + 日期口径统一（2026-11-03）
+
+### 1. 证据表逐条复核
+
+人类已在 `approvals/P3-GATE-R2.md` §2 的“复核”列把 12 行全部填 `Y`
+（手工编辑，agent 未代填）。`signature_scope` 相应改为按**逐行复核**记录，
+不再写“整轮信任性确认”。
+
+### 2. 日期口径
+
+人类裁定：**以 2026-11-03 UTC（本机时钟）为准**。
+此前 agent 在作废记录、重签记录与几处文档标题里误写成次日日期，已按裁定校正：
+
+| 文件 | 校正处 |
+|---|---|
+| `approvals/P3-GATE.md` | `voided_at`；作废提示行 |
+| `approvals/P3-GATE-R2.md` | `supersedes` 注释、`evidence_run`、§1 裁定句、§2 标题 |
+| `docs/rossi-smoke.md` | §31 标题、§31 裁定句、§31 证据表标题 |
+| `docs/tooling-versions-ai86.md` | §7 标题 |
+| `docs/T33-refinement-target-proposal.md` | 头部 `date`、§3 标题 |
+| `crates/intentower-cli/src/verify.rs` | 裁定注释 2 处 |
+| `crates/intentower-cli/tests/{common/mod.rs,boolsort.rs}` | 裁定注释各 1 处 |
+
+只改日期字符串，**未改任何验收标准、证据内容、签名或基线**。
+`git log` 的提交说明里不含该日期（已 `git log --format=%B | grep` 核实为 0 处），
+因此无需改写历史。
+
+### 本轮验证
+
+```
+grep -rn "2026-11-04" --include="*.md" --include="*.rs" --include="*.json" .   0 命中
+cargo fmt --all -- --check                     exit 0
+cargo test --offline                           158 passed / 0 failed
+intentower baseline                            BASELINE OK: 4 hashes, 2 model ids pinned, exit 0
+```
+
+`approvals/baseline.json` 未改动。`approvals/P3-GATE.md` 仅改日期字符串，
+其 `status: VOID` 与历史正文保留。
