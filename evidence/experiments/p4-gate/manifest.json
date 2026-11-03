@@ -1,0 +1,130 @@
+{
+ "baseline_checks": [
+  "before Pi:  BASELINE OK: 5 hashes, 3 model ids pinned, exit 0",
+  "after Pi:   BASELINE OK: 5 hashes, 3 model ids pinned, exit 0",
+  "at the end: BASELINE OK: 5 hashes, 3 model ids pinned, exit 0"
+ ],
+ "caps": {
+  "feedback_budget_bytes": 8192,
+  "max_repairs": 2,
+  "max_verifications": 3
+ },
+ "caveats": [
+  "23 obligations, not the 33 of the T33 runs: this th1 has only heater_on/heater_off as new events, warm/chill do not touch heater, and there is no invariant tying heater to temperature. The refinement is legal and fully discharged but thinner than the T33 runs.",
+  "repairs_used is 0: the orchestrator's gate -> feedback packet -> next Pi call path was still not exercised by a real model in this run.",
+  "open book: docs/T33-refinement-target-proposal.md Appendix A contains a complete reference th1.",
+  "the P4 cap of 3 verifications bounds the orchestrator's gates only; the agent ran its own gate self-checks inside one turn (see human-run-1-agent-selfcheck.json)."
+ ],
+ "command": "./scripts/run-refinement.sh   # defaults: models/thermostat MODEL-006 models/thermostat/th1.eventb",
+ "date_utc": "2026-11-03",
+ "exit_code": 0,
+ "files": {
+  "human-run-1-agent-selfcheck.json": "e74cb20d50707a57a04235bb4b33c9089e1b9f8970e89d8ebf6c3f8bff666e99",
+  "human-run-1-escalation-after-cleanup.md": "a097a2195bd27e2cc96f3235bd7eb20f523f7c22119e81fb04c34c9cfd24d2fa",
+  "human-run-1-escalation.md": "8b964e42834fcc7098512043bac33d9f20f61306af85aa8f0a6f82ef3453bdc9",
+  "human-run-1-gate.log": "16abfe961bda4689071d541a4309f450a9c23a544e90c281b336a04eec6e14a9",
+  "human-run-1-prompt.md": "5c13690db9ac224812405d7a55e694f89d90f616757f6a8ecf4110d65ad9c19d",
+  "human-run-1-report.json": "abb540f1dd8c89959a4ae9be9e1e44798e554dfba49c90bee9ccfd5de33a238a",
+  "human-run-1.json": "59f1877ce60e152b8b78576ef7d92bf8b7e4abdf49e64c42a70c53d4d6587fff",
+  "negative-control-MODEL-001.json": "0f56288be8bc28ab6937c8603470d751af6c2401cc67f276ff89f8ac4be73cd3",
+  "th1-human-run-1.eventb": "db28b21a8441dc7cdd5fbc078368da2ce8d7e23cfc20906eb01a5b37fad79858"
+ },
+ "freshness_check_after_cleanup": {
+  "command": "intentower escalate evidence/experiments/p4-gate/human-run-1-report.json --stop-reason pass --verifications 1 --repairs 0",
+  "evidence": "human-run-1-escalation-after-cleanup.md",
+  "exit_code": 0,
+  "next_step": "TOOLCHAIN_FIRST",
+  "run_by": "agent, after deleting models/thermostat/th1.eventb",
+  "why": "the archived PASS names th1.eventb as a model_source input with sha256 db28b21a...; that file is no longer in the working tree, so the report no longer traces to current inputs and is read as STALE. A stored PASS cannot be reused as a current verdict."
+ },
+ "generated_model": {
+  "note": "the gate report lists this hash as model_source input; the working-tree copy was removed after archiving, so the archived report no longer traces to the working tree",
+  "path": "models/thermostat/th1.eventb",
+  "sha256": "db28b21a8441dc7cdd5fbc078368da2ce8d7e23cfc20906eb01a5b37fad79858"
+ },
+ "llm": {
+  "cache_read_tokens": 169492,
+  "cache_write_tokens": 0,
+  "calls": 12,
+  "gate_seconds": 1,
+  "input_tokens": 11158,
+  "max_context_tokens": 20545,
+  "models": [
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s",
+   "strata-ai90/qwen3.8-flash-next-iq3_s"
+  ],
+  "output_tokens": 6716,
+  "pi_exit": 0,
+  "pi_seconds": 125,
+  "reasoning_tokens": 0,
+  "total_tokens": 187366
+ },
+ "llm_models_seen": [
+  "strata-ai90/qwen3.8-flash-next-iq3_s"
+ ],
+ "negative_control": {
+  "command": "intentower gate models/counter --model-id MODEL-001 --out /tmp/g1.json",
+  "exit_code": 2,
+  "gate": {
+   "reasons": [
+    "1 obligation(s) UNSUPPORTED (not decided): m0::sub/act1/FIS"
+   ],
+   "status": "INCOMPLETE"
+  },
+  "po_total": 20,
+  "status_counts": {
+   "SMT_DISCHARGED": 19,
+   "UNSUPPORTED": 1
+  },
+  "why": "shows the PASS above did not come from loosening the verifier: the known permanent UNSUPPORTED obligation in MODEL-001 still fails the gate"
+ },
+ "not_committed": {
+  "pi.jsonl": {
+   "bytes": 2030963,
+   "lines": 6489,
+   "reason": "2 MB raw LLM transcript; kept in the gitignored run dir, fingerprinted here",
+   "sha256": "c9087a4fa275ef8d700cb62ef4128efd98e1f97c6b7d52c8e77ea7389ba72b29"
+  }
+ },
+ "outcome": {
+  "escalation_next_step": "NONE",
+  "gate_verdict": "PASS",
+  "po_total": 23,
+  "repairs_used": 0,
+  "status_counts": {
+   "SMT_DISCHARGED": 23
+  },
+  "stop_reason": "pass",
+  "unexpected_entries": [],
+  "verifications_used": 1
+ },
+ "record": "P4 Gate verification run, executed by the human at the prompt",
+ "run_dir": "artifacts/refine/run-20261103T115050Z-2350715",
+ "tools": {
+  "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+  "rossi": "rossi 0.2.3"
+ },
+ "who_ran_what": {
+  "agent_same_session": [
+   "intentower baseline (re-check after the run)",
+   "intentower gate models/counter --model-id MODEL-001  (negative control)",
+   "copying these files out of the gitignored run dir"
+  ],
+  "human": [
+   "intentower baseline",
+   "rm -f models/thermostat/th1.eventb (no-op: th1 is not committed)",
+   "scripts/run-refinement.sh  (the run recorded here)",
+   "echo $?"
+  ]
+ }
+}

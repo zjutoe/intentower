@@ -1300,3 +1300,91 @@ Codex 看的指令文本，不由程序执行。它不改变任何 gate 判定�
 四种接线场景实测（`DRY_RUN=1`）：正常通过 exit 0 / `next=NONE`；配额用尽 exit 2 /
 `next=EXPERT_OR_SHRINK`；gate 无报告 exit 2 / 停止；`escalate` 不可用 exit 0 / 兜底
 `TOOLCHAIN_FIRST` 且 `run.json` 完整。
+
+## 40. P4 Gate 核验序列由人类实跑，证据归档到 `evidence/experiments/p4-gate/`（2026-11-03）
+
+人类在提示符下亲自执行了核验序列（不是引用我之前的汇总数字）：
+
+```bash
+./target/debug/intentower baseline
+# BASELINE OK: 5 hashes, 3 model ids pinned            exit 0
+rm -f models/thermostat/th1.eventb
+# 无输出：th1 从未提交（git log --all -- models/thermostat/th1.eventb 为空），rm -f 是幂等清场守卫
+./scripts/run-refinement.sh
+# run dir: artifacts/refine/run-20261103T115050Z-2350715
+# BASELINE OK（Pi 前）→ round 1: pi exit 0 in 125s → BASELINE OK（Pi 后）
+# round 1: gate exit 0 in 1s (PASS) → BASELINE OK（收尾）
+# ESCALATE MODEL-006 next=NONE
+# run.json: 1 verifications, 0 repairs, stop=pass
+# final gate exit: 0 (pass)
+echo $?   # 0
+```
+
+同一会话里补跑的两项（由 Agent 执行，已在 manifest 标明归属）：
+
+```bash
+./target/debug/intentower baseline                                   # BASELINE OK 5/3, exit 0
+./target/debug/intentower gate models/counter --model-id MODEL-001   # exit 2, INCOMPLETE
+# reasons: 1 obligation(s) UNSUPPORTED (not decided): m0::sub/act1/FIS
+# 19 SMT_DISCHARGED + 1 UNSUPPORTED / 20
+```
+
+### 40.1 实测数字
+
+| 项 | 值 |
+|---|---|
+| gate 判定 | PASS，**23** 条义务，23 SMT_DISCHARGED，`reasons: []` |
+| 编排器用量 | 验证 1 次，修复 0 次，`stop_reason: pass`，脚本 exit 0 |
+| LLM | 12 次调用，11158 input + 6716 output + 169492 cacheRead = 187366 tokens，峰值上下文 20545，pi 125s，gate 1s |
+| 模型 | `strata-ai90/qwen3.8-flash-next-iq3_s` |
+| 工具 | cvc5 1.4.2 [git 282d5e0]，rossi 0.2.3 |
+| 证据目录污染 | `unexpected_entries: []` |
+| Agent 自查 | `agent-selfcheck-round-1.json`（经 SCRATCH 回收） |
+| 生成的 th1 | sha256 `db28b21a8441dc7cdd5fbc078368da2ce8d7e23cfc20906eb01a5b37fad79858`，与 gate 报告里 `model_source` 记录的哈希逐字节一致 |
+
+### 40.2 为什么这次是 23 条而不是 33 条
+
+本轮 `th1` 只新增 `heater_on` / `heater_off` 两个事件，`warm`/`chill` **不修改 heater**，
+也没有把 heater 与温度绑起来的不变量（只有 `heater_on` 守卫 `temperature <= 30`、
+`heater_off` 守卫 `temperature >= 70`）。不变式义务因此少于 T33 三跑（那些额外有
+`heater=1 → temp≤70` / `heater=0 → temp≥30` 一类约束）。
+
+**结论要分开说**：精化合法、全部生成的义务被 cvc5 判定；但这个 heater 对温度是惰性的，
+证明内容比 33 条那几轮薄。PO 数变少是模型形状不同，不是判定口径变松——
+负控 MODEL-001 仍然 exit 2 就是这一点的外部检验。
+
+### 40.3 归档内容
+
+`evidence/experiments/p4-gate/`：
+`human-run-1.json`、`human-run-1-report.json`、`human-run-1-gate.log`、
+`human-run-1-agent-selfcheck.json`、`human-run-1-prompt.md`、`human-run-1-escalation.md`、
+`th1-human-run-1.eventb`、`negative-control-MODEL-001.json`、
+`human-run-1-escalation-after-cleanup.md`、`manifest.json`。
+
+`manifest.json` 逐个文件记 sha256，记谁跑了哪条命令，并给 **2 MB 的 `pi.jsonl` 留指纹而不提交**
+（`c9087a4fa275…`，2030963 字节，6489 行；原件留在 gitignore 的 run 目录里）。
+
+归档后 `models/thermostat/th1.eventb` 已删除，工作树回到干净状态。因此归档的 gate 报告
+**不再能追溯到当前工作树**——这不是推测，实测过：
+
+```bash
+./target/debug/intentower escalate evidence/experiments/p4-gate/human-run-1-report.json \
+  --stop-reason pass --verifications 1 --repairs 0 --out /tmp/esc-stale.md
+# ESCALATE MODEL-006 next=TOOLCHAIN_FIRST
+# 本报告已不可追溯到当前输入（STALE）：models/thermostat/th1.eventb:
+#   recorded db28b21a… != current
+```
+
+即 **一份存下来的 PASS 不能当作当前判定复用**（T34 的 STALE 规则）。输出留在
+`p4-gate/human-run-1-escalation-after-cleanup.md`。想要新判定只能重跑 gate。
+
+### 40.4 这轮没有改变的 P4 局限（写 gate 记录时必须原样保留）
+
+1. `repairs_used: 0`：编排器的 gate → 修复包 → 下一次 Pi 调用这条回路，仍没有任何真实模型证据，
+   只有 DRY_RUN 走过。
+2. 开卷：`docs/T33-refinement-target-proposal.md` 附录 A 有完整参考 `th1`，Agent 能读到。
+3. "最多 3 次验证"只约束编排器的 gate 次数；Agent 在自己回合内的自查 gate 不受该上限约束。
+4. Agent 可读验证器源码、可在别的模型上跑 gate；没有违反基线，但访问范围尚无成文规则。
+
+**本节只是证据归档，不是 P4 Gate 签署。** `approvals/P4-GATE.md` 尚不存在，签署与否、
+以及上面四条局限如何写入记录，由人类决定。

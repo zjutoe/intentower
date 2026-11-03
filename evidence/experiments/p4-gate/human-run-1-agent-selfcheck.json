@@ -1,0 +1,181 @@
+{
+  "build_ok": true,
+  "gate": {
+    "reasons": [],
+    "status": "PASS"
+  },
+  "inputs": [
+    {
+      "path": "models/thermostat/th0.eventb",
+      "role": "model_source",
+      "sha256": "a3afd84f2611522d0fec97ac8408cac2fa70070f9c5c3d4414d1a9881be136ea"
+    },
+    {
+      "path": "models/thermostat/th1.eventb",
+      "role": "model_source",
+      "sha256": "db28b21a8441dc7cdd5fbc078368da2ce8d7e23cfc20906eb01a5b37fad79858"
+    },
+    {
+      "path": "/tmp/intentower-refine-scratch/run-20261103T115050Z-2350715/pog/model-006/th0.bpo",
+      "role": "po_artifact",
+      "sha256": "78a594c36c3e64b9b735f7c07932cbcb1d1e8e02b7ddce014566b842281d0831"
+    },
+    {
+      "path": "/tmp/intentower-refine-scratch/run-20261103T115050Z-2350715/pog/model-006/th1.bpo",
+      "role": "po_artifact",
+      "sha256": "a098d2005ac43fa2de24bdd34cd998d6a02303b73befdf78b7afd41b42beb8dd"
+    }
+  ],
+  "issues": [],
+  "model_id": "MODEL-006",
+  "obligations": [
+    {
+      "elapsed_ms": 10,
+      "id": "th0::INITIALISATION/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th0::INITIALISATION/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th0::chill/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "th0::chill/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th0::warm/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th0::warm/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::INITIALISATION/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::INITIALISATION/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::INITIALISATION/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::INITIALISATION/inv4/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::INITIALISATION/inv5/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::chill/grd1/GRD",
+      "kind": "GRD",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::chill/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 10,
+      "id": "th1::chill/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::chill/inv5/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::heater_off/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::heater_off/inv4/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::heater_on/inv3/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::heater_on/inv4/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::warm/grd1/GRD",
+      "kind": "GRD",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::warm/inv1/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::warm/inv2/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    },
+    {
+      "elapsed_ms": 5,
+      "id": "th1::warm/inv5/INV",
+      "kind": "INV",
+      "status": "SMT_DISCHARGED"
+    }
+  ],
+  "po_total": 23,
+  "schema_version": "1.0",
+  "scope": {
+    "eventb_model_smt_checked": true,
+    "implementation_formally_verified": false
+  },
+  "tools": {
+    "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+    "rossi": "rossi 0.2.3"
+  }
+}

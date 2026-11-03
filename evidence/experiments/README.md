@@ -109,3 +109,43 @@ DRY_RUN=1 ALLOW_EXISTING_M1=1 ./scripts/run-refinement.sh models/counter MODEL-0
 
 Run directories live under `artifacts/refine/` and are gitignored; only `run.json`, the generated
 models and the seed record are committed here.
+
+## 8. P4 Gate verification run (`p4-gate/`) — run by the human, not by the agent
+
+The human ran the gate sequence at the prompt on 2026-11-03 (UTC):
+
+```bash
+./target/debug/intentower baseline                       # BASELINE OK: 5 hashes, 3 model ids pinned, exit 0
+rm -f models/thermostat/th1.eventb                       # no-op: th1 is not committed, by design
+./scripts/run-refinement.sh                              # the run below
+```
+
+| run | verdict | POs | statuses | verif | repairs | pi calls | input | output | cacheRead | total tokens | peak ctx | pi s | gate s | th1 sha256 (12) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| human (`p4-gate/human-run-1.json`) | PASS | 23 | 23 SMT_DISCHARGED | 1 | 0 | 12 | 11158 | 6716 | 169492 | 187366 | 20545 | 125 | 1 | db28b21a8441 |
+
+`intentower baseline` reported `BASELINE OK: 5 hashes, 3 model ids pinned` at all three checkpoints
+(before Pi, after Pi, at the end). `escalation.md` says `next=NONE`. `unexpected_entries: []`.
+
+**23 obligations, not 33.** This `th1` (`p4-gate/th1-human-run-1.eventb`) adds only `heater_on` /
+`heater_off` as new events; `warm` and `chill` do not touch `heater`, and there is no invariant tying
+`heater` to `temperature`. The refinement is legal and every generated obligation is discharged, but
+it is **thinner** than the T33 refinements, which also constrained `heater` against the temperature.
+A lower PO count here is a different model shape, not a looser gate.
+
+Negative control, run in the same session: `intentower gate models/counter --model-id MODEL-001`
+→ exit **2**, `INCOMPLETE`, `1 obligation(s) UNSUPPORTED (not decided): m0::sub/act1/FIS`,
+19 SMT_DISCHARGED + 1 UNSUPPORTED of 20 (`p4-gate/negative-control-MODEL-001.json`). The known
+permanent gap still fails, so this PASS did not come from weakening the verifier.
+
+What this run does **not** change: `repairs_used: 0`, so the orchestrator's
+gate → feedback packet → next Pi call path is still unevidenced by a real model (§6.2), and the
+open-book condition (§6.1) applies to this run as well.
+
+`p4-gate/manifest.json` fingerprints every archived file, records who ran which command, and
+fingerprints the 2 MB `pi.jsonl` transcript that is **not** committed (it stays in the gitignored
+run directory). Because `models/thermostat/th1.eventb` was deleted after archiving, the archived
+gate report no longer traces to the working tree — measured, not assumed:
+`intentower escalate` on the archived report now returns `next=TOOLCHAIN_FIRST` with a `STALE`
+warning (`p4-gate/human-run-1-escalation-after-cleanup.md`). A stored PASS cannot be reused as a
+current verdict; re-running `gate` is the only way to get one.
