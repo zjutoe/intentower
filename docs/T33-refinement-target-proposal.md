@@ -102,14 +102,36 @@ intentower gate → exit 2
 
 见 §1。T33 的 M0 只用确定性赋值 `:=`。
 
-### 4.3 待复核的分类问题（仅报告，未修改）
+### 4.3 分类已修正：理论缺口 = `UNSUPPORTED`（人工裁定 2026-11-03）
 
 一个**语法与类型都合法**的模型产生了 16 条 `TOOL_ERROR`。
 按 AGENTS.md §5，`TOOL_ERROR` 指工具调用失败；这里实际是
-**我们的编码器不支持该理论**，更接近 `UNSUPPORTED`。
-两者都不导致 PASS，故不影响 Gate 安全性，但会影响失败归因与
-T34 的升级路径（`UNSUPPORTED` → 缩小模型/交专家；
-`TOOL_ERROR` → 修工具）。**是否改分类请人工决定，本轮未改。**
+**我们的编码器不支持该理论**。人工裁定后已修改分类：
+
+- `crates/intentower-cli/src/verify.rs::status_for_encoding`：
+  `SmtError::TypeMismatch` 现映射到 `UNSUPPORTED`（与 `UnsupportedNode` 同类）。
+  `UnknownIdent`（未声明变量）与 `BadName`（无法写成 SMT 符号）仍为
+  `TOOL_ERROR` —— 那是我们流水线自己的缺陷。
+- 新增单元测试 `verify::tests::a_sort_outside_the_f0_theory_is_unsupported_not_a_tool_error`。
+- 新增端到端负向测试 `tests/boolsort.rs` + 夹具
+  `tests/fixtures/boolsort/{bs0,bs1}.eventb`：Rossi 重新 POG + 真 cvc5，
+  9 条义务 = 4 `SMT_DISCHARGED` + 5 `UNSUPPORTED`，**0 条 `TOOL_ERROR`**。
+
+实测前后（同一 BOOLEAN 版恒温器模型，`gate MODEL-900`）：
+
+| 状态 | 修正前 | 修正后 |
+|---|---|---|
+| `SMT_DISCHARGED` | 9 | 9 |
+| `TOOL_ERROR` | 16 | **0** |
+| `UNSUPPORTED` | 2 | 18 |
+| Gate 结论 / 退出码 | `INCOMPLETE` / 2 | `INCOMPLETE` / 2 |
+
+安全性不变：两种分类都不导致 PASS。变的是**失败归因**：
+现在报告指向“缩小模型 / 交专家”，而不是指向一个并没有失败的工具。
+
+反向验证（证明该测试确实在守护）：临时把映射改回旧写法后
+`cargo test --test boolsort` **失败**，报
+`left: 4, right: 0`（4 条 `TOOL_ERROR`）；改回后重新通过。
 
 ## 5. Rossi 方言注意（探针实测得到，勿凭记忆）
 

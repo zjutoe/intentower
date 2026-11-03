@@ -1,0 +1,18 @@
+MACHINE bs0
+VARIABLES
+    count
+INVARIANTS
+    @inv1 count >= 0
+EVENTS
+    EVENT INITIALISATION
+    THEN
+        @act1 count := 0
+    END
+
+    EVENT bump
+    WHERE
+        @grd1 count < 10
+    THEN
+        @act1 count := count + 1
+    END
+END

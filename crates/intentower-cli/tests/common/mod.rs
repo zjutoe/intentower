@@ -17,6 +17,12 @@ pub const M0M1: &str = "counter-m0m1-rodin";
 pub const M0M1BROKEN: &str = "counter-m0m1broken-rodin";
 pub const M0M1BADADD: &str = "counter-m0m1badadd-rodin";
 
+/// Test fixture for the theory-gap ruling (human, 2026-11-04): a legal
+/// Event-B pair whose refinement declares a Boolean variable.
+pub const BOOLSORT: &str = "crates/intentower-cli/tests/fixtures/boolsort";
+pub const BOOLSORT_PROJECT: &str = "boolsort-rodin";
+pub const BOOLSORT_SOURCES: &[&str] = &["bs0.eventb", "bs1.eventb"];
+
 pub const M0M1_SOURCES: &[&str] = &["m0.eventb", "m1.eventb"];
 pub const BROKEN_SOURCES: &[&str] = &["m0.eventb", "m1_broken.eventb"];
 pub const BADADD_SOURCES: &[&str] = &["m0.eventb", "m1_badadd.eventb"];
@@ -36,6 +42,12 @@ pub fn repo(path: &str) -> PathBuf {
 /// project must carry the committed name for its bytes to be comparable.
 /// `label` keeps concurrent tests from sharing a scratch directory.
 pub fn pog(label: &str, project: &str, sources: &[&str]) -> PathBuf {
+    pog_in(label, project, MODELS, sources)
+}
+
+/// Same, with an explicit source directory so fixtures outside `models/counter`
+/// can be re-generated the same way.
+pub fn pog_in(label: &str, project: &str, dir: &str, sources: &[&str]) -> PathBuf {
     let out = std::env::temp_dir()
         .join(format!("intentower-pog-{}-{label}", std::process::id()))
         .join(project);
@@ -45,7 +57,7 @@ pub fn pog(label: &str, project: &str, sources: &[&str]) -> PathBuf {
     let mut cmd = Command::new("rossi");
     cmd.args(["export", "--build", "-o"]).arg(&out);
     for source in sources {
-        cmd.arg(repo(MODELS).join(source));
+        cmd.arg(repo(dir).join(source));
     }
     let run = cmd
         .output()
@@ -59,7 +71,12 @@ pub fn pog(label: &str, project: &str, sources: &[&str]) -> PathBuf {
 }
 
 pub fn obligations(label: &str, project: &str, sources: &[&str]) -> Vec<Po> {
-    load_project(&pog(label, project, sources)).unwrap_or_else(|err| panic!("{project}: {err}"))
+    obligations_in(label, project, MODELS, sources)
+}
+
+pub fn obligations_in(label: &str, project: &str, dir: &str, sources: &[&str]) -> Vec<Po> {
+    load_project(&pog_in(label, project, dir, sources))
+        .unwrap_or_else(|err| panic!("{project}: {err}"))
 }
 
 /// Every committed file of a project must equal the freshly generated one.

@@ -3,7 +3,15 @@
 ```yaml
 gate: P3
 record: R2
-status: PROPOSED          # 未签署。签名行为空，等人类逐条确认后填写。
+status: SIGNED            # 2026-11-03 人工填写 §5 签名栏并批准本记录
+signed_by: zjutoe
+signed_at: 2026-11-03
+signature_scope: >
+  签名栏由人类手工编辑填入（文件 mtime 2026-11-03 05:45 UTC）。
+  §2 的 12 行证据复选框仍为 ☐ 未逐条勾选，因此本次签名是对
+  整轮证据的确认，不是逐行复核的确认。原样记录，未代为勾选。
+  另：本头部的 evidence_run / voided 日期写的是 2026-11-04，
+  与本机时钟（2026-11-03 05:5x UTC）差一天，待人工确认哪个为准。
 supersedes: approvals/P3-GATE.md   # 该记录 status: VOID（2026-11-04 人类裁定）
 evidence_run: 2026-11-04
 evidence_machine: ai86（CentOS Stream 9，本机全新安装工具链，见 docs/tooling-versions-ai86.md）
@@ -80,10 +88,10 @@ cargo test --offline            连续 5 次：156 passed / 0 failed
 ## 5. 签名（由人类填写）
 
 ```yaml
-signed_by:            # 待人类填写
-signed_at:            # 待人类填写
-review:               # 待人类填写：是否逐条核对了 §2 的 12 行；如未逐条核对，请写明信任范围
-channel:              # 待人类填写：批准渠道（会话原话）
+signed_by: zjutoe
+signed_at: 2026-11-03
+review: reviewed              # 待人类填写：是否逐条核对了 §2 的 12 行；如未逐条核对，请写明信任范围
+channel: manual edit
 ```
 
 **Agent 不代填本节。** 上一版签字的问题正出在这里。

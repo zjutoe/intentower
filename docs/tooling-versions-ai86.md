@@ -186,3 +186,14 @@ PO 总数与类别分布、`m0::sub/act1/FIS` 的 `UNSUPPORTED` 结论均与 ai8
 - `cargo test --offline` 连续 5 次：**156 passed / 0 failed**（§4 的套件列表漏了 bin unit 3 与 doc-tests 0）。
 
 逐条 gate 证据重跑见 `docs/rossi-smoke.md` §31。
+
+## 8. 更新（2026-11-03，理论缺口分类修正后）
+
+`verify::status_for_encoding` 把 `TypeMismatch` 归为 `UNSUPPORTED`（见 `docs/rossi-smoke.md` §32）。
+新增 1 个 lib 单元测试 + 1 个端到端测试 `tests/boolsort.rs`（夹具 `tests/fixtures/boolsort/`）。
+
+- `cargo test --offline`：**158 passed / 0 failed**
+- `cargo fmt --all -- --check` exit 0；`cargo clippy --offline --all-targets` 0 warnings
+
+日期口径待人工裁定：本文 §6/§7 与 `docs/rossi-smoke.md` §31 写的 `2026-11-04`
+与本机时钟（`2026-11-03 05:5x UTC`）差一天，原始记录保留未改。

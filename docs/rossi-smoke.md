@@ -956,3 +956,82 @@ B1 副本里把 MODEL-004 改指向 ["m0.eventb","m1_broken.eventb"]
 - 重签记录见 `approvals/P3-GATE-R2.md`，状态 `PROPOSED`：**签名行为空，等人类逐条确认后填写**。
   Agent 不代填签名（§2 的边界正是上次签字的问题所在）。
 - `approvals/baseline.json` 未改动，验收标准未改动。
+
+## 32. P3 重签已批准 + 理论缺口分类修正（2026-11-03）
+
+### 人类动作（原样记录，未代填、未代勾选）
+
+`approvals/P3-GATE-R2.md` §5 由人类手工编辑填入：
+
+```
+signed_by: zjutoe
+signed_at: 2026-11-03
+review:    reviewed
+channel:   manual edit
+```
+
+文件 mtime `2026-11-03 05:45:30 UTC`。头部 `status` 由 agent 依其明确批准
+从 `PROPOSED` 改为 `SIGNED`，并补 `signature_scope` 说明签名边界。
+
+**两点必须指出（不代改）：**
+
+1. §2 的 12 行证据复选框仍是 `☐`，而 `review: reviewed`。上次签字的问题正是
+   "证据表里没有这一轮跑的是哪个模型"，所以逐条勾选不是形式。若人类确实逐条
+   看过，请勾上；若是对整轮的信任性确认，`signature_scope` 已按后者记录。
+2. 日期不一致：`P3-GATE.md` 的 `voided_at`、R2 头部的 `evidence_run`、
+   §31 标题都写 `2026-11-04`，而本机时钟是 `2026-11-03 05:5x UTC`
+   （签名日期 `2026-11-03` 与本机一致）。请裁定以人类日历还是机器时钟为准，
+   agent 不自行改写批准记录里的日期。
+
+### 分类裁定：理论缺口 → `UNSUPPORTED`（已实现）
+
+`crates/intentower-cli/src/verify.rs::status_for_encoding`：
+`SmtError::TypeMismatch` 由 `TOOL_ERROR` 改为 `UNSUPPORTED`。
+理由：模型语法与类型都合法，Rossi 与 cvc5 都没有失败，失败的是我们编码器
+的理论覆盖范围（F0 = QF_LIA，算术位置只接受 `Int`）。`UNSUPPORTED` 在计划里
+路由到"缩小模型 / 交专家"，`TOOL_ERROR` 路由到"修工具"——旧分类把人类指向
+一个并没有失败的工具。
+
+仍为 `TOOL_ERROR` 的两类（我们流水线自己的缺陷）：
+`UnknownIdent`（义务类型环境未声明该变量）、`BadName`（无法写成 SMT-LIB 符号）。
+
+新增测试：
+
+- `verify::tests::a_sort_outside_the_f0_theory_is_unsupported_not_a_tool_error`
+  （lib，构造 `flag : Bool` 的义务，断言 `UNSUPPORTED` 且不发脚本）。
+- `tests/boolsort.rs` + 夹具 `tests/fixtures/boolsort/{bs0,bs1}.eventb`
+  （端到端：`rossi export --build` 重新 POG + 真 cvc5）。
+  实测 9 条义务 = 4 `SMT_DISCHARGED` + 5 `UNSUPPORTED` + **0 `TOOL_ERROR`**；
+  其中 4 条 detail 为 ``variable `armed` has sort Bool, expected Int``，
+  1 条为 `node outside F0: atom False`。
+- `tests/common/mod.rs`：`pog`/`obligations` 增加 `*_in` 变体以支持
+  `models/counter` 之外的夹具目录，原调用点不变。
+
+同一 BOOLEAN 版恒温器模型（`gate MODEL-900`）修正前后：
+
+| 状态 | 修正前 | 修正后 |
+|---|---|---|
+| `SMT_DISCHARGED` | 9 | 9 |
+| `TOOL_ERROR` | 16 | **0** |
+| `UNSUPPORTED` | 2 | 18 |
+| Gate 结论 / 退出码 | `INCOMPLETE` / 2 | `INCOMPLETE` / 2 |
+
+反向验证（证明测试在守护，而非摆设）：把映射临时改回旧写法，
+`cargo test --test boolsort` 失败并报 `left: 4, right: 0`；恢复后通过。
+
+### 本轮验证
+
+```
+cargo fmt --all -- --check                     exit 0
+cargo clippy --offline --all-targets           exit 0，0 warning
+cargo test --offline                           158 passed / 0 failed
+  （156 → 158：新增 1 个 lib 单元测试 + 1 个 boolsort 端到端测试）
+intentower gate models/counter --model-id MODEL-001   INCOMPLETE exit 2（1 条 UNSUPPORTED：m0::sub/act1/FIS，未变）
+intentower gate models/counter --model-id MODEL-004   PASS exit 0
+intentower gate models/thermostat --model-id MODEL-005 PASS exit 0
+intentower baseline                                 BASELINE OK: 4 hashes, 2 model ids pinned, exit 0
+```
+
+`approvals/baseline.json` 未改动；`models/counter/` 内容未改动
+（此前 `git status` 里的 `M models/counter/*` 是 rsync 造成的 stat 脏，
+`git diff HEAD -- models/counter/` 为空）。

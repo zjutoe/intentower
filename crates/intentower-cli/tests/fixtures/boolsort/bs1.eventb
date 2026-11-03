@@ -1,0 +1,24 @@
+MACHINE bs1
+REFINES
+    bs0
+VARIABLES
+    total armed
+INVARIANTS
+    @inv1 total >= 0
+    @inv2 armed = TRUE => total <= 5
+    @inv3 count = total
+EVENTS
+    EVENT INITIALISATION
+    THEN
+        @act1 total := 0
+        @act2 armed := FALSE
+    END
+
+    EVENT bump
+    REFINES bump
+    WHERE
+        @grd1 armed = TRUE
+    THEN
+        @act1 total := total + 1
+    END
+END
