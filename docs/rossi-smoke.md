@@ -1111,3 +1111,62 @@ agent 未刷新基线（AGENTS.md §3）。补丁与完整证据见 `approvals/M
 
 验收：`cargo test --offline` 158 passed / 0 failed；`cargo fmt --all -- --check` exit 0；
 `cargo clippy --offline --all-targets` 无告警；`intentower baseline` exit 0。
+
+## 36. T31：自动细化入口脚本 scripts/run-refinement.sh（2026-11-03）
+
+交付一个**手工执行的小入口**，不是 Agent 框架：Pi → `intentower gate` → `intentower feedback` → Pi。
+默认参数 `models/thermostat MODEL-006 models/thermostat/th1.eventb`。
+
+硬上限（§27 人类批准的参数，写死在脚本里）：
+`MAX_VERIFY=3`、`MAX_REPAIR=2`、feedback 预算 8192 B；超限 `exit 2` 并写 `stop.json`。
+基线检查点：运行前、每次 Pi 调用后、运行后各一次；任一失败立即停止（AGENTS.md §3，基线仍只有人类能刷新）。
+
+每轮证据在 `artifacts/refine/run-<UTC>-<PID>/round-N/`：
+`prompt.md`、`pi.jsonl`、`pi.err`、`pi.exit`、`pi.seconds`、`report.json`、`report.md`、
+`packet.md`、`gate.seconds`、`pog/`；运行结束写 `run.json`，含每轮 verdict、PO 总数与状态分布、
+cvc5/rossi 版本、LLM 调用数、provider/model、input/output/cache 读与峰值上下文 token。
+**记录模型身份是刻意的**：§30 的异常就是"记录的模型不是真正服务的模型"。
+
+### 上限与守卫实测（`DRY_RUN=1`，不消耗 LLM）
+
+| 场景 | 命令要点 | 结果 |
+|---|---|---|
+| happy path | `MODEL-004`（已存在且已批准的细化） | 1 次验证 / 0 次修复，`stop=pass`，exit 0 |
+| 上限耗尽 | `MODEL-001`（含永久 UNSUPPORTED，永远不可能 PASS） | 恰好 3 次验证 / 2 次修复，第 3 轮不再产 packet，`stop=verify_cap_exhausted`，exit 2 |
+| FAIL 也能修 | `MODEL-002`（NOT_DISCHARGED） | 每轮 packet 3645 B，3 次验证后 exit 2 |
+| 受保护输入被改 | 在 `/tmp/t31` 副本里给 `models/counter/m0.eventb` 追加一行 | 运行前基线失败，**未调用 gate/Pi**，exit 2 |
+| M1 已存在 | 副本中预先放 `th1.eventb` | `STOP: ... already exists`，exit 2 |
+| 缺工具 | PATH 去掉 `~/.local/bin` | `STOP: missing tool: cvc5`，exit 2 |
+
+注入与破坏性场景全部在 `/tmp/t31` 副本上跑，不在工作树。
+
+### 两次真实冒烟（**不是 T33 证据**）
+
+| 轮次 | Gate | PO | LLM 调用 | 身份 | token | 墙钟 |
+|---|---|---|---|---|---|---|
+| 冒烟 1 | 第 1 轮 PASS，exit 0 | 33 全 SMT_DISCHARGED | 18 | `strata-ai90/qwen3.8-flash-next-iq3_s` | in 23168 / out 10351 / cache 读 357055 / 总 390574 / 峰值上下文 33634 | 229 s |
+| 冒烟 2 | 第 1 轮 PASS，exit 0 | 27 全 SMT_DISCHARGED | 15 | 同上 | in 15319 / out 10211 / cache 读 250922 / 总 276452 / 峰值上下文 27294 | 202 s |
+
+两次都只新建 `models/thermostat/th1.eventb`，未改动任何受保护文件（三次 `intentower baseline` 均 OK，
+`git status` 只有未跟踪新文件）。两份 M1 都是真细化（`REFINES th0`、gluing `temp = temperature`、
+只用 `:=`），但**形状不同**：冒烟 1 用 `heater = 1 => temperature <= 70` 这类不变式，
+冒烟 2 引入 `setpoint` 变量并用 `temperature < setpoint` 作守卫。
+这个差异对 T33 有用：同一 M0 下模型会给出不同的可行 M1。
+
+诚实记录：
+- 冒烟 1 的原始日志目录在我清理 scratch 时被误删（见下），只剩它的 `th1.eventb`
+  （`/tmp/t31smoke/th1-run1.eventb`）和本表数字；冒烟 2 完整保留在 `/tmp/t31smoke/run2/`。
+- 清理时我执行了 `rm -rf artifacts`，误删了**已跟踪**的 `artifacts/spike/**`（T05 的 Rodin 导出证据），
+  随即用 `git checkout -- artifacts` 完整恢复；`git status` 已确认无缺失。
+  教训：`artifacts/` 本身是受版本控制的证据目录，scratch 只能写到 `artifacts/refine/`，
+  已把该路径加入 `.gitignore`（只忽略这一子目录，不忽略 `artifacts/`）。
+- 冒烟产物**不入仓**：`models/thermostat/th1.eventb` 已从工作树删除，T33 必须自己生成并完整记录。
+
+已知局限（留给 T34 与人类裁定）：
+- Pi 超时（`timeout` 返回 124）不会中止本轮：仍会 gate 并计入验证次数，因为 Agent 可能已写出模型；
+- 脚本不判定失败类别，也不改变下一步策略——那是 T34；
+- `ALLOW_EXISTING_M1=1` 只为测试上限与守卫而存在，真实实验不得使用。
+
+验收：`bash -n scripts/run-refinement.sh` exit 0；上表 6 个场景全部按预期退出码停止；
+两次真实运行 exit 0；`intentower baseline` 在每个检查点均 exit 0；
+`cargo test --offline` 158 passed / 0 failed（脚本不改生产代码）。
