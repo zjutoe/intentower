@@ -1388,3 +1388,30 @@ echo $?   # 0
 
 **本节只是证据归档，不是 P4 Gate 签署。** `approvals/P4-GATE.md` 尚不存在，签署与否、
 以及上面四条局限如何写入记录，由人类决定。
+
+## 41. P4 Gate 起草（`approvals/P4-GATE.md`，`status: PROPOSED`）
+
+§40 末行"尚不存在"已被本节取代：人类要求起草后，`approvals/P4-GATE.md` 已建立为**草稿**，
+`status: PROPOSED`，§7 签名栏留空，**agent 不代填**。创建草稿不等于批准（AGENTS.md §3）。
+
+草稿结构：判定标准原文 → 主判定（带条件）→ T29–T34 逐行验收表（复核栏 ☐ 由人类勾选）→
+必须原样保留的 7 条局限 → 覆盖/不覆盖 → 复核者重跑序列 → 签名栏。
+
+起草时新做的核对（不是引用旧数字）：
+
+| 核对 | 结果 |
+|---|---|
+| 5 次真实运行的 `verifications_used` / `repairs_used` / 判定 / PO / token | 从 `evidence/experiments/*.json` 重新读出：全部 `1 / 0`、PASS、全 `SMT_DISCHARGED`；A 33 / B 33 / C 33 / seed 33 / Gate 核验跑 23 |
+| 修复包字节 | `harness/dry-cap-exhausted.json` 三轮 `packet_bytes` = 3645 / 3645 / 无（第 3 轮不再产包） |
+| 草稿引用的测试名 | 15 个全部能在对应 suite 的 `-- --list` 中找到；另 3 个标识符是 Event-B 事件名与 JSONL 事件类型，非测试 |
+| 草稿引用的文件路径 | 40 个全部存在；例外只有 `models/thermostat/th1.eventb`（Agent 产物，按设计不提交）与 `report.json` / `run.json` / `stop.json`（轮次目录内的通用文件名） |
+| Agent 回合内自查 gate 次数（旧记录里的"14+"不可靠，已改实测） | Gate 核验跑 17 次工具调用（16 bash + 1 write）中 2 次直接跑 `intentower gate`；播种跑 29 次（28 bash + 1 edit）中 3 次。计数按 transcript `tool_execution_start` 统计，原件未提交，仅在 `/tmp/t33stage/seedRun/` 与 gitignore 的 run 目录存在时可复核 |
+| 批准文件最后改动 | `INT-001 9d7f8ed`、`SPEC-001 9e31729`、`project.json 7df9dbc`、`counter/m0 1059dd2`、`thermostat/th0 58af8e2`、`baseline.json c8754d3`；P3 之后的提交未触碰前四个 |
+| 卫生检查 | `cargo fmt --all -- --check` exit 0；`cargo clippy --offline --all-targets` 无 warning；`cargo test --offline` **169 passed / 0 failed**；`intentower baseline` `5 hashes, 3 model ids pinned` exit 0 |
+
+草稿把下面这些写进记录、不允许在签署时被擦掉：开卷条件；**修复回路无真实模型证据**
+（5 次运行 `repairs_used: 0`，编排器的 `gate → 修复包 → Pi` 路径只有 `DRY_RUN` 走过）；
+"最多 3 次验证"只约束编排器；Agent 访问范围无成文规则；本轮 `th1` 偏薄（heater 对温度惰性）；
+`pi.jsonl` 原件未提交；脚本层缺回归测试（本轮接线曾出 3 个缺陷，见 §39）。
+
+**本节仍不是签署。** 签名与否、以及 §4 的 7 条局限与 §5 的 7 条残余风险是否按原样保留，由人类决定。
