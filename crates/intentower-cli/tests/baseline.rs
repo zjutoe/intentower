@@ -122,8 +122,30 @@ fn check(root: &Path) -> Vec<Violation> {
 fn the_committed_baseline_matches_the_repository() {
     let record =
         baseline::read(&repo("approvals/baseline.json")).expect("the frozen baseline parses");
-    assert_eq!(record.sha256.len(), 4, "INT, SPEC, M0 and project.json");
-    assert_eq!(record.model_ids.len(), 2, "MODEL-001 and MODEL-004");
+    // The pinned set grows only by human approval (AGENTS.md §3). As of
+    // 2026-11-03 it holds the four P1 inputs plus the approved thermostat M0
+    // (approvals/MODEL-005.md).
+    for path in [
+        "docs/INT-001.md",
+        "docs/SPEC-001.md",
+        "models/counter/m0.eventb",
+        "project.json",
+        "models/thermostat/th0.eventb",
+    ] {
+        assert!(record.sha256.contains_key(path), "{path} must stay pinned");
+    }
+    for id in ["MODEL-001", "MODEL-004", "MODEL-005"] {
+        assert!(record.model_ids.contains_key(id), "{id} must stay pinned");
+    }
+    assert_eq!(
+        record.model_ids["MODEL-005"],
+        vec!["models/thermostat/th0.eventb".to_string()],
+        "MODEL-005 means the approved thermostat M0, nothing else"
+    );
+    assert!(
+        !record.model_ids.contains_key("MODEL-006"),
+        "MODEL-006 is the agent-produced refinement; pinning it would fake approval"
+    );
     let found = baseline::check(&repo("."), &record);
     assert_eq!(found, vec![], "the repository must match its own baseline");
 }

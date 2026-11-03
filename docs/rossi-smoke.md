@@ -1094,3 +1094,20 @@ agent 未刷新基线（AGENTS.md §3）。补丁与完整证据见 `approvals/M
 `MODEL-006` 故意不钉：其源集合含 Agent 产物。
 
 `docs/SPEC-001.md` §13 不含 MODEL-005/006 —— 若要写进规范需单独的增补任务与批准。
+
+## 35. 基线扩展后一个快照测试失效（2026-11-03）
+
+`tests/baseline.rs::the_committed_baseline_matches_the_repository` 原先硬写
+`sha256.len() == 4` / `model_ids.len() == 2`。人类按 §34 加入 MODEL-005 后它失败：
+`left: 5, right: 4`。
+
+失效原因是**测试把钉住的数量写死**，而数量本来会随人类批准增长。改法不是放宽，
+而是改成按成员断言并加严：
+
+- 五个路径必须仍在钉住集合里（INT-001、SPEC-001、counter/m0、project.json、thermostat/th0）；
+- `MODEL-001`/`MODEL-004`/`MODEL-005` 必须仍在；
+- `MODEL-005` 必须恰好指向 `models/thermostat/th0.eventb`（改指别的文件即失败）；
+- 新增反向守卫：`MODEL-006` **不得**被钉住——它是 Agent 产物，钉住等于伪造批准。
+
+验收：`cargo test --offline` 158 passed / 0 failed；`cargo fmt --all -- --check` exit 0；
+`cargo clippy --offline --all-targets` 无告警；`intentower baseline` exit 0。
