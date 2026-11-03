@@ -1,7 +1,7 @@
 # SPEC-001 — `intentower verify`：对一个模型目录生成并自动判定全部证明义务
 
 - **Parent Intent**: INT-001（已批准，2026-11-02）
-- **Status**: `approved`（2026-11-02 由 zjutoe 整体批准，含 §9 D1/D2/D3；本文件为保护文件，Agent 只读）
+- **Status**: `approved`（2026-11-02 由 zjutoe 整体批准，含 §9 D1/D2/D3；§13 与 §2 的修订 **R1** 于 2026-11-03 由 zjutoe 批准（A1 选 b）；本文件为保护文件，Agent 只读）
 - **Approver**: zjutoe（2026-11-02） · **Drafter**: Pi
 - **Plan reference**: §1.2、§3 P2（T14–T22）、§3 P3（T23–T27）、§4.1、§4.2
 - **Scope**: 只定义 `verify`。`gate` 的验收语义属于 **SPEC-002**（T35），本文件不定义批准权限。
@@ -18,6 +18,7 @@
 |---|---|
 | 位置参数 | 一个模型目录，内含该模型的 Event-B 源文件（如 `models/counter/`） |
 | `--out <dir>` | 报告与中间产物（PO 清单、SMT 脚本、日志）写入目录；默认 `artifacts/<模型名>/` |
+| `--model-id <id>` | 从 `<目录>/models.json` 里选一组源文件；默认 `MODEL-001`（R1 补记：实现于 T27，验收正例见 §13） |
 | `--timeout-secs <n>` | 单个外部工具调用的超时秒数；默认 `30`（见 §9 D3） |
 | 前置条件 | 见 §3；不满足时立即失败，不产生任何"通过"结论 |
 
@@ -119,8 +120,29 @@ SMT 编码对 Event-B 语义的保真性（P2 Gate 由强模型 Review）；`sat
 
 ```bash
 cargo test                                   # 含每种 status 映射的单测
-cargo run -p intentower-cli -- verify models/counter --out artifacts/counter
+cargo run -p intentower-cli -- verify models/counter --model-id MODEL-004 --out artifacts/counter
 # 正例：退出 0，artifacts/counter/report.json 通过 schema 校验，po_total>0 且全部 SMT_DISCHARGED
 # 负例：B02–B06 各得到退出 2，且报告 status 字段与 §5 表格一致
+# 负例（R1）：verify models/counter --model-id MODEL-001 → 退出 2；20 条义务全部列出，
+#  其中 m0::sub/act1/FIS 为 UNSUPPORTED（`:|` 选择子句含 ∃，在 F0=QF_LIA 之外）
 ```
 人类确认：§4 保证、§5 状态映射、§9 三项决定与你的意图一致。
+
+### 13.1 修订 R1（人类批准，2026-11-03；A1 选 b）
+
+原 §13 的正例是 `verify models/counter`（默认 MODEL-001 = `m0.eventb` + `m1.eventb`）。
+实测该命令退出 `2`：MODEL-001 的 `m0::sub/act1/FIS` 含存在量词，按 SP-G5 与 B06
+**必须**判成 `UNSUPPORTED`。冲突在验收期望值，不在实现。
+
+人类裁决：把正例改为全判定的 **MODEL-004**（`counter.eventb` + `counter_machine.eventb`，
+6 条义务，实测退出 `0`），并把 **MODEL-001 明确列为 INCOMPLETE 负例**。
+
+语义边界（没有放松的东西）：
+
+- 已批准 M0（`models/counter/m0.eventb`）原文不变，`:|` 选择子句保留；
+- F0 仍是 QF_LIA，**未**因本修订扩大语言子集（支持有界存在量词属未来任务，需新的语义 Review）；
+- §4 全部保证、§5 状态映射、§9 D1/D2/D3 均未改动；
+- `models/counter/models.json` 里 MODEL-001…004 的 ID 语义仍待人类批准（A3），
+  本修订只引用 ID，不等于批准该清单。
+
+本修订使 §2 需要一行 `--model-id`（实现于 T27，默认 `MODEL-001`），已一并补记。

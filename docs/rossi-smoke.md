@@ -579,3 +579,40 @@ Markdown，并重新哈希 `inputs` 判断这份证据是否还对应现在的�
 
 **未做**：`prompts/repair.md`（T30）、`scripts/run-refinement.sh`（T31）、
 `approvals/baseline.json`（T32，需人类批准）。
+
+## 23. 人类裁决 A1 = (b)：SPEC-001 §13 修订 R1（受保护文件，人类批准后由 Agent 落盘）
+
+2026-11-03 人类裁决：§13 的验收**正例换成 MODEL-004**，**MODEL-001 改为 INCOMPLETE 负例**。
+§13.1 的语义 diff 在 §"A1" 讨论中给出并获批，本次按批准内容落盘，改动三处：
+
+| 位置 | 改动 |
+|---|---|
+| 文件头 Status 行 | 记录"§13 与 §2 的修订 R1 于 2026-11-03 由 zjutoe 批准（A1 选 b）" |
+| §2 输入表 | 新增一行 `--model-id <id>`（默认 `MODEL-001`，取自 `<目录>/models.json`）—— §13 的正例要用它，§2 不写就自相矛盾 |
+| §13 + 新增 §13.1 | 正例命令加 `--model-id MODEL-004`；新增负例行（MODEL-001 → 退出 2，`m0::sub/act1/FIS` = `UNSUPPORTED`）；§13.1 写清修订理由与**没有放松的东西** |
+
+**没有改动**：`models/counter/m0.eventb` 原文（`:|` 保留）、F0 = QF_LIA、§4 全部保证、
+§5 状态映射、§9 D1/D2/D3、`schemas/report.schema.json`。支持有界存在量词仍是未来任务。
+
+按修订后的 §13 实跑（不是引用旧报告）：
+
+| 命令 | 退出码 | 实测 |
+|---|---|---|
+| `verify models/counter --model-id MODEL-004 --out artifacts/counter` | **0** | `PASS 6 obligations, inputs 4`；`validate-report.py` → OK；`po_total=6`，状态集合 `{SMT_DISCHARGED}`，`gate.status=PASS` |
+| `verify models/counter --model-id MODEL-001 --out artifacts/counter-m0m1` | **2** | `INCOMPLETE 20 obligations`；validator OK；唯一未判定：`m0::sub/act1/FIS` = `UNSUPPORTED` |
+
+新增测试把 §13 钉住：`cli_gate.rs::the_spec_13_positive_case_is_verify_model_004_exiting_zero`
+（退出 0 + 每条义务都 `SMT_DISCHARGED` + `po_total > 0` + schema 校验）。
+负例注入：把该测试里的 `MODEL-004` 换成 `MODEL-001` → **FAILED**
+（`left: Some(2) right: Some(0)`），确认它不是摆设；改回后通过。
+
+`cargo test --offline`：**137 passed / 0 failed**（R1 前 136，+1）。`cargo fmt --all -- --check` 干净。
+
+**A2 的连带影响**：`docs/SPEC-001.md` 哈希已变，冻结 `approvals/baseline.json` 必须用新值：
+
+```
+7c52021f39bb3c23df2def8cbc14d2f92620136f452b0cef29c903d8aa2021d6  docs/SPEC-001.md   # R1 后
+b3af782053102bac13b66e58045851cb9417f1b3343d796968a4487c78da730d  docs/INT-001.md
+48560e02cadd9f454e3a4f0bb0c88bed195a93fb340ad6258b0f43f6132c618f  models/counter/m0.eventb
+1a9adec1ee0c83059450a50d41aa19ba33074f16ef888e2710fa1d56d7c03342  project.json
+```

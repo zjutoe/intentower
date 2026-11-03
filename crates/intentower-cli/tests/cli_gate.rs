@@ -86,6 +86,38 @@ fn gate_exits_zero_only_when_every_obligation_is_discharged() {
     assert_valid(&dir.join("gate.json"));
 }
 
+// SPEC-001 §13, revision R1 (human-approved 2026-11-03): the positive
+// acceptance case is MODEL-004, every obligation discharged, exit 0.
+#[test]
+fn the_spec_13_positive_case_is_verify_model_004_exiting_zero() {
+    let dir = out_dir("spec13-positive");
+    let (code, stdout, stderr) = run(&[
+        "verify",
+        repo("models/counter").to_str().unwrap(),
+        "--model-id",
+        "MODEL-004",
+        "--out",
+        dir.to_str().unwrap(),
+    ]);
+    println!("{stdout}{stderr}");
+    assert_eq!(code, Some(0), "the §13 positive case must exit 0");
+    let report = report_at(&dir);
+    assert_eq!(report["gate"]["status"], "PASS");
+    assert!(
+        report["po_total"].as_u64().unwrap() > 0,
+        "zero obligations is never a pass"
+    );
+    for row in report["obligations"].as_array().unwrap() {
+        assert_eq!(
+            row["status"], "SMT_DISCHARGED",
+            "{} is not discharged",
+            row["id"]
+        );
+    }
+    assert_valid(&dir.join("report.json"));
+}
+
+// SPEC-001 §13, revision R1: MODEL-001 is the named INCOMPLETE negative case.
 #[test]
 fn verify_writes_a_valid_report_and_exits_two_for_an_undecided_obligation() {
     let dir = out_dir("incomplete");
