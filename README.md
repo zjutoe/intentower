@@ -108,10 +108,16 @@ The CLI surface implemented so far (`intentower --help` is authoritative):
 intentower verify models/counter --model-id MODEL-004 --out artifacts/counter
 intentower gate models/counter --model-id MODEL-004 --policy project.json --out artifacts/gated-counter/report.json
 intentower report artifacts/counter/report.json --format md --out artifacts/counter/summary.md
+intentower baseline
 ```
 
 `doctor` and `po` are not implemented. Exit codes are `0` PASS, `1` FAIL, `2`
 INCOMPLETE or tool/usage error; `report` runs nothing and authorizes nothing.
+`baseline` compares the human-frozen `approvals/baseline.json` (four SHA256
+values plus the source sets behind `MODEL-001` and `MODEL-004`) against the
+working tree; it reads only, never refreshes the baseline, and exits `2` the
+moment a protected input moves. `verify` and `gate` do not read it — a
+refinement round must run it before and after.
 `verify models/counter --model-id MODEL-001` exits `2` by design: its
 `m0::sub/act1/FIS` obligation contains `∃`, which is outside the F0 (QF_LIA)
 subset — see SPEC-001 §13.1.

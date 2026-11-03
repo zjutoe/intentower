@@ -39,9 +39,12 @@
 cargo build --offline
 ./target/debug/intentower gate models/counter --model-id MODEL-001 --out artifacts/refine/report.json
 ./target/debug/intentower report artifacts/refine/report.json --format md --out artifacts/refine/summary.md
+./target/debug/intentower baseline
 ```
 
 退出码：`0` PASS，`1` FAIL，`2` INCOMPLETE 或工具/参数错误。
+`baseline` 必须**开工前跑一次、交回前再跑一次**：它只读人类冻结的
+`approvals/baseline.json`，退出 `2` 就表示受保护输入动了 —— 立即停止，不得继续。
 读 `artifacts/refine/summary.md` 的 **Not proved** 表：每一条非 `SMT_DISCHARGED`
 的义务都会被点名；状态只可能是
 `SMT_DISCHARGED | NOT_DISCHARGED | UNKNOWN | TIMEOUT | UNSUPPORTED | TOOL_ERROR | STALE | MISSING`。

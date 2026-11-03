@@ -4,6 +4,10 @@
 //! `<模型目录>/models.json`; neither can be pointed at a previous report.
 //! Exit codes: 0 PASS, 1 FAIL, 2 INCOMPLETE or tool/usage error.
 //!
+//! T32 adds `intentower baseline`: it compares the human-frozen
+//! `approvals/baseline.json` against the working tree and exits 2 the moment a
+//! protected input moves. It reads only; it never refreshes the baseline.
+//!
 //! T28 adds `intentower report`: it reads a written report back and renders a
 //! Markdown review summary. It runs nothing, so it can never authorize a PASS;
 //! it exits 2 when the report is unreadable, inconsistent or STALE, and
@@ -16,6 +20,7 @@ use std::process::ExitCode;
 use clap::{Arg, Command};
 use serde_json::json;
 
+use intentower_cli::baseline;
 use intentower_cli::gate::policy::{self, Verdict};
 use intentower_cli::report;
 
@@ -88,6 +93,54 @@ fn command() -> Command {
                         .help("Markdown file to write"),
                 ),
         )
+        .subcommand(
+            Command::new("baseline")
+                .about("Compare the human-frozen baseline against the working tree (read-only; exits 2 on any change)")
+                .arg(
+                    Arg::new("baseline")
+                        .long("baseline")
+                        .value_name("FILE")
+                        .default_value("approvals/baseline.json")
+                        .help("the frozen approval record, written by a human"),
+                )
+                .arg(
+                    Arg::new("root")
+                        .long("root")
+                        .value_name("DIR")
+                        .default_value(".")
+                        .help("baseline paths are resolved against this directory"),
+                ),
+        )
+}
+
+/// T32: the protected-input check. Run it before and after every refinement
+/// round; a non-zero exit means a protected input moved and the round stops.
+/// Nothing here writes, so the baseline cannot be refreshed by an agent.
+fn baseline_command(sub: &clap::ArgMatches) -> ExitCode {
+    let path = PathBuf::from(sub.get_one::<String>("baseline").unwrap());
+    let root = PathBuf::from(sub.get_one::<String>("root").unwrap());
+    let record = match baseline::read(&path) {
+        Ok(record) => record,
+        Err(err) => return fail(err),
+    };
+
+    let found = baseline::check(&root, &record);
+    if found.is_empty() {
+        println!(
+            "BASELINE OK: {} hashes, {} model ids pinned",
+            record.sha256.len(),
+            record.model_ids.len()
+        );
+        return ExitCode::SUCCESS;
+    }
+    for violation in &found {
+        println!("  - {violation}");
+    }
+    println!(
+        "BASELINE CHANGED: {} protected inputs moved. stop the round; only a human may re-baseline.",
+        found.len()
+    );
+    ExitCode::from(2)
 }
 
 fn fail(message: impl std::fmt::Display) -> ExitCode {
@@ -150,6 +203,9 @@ fn main() -> ExitCode {
     let (name, sub) = matches.subcommand().expect("a subcommand");
     if name == "report" {
         return report_command(sub);
+    }
+    if name == "baseline" {
+        return baseline_command(sub);
     }
     let model_dir = PathBuf::from(sub.get_one::<String>("model_dir").unwrap());
     let model_id = sub.get_one::<String>("model_id").unwrap().clone();

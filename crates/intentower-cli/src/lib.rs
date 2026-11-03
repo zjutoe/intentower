@@ -1,3 +1,4 @@
+pub mod baseline;
 pub mod gate;
 pub mod po;
 pub mod project;

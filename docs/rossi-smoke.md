@@ -696,3 +696,57 @@ SPEC-001 §13 明文要求这条命令退出 **2**。也就是说：**改一个�
 
 **注意**：`--policy approvals/baseline.json` 生成的旧报告（如临时 `/tmp/bl.json`）现在会因策略哈希变化而 STALE——这是正确行为。
  enforcement 尚未实现：§25 的注入实验目前**还检不出来**，要等 T32 的 protected-input 检查。
+
+## 26. T32：protected-input 检查（`intentower baseline`）
+
+实现只有两处生产代码：`crates/intentower-cli/src/baseline.rs`（读基线 + 比对）
+和 `main.rs` 里的 `baseline` 子命令。哈希复用 `gate::provenance::hash_file`，没有第二套哈希实现。
+
+规则：
+
+| 基线字段 | 检查 | 违规 |
+|---|---|---|
+| `sha256` | 文件必须存在且哈希相符 | `ProtectedMissing` / `HashChanged` |
+| `model_ids` | 该 id 在 `<目录>/models.json` 里必须存在，且源文件集合（解析成仓库根相对路径后）完全相同 | `IdRemoved` / `IdRepointed` / `ManifestUnreadable` / `AmbiguousId` |
+| 未钉住的 id | 不管 | —— append-only，T33 实验可自由新增 |
+
+退出码：`0` 相符，`2` 有任何违规或基线读不到。**只读**：唯一的文件系统调用是读。
+
+### 实测（真实仓库，非夹具）
+
+```bash
+# 注入：把 MODEL-001 指向 counter 那一对（不碰任何 .eventb）
+./target/debug/intentower baseline
+#   - pinned model id MODEL-001 was repointed: recorded ["models/counter/m0.eventb", "models/counter/m1.eventb"]
+#     != current ["models/counter/counter.eventb", "models/counter/counter_machine.eventb"]
+#   BASELINE CHANGED: 1 protected inputs moved. stop the round; only a human may re-baseline.
+#   exit=2
+./target/debug/intentower verify models/counter --model-id MODEL-001 --out /tmp/hole2.json   # exit=0
+git checkout models/counter/models.json && ./target/debug/intentower baseline               # BASELINE OK, exit=0
+```
+
+`verify` 仍然 `exit 0` —— 这正是 §25 那个洞的形态。**检查是独立命令，不是一句口号**：
+SPEC-001 §24 明确 `verify` 不得把基线当判定依据，`gate` 的验收语义属 SPEC-002，
+所以 T31 的精化脚本必须**每轮前后各跑一次 `intentower baseline`**，退出 2 就终止本轮。
+
+### 测试
+
+`crates/intentower-cli/tests/baseline.rs`，11 个：
+`the_committed_baseline_matches_the_repository`（真实基线 vs 真实仓库）、
+`editing_a_protected_file_is_reported`、`deleting_a_protected_file_is_reported`、
+`repointing_a_pinned_model_id_is_reported`、`removing_a_pinned_model_id_is_reported`、
+`adding_a_new_model_id_is_allowed`、`a_missing_manifest_is_reported_not_a_silent_pass`、
+`the_check_reads_and_never_refreshes_the_baseline`（基线字节不变 + 目录不新增文件）、
+`the_cli_exits_zero_on_the_committed_baseline`、
+`the_cli_exits_two_when_a_pinned_id_is_repointed`、
+`a_missing_baseline_is_a_clear_error_and_is_never_created`。
+
+`cargo test --offline`：**148 passed / 0 failed**（T32 前 137，+11）。`cargo fmt --all -- --check` 干净。
+
+### 边界与残余风险（必须写清）
+
+- **不是恶意进程隔离**（计划 §T32 原文）。它防的是"顺手改了"，不防蓄意绕过。
+- `baseline` 信任它读到的那个文件：**改 `approvals/baseline.json` 本身不会被它发现**。
+  现在的防线是它已入 git 历史（`d38255f`），以及 `gate --policy approvals/baseline.json`
+  会把它的哈希钉进报告。要自动发现基线被换，需要 T31/T34 把基线哈希本身记进实验记录。
+- 检查与 `verify`/`gate` 解耦，意味着**忘记跑它就没有保护**。T31 的脚本必须把它做成必经步骤。
