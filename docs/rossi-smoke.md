@@ -1215,3 +1215,17 @@ sha256 各不相同，见 README 表。
 `cargo test --offline` 158 passed / 0 failed；harness 回归
 `harness/dry-cap-exhausted.json`（3 验证 / 2 修复 / `verify_cap_exhausted` / 三轮均 FAIL / 脚本 exit 2 /
 packet 3645 字节）与 `harness/dry-pass.json`（1 验证 / `pass` / exit 0）。
+
+## 38. §35 的测试语义变更由人类批准（2026-11-03）
+
+人类复核 `e529076`（`tests/baseline.rs::the_committed_baseline_matches_the_repository`
+的数量断言改为成员断言 + MODEL-005 身份断言 + MODEL-006 反向守卫），结论：**批准，保持现状**。
+
+批准时明确接受的残留缺口（不是遗漏）：该测试不再断言钉住集合的**上界**。
+新增一个未经批准的 pin（第 6 个路径，或把 MODEL-002/MODEL-006 加进 `model_ids`）
+不会让这个测试失败；旧的数量断言会。防线仍剩两条：
+`intentower baseline` 对已钉条目做哈希与 model id 一致性校验，以及 AGENTS.md §3
+规定只有人类能改 `approvals/baseline.json`。
+
+若日后要恢复上界守卫，做法是把成员断言换成集合相等，代价是每次人类批准后必须同步改这个测试
+（改测试本身成为批准信号）。本轮不做。生产代码未改，仅测试与文档。
