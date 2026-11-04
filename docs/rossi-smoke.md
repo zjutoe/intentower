@@ -1490,3 +1490,47 @@ SEED_M1=evidence/experiments/models/th1-seed-input.eventb NO_SELFCHECK=1 ./scrip
 `approvals/P4-GATE.md` 已按本次结果修订（`amended_at`，原稿在提交 `9dba878`）：§4.2 改为
 "原判定已被一次有界尝试补上，但仍不构成修复成功率"，§4.3 加入 `NO_SELFCHECK` 那跑 0 次自查的
 对照，§4.7 的脚本缺陷数 3 → 5。**仍为 `status: PROPOSED`，§7 签名留空，Agent 不代填。**
+
+## 43. P4 Gate 签署（人类，2026-11-04T02:30Z）
+
+`approvals/P4-GATE.md` 由 `status: PROPOSED` 变为 `status: SIGNED`：
+
+```yaml
+signed_by: zjutoe
+signed_at: 2026-11-04T02:30Z
+review: yes
+channel: manual edit
+limitations_read: 已读并同意按原样保留（§4.2 已补 1 例，无成功率）
+```
+
+§3 的 T29–T34 六行复核列全部由人类填 `Y`（不是 Agent 填的）。签名与签名块均为人类手工编辑；
+**Agent 未填任何签名字段**。
+
+签署前 Agent 只改了一处，且是人类明确批准（"改"）的语义变更：§7 末段原写"若人类决定现在签署而
+§4.2 仍开放，必须写成已签署但仍未验证"。§4.2 在 §42 的有界尝试后已不是开放项，该句会误导，
+故改为"§4.2 已补 1 例，没有成功率；§4.1、§4.3–§4.7 与 §5 的 7 条残余风险按原样保留"。
+除此之外本记录正文未动。
+
+签署时的工作树状态（实测）：`git status --porcelain` 只有 `M approvals/P4-GATE.md`；
+`cargo fmt --all -- --check` exit 0；`cargo test --offline` 169 passed / 0 failed；
+`intentower baseline` → `BASELINE OK: 5 hashes, 3 model ids pinned` exit 0。
+批准文件（INT-001、SPEC-001、project.json、m0.eventb、th0.eventb、baseline.json）本次未被触碰。
+
+**签署覆盖什么**：P4 的 T29–T34 验收，以及 plan 第 324 行的主判定 —— 一组真实 M0→M1
+（MODEL-005 → Agent 生成 th1 → MODEL-006 全部生成义务 `SMT_DISCHARGED`）在未更改批准高层意图
+的情况下由 Agent 完成；失败分析如实交付。
+
+**签署不改变什么**（本记录 §4 原文仍在，逐条）：
+
+1. 开卷：`docs/T33-refinement-target-proposal.md` 附录 A 含参考 `th1`，闭卷条件未测。
+2. 修复回路：只有 **1 例**（`repair/seedfix-1-run.json`），**没有成功率**。
+3. "最多 3 次验证"只约束编排器；`NO_SELFCHECK` 靠 prompt 措辞，不是机制强制。
+4. Agent 访问范围无成文规则。
+5. 人类实跑那轮的 `th1` 偏薄（heater 对温度惰性）。
+6. `pi.jsonl` 原件未提交，只有 sha256 指纹；清理 `artifacts/refine/` 后不可再复核。
+7. 脚本层无回归测试；已发现并修复 5 个缺陷，均无测试覆盖。
+
+§5 的 7 条残余风险同样仍然开放，其中第 5 条最关键：**模型证明 ≠ 源码测试**。P5 的
+`GatePass ⇒ …` 性质尚未在 Event-B 计数模型中形式化。
+
+P4 到此结束。**P5 未开始**；`docs/INT-002.md` 仍是 DRAFT；MODEL-006 仍未钉入基线。
