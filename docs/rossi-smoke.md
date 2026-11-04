@@ -1213,8 +1213,8 @@ sha256 各不相同，见 README 表。
 验收：`intentower baseline` 每个检查点 exit 0（5 hashes, 3 model ids）；跑完
 `rm -f models/thermostat/th1.eventb` 后 `git status` 只余 `scripts/run-refinement.sh` 与新增 `evidence/`；
 `cargo test --offline` 158 passed / 0 failed；harness 回归
-`harness/dry-cap-exhausted.json`（3 验证 / 2 修复 / `verify_cap_exhausted` / 三轮均 FAIL / 脚本 exit 2 /
-packet 3645 字节）与 `harness/dry-pass.json`（1 验证 / `pass` / exit 0）。
+`harness/P4-T31-dry-cap-exhausted.json`（3 验证 / 2 修复 / `verify_cap_exhausted` / 三轮均 FAIL / 脚本 exit 2 /
+packet 3645 字节）与 `harness/P4-T31-dry-pass.json`（1 验证 / `pass` / exit 0）。（旧名见 §44。）
 
 ## 38. §35 的测试语义变更由人类批准（2026-11-03）
 
@@ -1275,8 +1275,8 @@ CLI：`intentower escalate <REPORT_JSON> [--stop-reason] [--verifications] [--re
 - 真实 gate 报告：`MODEL-001`（INCOMPLETE，UNSUPPORTED）→ `EXPERT_OR_SHRINK`；
   `MODEL-005`（PASS）→ `NONE`。
 
-证据：`evidence/experiments/harness/T34-dry-{pass,cap-exhausted}-run.json` 与同名
-`*-escalation.md`。测试：`tests/feedback.rs` 新增 11 项（共 19 项）。
+证据：`evidence/experiments/harness/P4-T34-dry-{pass,cap-exhausted}-run.json` 与同名
+`*-escalation.md`（旧名见 §44）。测试：`tests/feedback.rs` 新增 11 项（共 19 项）。
 `cargo fmt --all -- --check` exit 0；`cargo clippy --offline --all-targets` 0 warning；
 `cargo test --offline` 169 passed / 0 failed。
 
@@ -1288,8 +1288,8 @@ Codex 看的指令文本，不由程序执行。它不改变任何 gate 判定�
 1. **退出码不等于判定**。用一个包装二进制让 `gate` 退出 0 但不写 `report.json`，
    脚本原本记为 `pass`，`run.json` 里该轮 gate 记录为空 `{}`。现在 gate 之后立即检查
    `report.json` 是否存在，缺失即 `stop 2`。证据
-   `evidence/experiments/harness/T34-gate-exit0-no-report-stop.json`（包装二进制产生，
-   已在 README 标明是负控）。
+   `evidence/experiments/harness/P4-T31-gate-exit0-no-report-stop.json`（包装二进制产生，
+   已在 README 标明是负控；旧名见 §44）。
 2. **escalate 自身失败不得吞掉证据**。原先 `escalate` 失败会 `stop 2`，`run.json` 就写不出来。
    现在失败（或根本没有报告）时写出兜底记录（`TOOLCHAIN_FIRST`）并继续收尾，
    `run.json` 与 `unexpected_entries` 照常产生。
@@ -1402,7 +1402,7 @@ echo $?   # 0
 | 核对 | 结果 |
 |---|---|
 | 5 次真实运行的 `verifications_used` / `repairs_used` / 判定 / PO / token | 从 `evidence/experiments/*.json` 重新读出：全部 `1 / 0`、PASS、全 `SMT_DISCHARGED`；A 33 / B 33 / C 33 / seed 33 / Gate 核验跑 23 |
-| 修复包字节 | `harness/dry-cap-exhausted.json` 三轮 `packet_bytes` = 3645 / 3645 / 无（第 3 轮不再产包） |
+| 修复包字节 | `harness/P4-T31-dry-cap-exhausted.json` 三轮 `packet_bytes` = 3645 / 3645 / 无（第 3 轮不再产包） |
 | 草稿引用的测试名 | 15 个全部能在对应 suite 的 `-- --list` 中找到；另 3 个标识符是 Event-B 事件名与 JSONL 事件类型，非测试 |
 | 草稿引用的文件路径 | 40 个全部存在；例外只有 `models/thermostat/th1.eventb`（Agent 产物，按设计不提交）与 `report.json` / `run.json` / `stop.json`（轮次目录内的通用文件名） |
 | Agent 回合内自查 gate 次数（旧记录里的"14+"不可靠，已改实测） | Gate 核验跑 17 次工具调用（16 bash + 1 write）中 2 次直接跑 `intentower gate`；播种跑 29 次（28 bash + 1 edit）中 3 次。计数按 transcript `tool_execution_start` 统计，原件未提交，仅在 `/tmp/t33stage/seedRun/` 与 gitignore 的 run 目录存在时可复核 |
@@ -1467,8 +1467,8 @@ echo $?   # 0
 `evidence/experiments/repair/`：`seedfix-1-run.json`、两轮 `report.json`、轮 1 `packet.md`、
 轮 2 `prompt.md`、`escalation.md`、修好的 `th1`；以及条件不成立的首次尝试
 `seedfix-1a-flawed-condition-{run.json,prompt.md}` 与它的 `th1`。
-`evidence/experiments/harness/T35-dry-seeded-{run.json,escalation.md,packet.md}` 为同条件的
-`DRY_RUN` 版本（无 LLM，3 验证 / 2 修复 / `verify_cap_exhausted`，exit 2）。
+`evidence/experiments/harness/P4-T31-dry-seeded-{run.json,escalation.md,packet.md}` 为同条件的
+`DRY_RUN` 版本（无 LLM，3 验证 / 2 修复 / `verify_cap_exhausted`，exit 2；旧名见 §44）。
 
 ### 42.6 本次不证明什么
 
@@ -1542,3 +1542,40 @@ P4 到此结束。**P5 未开始**；`docs/INT-002.md` 仍是 DRAFT；MODEL-006 
 
 判定、§3 的六个 `Y`、§4 的 7 条局限、§5 的 7 条残余风险、§7 签名字段**均未改动**。
 这是证据索引元数据，不是语义变更；改动本身由本节留痕，因为被改的文件是已签署记录。
+
+## 44. 证据文件名前缀规则与撞号修复（2026-11-04，人类裁定）
+
+人类裁定：「一律用 `P<gate>-<task>` 前缀，避免撞号，旧的也按这个规则改过来」。规则与映射表写进
+`docs/decisions/ADR-0003-evidence-file-naming.md`。
+
+撞号本身：`harness/T35-dry-seeded-*` 是 P4 修复回路（§42）的 `DRY_RUN` 对照，却被读成 P5 的 T35
+产物。本次只做 `git mv`，**没有改任何一个证据文件的字节**（已核实这些文件内部不含任务编号：
+`grep -o "T3[0-9]" evidence/experiments/harness/*` 无命中）。
+
+改名的 10 个文件（旧 → 新）：
+
+```
+dry-cap-exhausted.json              -> P4-T31-dry-cap-exhausted.json
+dry-pass.json                       -> P4-T31-dry-pass.json
+T34-gate-exit0-no-report-stop.json  -> P4-T31-gate-exit0-no-report-stop.json
+T35-dry-seeded-run.json             -> P4-T31-dry-seeded-run.json
+T35-dry-seeded-escalation.md        -> P4-T31-dry-seeded-escalation.md
+T35-dry-seeded-packet.md            -> P4-T31-dry-seeded-packet.md
+T34-dry-cap-exhausted-run.json      -> P4-T34-dry-cap-exhausted-run.json
+T34-dry-cap-exhausted-escalation.md -> P4-T34-dry-cap-exhausted-escalation.md
+T34-dry-pass-run.json               -> P4-T34-dry-pass-run.json
+T34-dry-pass-escalation.md          -> P4-T34-dry-pass-escalation.md
+```
+
+引用同步（本日志 §36、§39、§40、§42.5 与 `evidence/experiments/README.md` §5、§9 已改为新名，
+旧名通过 ADR-0003 映射表永久可解析）。gitignore 的 transcript（`artifacts/refine/*/pi.jsonl`）
+里仍是旧名——transcript 是不可改的历史记录，且原件本就未提交（§4.6 那条局限不变）。
+
+**尚未执行、需人类批准的一步**：`approvals/P4-GATE.md` 是已签署记录，里面第 82、97、99 行引用了
+6 处旧名路径。agent 不擅自改签署记录；待人类批准后只做路径替换（判定、6 个 `Y`、§4 的 7 条局限、
+§5 的 7 条残余风险、§7 签名字段一律不动），并由下一节留痕。批准前先不改，旧名仍可按映射表解析。
+
+其余 32 个无任务前缀的证据文件（`run-{A,B,C}.json`、`seed-1*.json`、`prefix-run1.json`、
+`models/*.eventb`、`repair/*`、`p4-gate/*`）**本次不改**：共约 66 处引用，且
+`evidence/experiments/p4-gate/manifest.json` 的内容本身逐条列着同目录文件名与 sha256——改名的
+代价是动一份由人类 Gate 跑产出的证据文件。建议作为单独的有界任务批准，不夹进撞号修复。

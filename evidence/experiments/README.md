@@ -59,23 +59,33 @@ being trusted or silently deleted. The three main runs and the seeded run above 
 
 ## 5. Harness regression evidence (deterministic, no LLM)
 
-`harness/dry-cap-exhausted.json`: `DRY_RUN=1` against MODEL-002 (a known-bad refinement) —
+`harness/P4-T31-dry-cap-exhausted.json`: `DRY_RUN=1` against MODEL-002 (a known-bad refinement) —
 3 verifications, 2 repairs, `stop_reason: verify_cap_exhausted`, gate `FAIL` (exit 1) in all three
 rounds, script exit 2, repair packets 3645 / 3645 bytes under the 8 KB budget.
-`harness/dry-pass.json`: `DRY_RUN=1` against MODEL-004 — 1 verification, `stop_reason: pass`, exit 0.
+`harness/P4-T31-dry-pass.json`: `DRY_RUN=1` against MODEL-004 — 1 verification, `stop_reason: pass`, exit 0.
 
 After T34 the same two runs also write `escalation.md`. The post-T34 copies are kept as
-`harness/T34-dry-cap-exhausted-run.json` + `T34-dry-cap-exhausted-escalation.md`
+`harness/P4-T34-dry-cap-exhausted-run.json` + `P4-T34-dry-cap-exhausted-escalation.md`
 (`next=EXPERT_OR_SHRINK`, because one obligation is `UNSUPPORTED`) and
-`harness/T34-dry-pass-run.json` + `T34-dry-pass-escalation.md` (`next=NONE`, `DRY_RUN=1` against
+`harness/P4-T34-dry-pass-run.json` + `P4-T34-dry-pass-escalation.md` (`next=NONE`, `DRY_RUN=1` against
 MODEL-006 with a pre-existing `th1`). The escalation record is decided only by the gate report and
 the orchestrator counters: an agent's own claim of having fixed the model is not an input, which
 `tests/feedback.rs::the_next_step_is_read_from_the_report_not_from_what_the_agent_claims` asserts by
 comparing the output byte for byte with and without the claim.
 
-`harness/T34-gate-exit0-no-report-stop.json` is a negative control run through a wrapper binary
+`harness/P4-T31-gate-exit0-no-report-stop.json` is a negative control run through a wrapper binary
 (`INTENTOWER_BIN`) that lets `gate` exit 0 while writing no `report.json`. The loop stops with exit 2
 instead of recording a pass: an exit code is not a verdict.
+
+**Naming rule (2026-11-04, `docs/decisions/ADR-0003-evidence-file-naming.md`).** Evidence files are
+named `P<gate>-<task>-<scenario>`; `<task>` is the task whose acceptance the file answers, taken
+from the row that the gate record lists it under. The ten files in this directory were renamed on
+2026-11-04 under that rule (`git mv` only, no byte of evidence content changed — none of them names
+a task id inside). The old names remain resolvable through the mapping table in ADR-0003; in
+particular the old `T35-dry-seeded-*` trio was **P4** evidence for the T31 orchestrator loop, not
+the plan's P5 task T35 (which writes `docs/INT-*` and `docs/SPEC-002.md` and produces no run
+evidence). Files are not deleted, and the gitignored transcripts under `artifacts/` still contain
+the old names because a transcript is not editable history.
 
 ## 6. What these runs do **not** show
 
@@ -199,5 +209,5 @@ reference `th1` in `docs/` available to read; `escalate` still only records the 
 ```bash
 SEED_M1=evidence/experiments/models/th1-seed-input.eventb NO_SELFCHECK=1 ./scripts/run-refinement.sh
 # deterministic version, no LLM: adds DRY_RUN=1 and stops at verify_cap_exhausted
-# (harness/T35-dry-seeded-run.json, harness/T35-dry-seeded-packet.md)
+# (harness/P4-T31-dry-seeded-run.json, harness/P4-T31-dry-seeded-packet.md)
 ```
