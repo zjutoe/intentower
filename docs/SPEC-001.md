@@ -2,9 +2,8 @@
 
 - **Parent Intent**: INT-001（已批准，2026-11-02）
 - **Status**: `approved`（2026-11-02 由 zjutoe 整体批准，含 §9 D1/D2/D3；§13 与 §2 的修订 **R1** 于 2026-11-03 由 zjutoe 批准（A1 选 b）；本文件为保护文件，Agent 只读）
-  · **R2 待批准**：2026-11-04 按人类裁定做编号对齐，Scope 与 §10 的 `SPEC-002` 改为 `SPEC-003`
-  （仅编号，语义未变；`docs/decisions/ADR-0004-intent-id-for-the-gate.md`），`approvals/baseline.json`
-  **尚未重钉**，需人类审查后写入。
+   · **R2**：2026-11-04 由 zjutoe 批准：Scope 与 §10 的 `SPEC-002` 改为 `SPEC-003`
+    （编号对齐，仅 id 变化，需求语义未变；见 docs/decisions/ADR-0004-intent-id-for-the-gate.md）。
 - **Approver**: zjutoe（2026-11-02） · **Drafter**: Pi
 - **Plan reference**: §1.2、§3 P2（T14–T22）、§3 P3（T23–T27）、§4.1、§4.2
 - **Scope**: 只定义 `verify`。`gate` 的验收语义属于 **SPEC-003**（T35），本文件不定义批准权限。

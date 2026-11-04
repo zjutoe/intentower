@@ -21,9 +21,9 @@ intentower --help                      verify gate report baseline feedback esca
 
 工具链可用（Rossi + cvc5 均在 PATH），所以 P5 的 T36/T37/T38 不存在“工具未就绪”的阻塞。
 
-上表是 P4 刚签署时的快照。**同日稍后的编号对齐改了 `docs/SPEC-001.md`，因此
-`intentower baseline` 现在是 `BASELINE CHANGED: 1 protected inputs moved` / exit 2，
-等人类重钉才能回到 OK**（实测见 `docs/rossi-smoke.md` §47）。
+上表是 P4 刚签署时的快照。同日发生过一次编号对齐（改了 `docs/SPEC-001.md` 与 phase plan），
+期间 `intentower baseline` 一度 `BASELINE CHANGED` / exit 2 并有 2 个红测试；人类批准 R2 并重钉
+`df75138a…` 后已恢复 `BASELINE OK` / 169 通过（实测见 `docs/rossi-smoke.md` §47–§48）。
 
 ## 2. 两处曾阻塞的开放项：均已由人类裁定（裁定记录在下面）
 
@@ -34,10 +34,12 @@ intentower --help                      verify gate report baseline feedback esca
     `docs/SPEC-003.md`；`SPEC-002` 这个编号不再使用。
   - **plan 已同步修改**（2026-11-04 人类直接指令）：T35 / T38 行改为 `INT-003` / `SPEC-003`，
     头部加了一行修订记录。这是本仓库第一次改 phase plan，由人类授权。
-  - `docs/SPEC-001.md` 的 Scope 行与 §10 也跟着改编号，并在 Status 里标了 **R2 待批准**。
+  - `docs/SPEC-001.md` 的 Scope 行与 §10 也跟着改编号；该修订记为 **R2**，已由 zjutoe 于 2026-11-04
+    批准，基线同步重钉（`docs/rossi-smoke.md` §48）。
   - `INT-002` 仍为恒温器实验意图草案，不重命名也不删（`approvals/MODEL-005.md:13` 按这个名字引用它）。
   - 模型编号建议 `MODEL-007`（Gate M0）/ `MODEL-008`（Gate M1）—— 待人类确认，`MODEL-001..006` 已占。
-- **仍开放的子项**：`docs/INT-002.md` 到底是批准还是作废（不阻塞 T35）；SPEC-001 的 R2 重新批准。
+- **仍开放的子项**：`docs/INT-002.md` 到底是批准还是作废（不阻塞 T35）；`MODEL-007`/`MODEL-008`
+  编号确认；phase plan 是否纳入钉住集合。（SPEC-001 的 R2 **已批准并重钉**。）
 - **已发生的基线违规（预期内，只能人类修）**：改 `docs/SPEC-001.md` 后 `intentower baseline` 如实报
   `protected file changed: docs/SPEC-001.md` 并 **exit 2**。正解是人类审查语义 diff 后重钉
   `approvals/baseline.json`，**不是**让 agent 去改 baseline 或回退编辑。
@@ -65,7 +67,7 @@ intentower --help                      verify gate report baseline feedback esca
 |---|---|---|
 | D-3 | Agent 访问范围仍无成文规则（`approvals/P4-GATE.md` §4.4） | P5 让 Agent 改 **Gate 源码本身**。允许读哪些 crate、能否读参考模型、能否动 `tests/`，需要成文规则而不是 prompt 措辞（§4.3 已证该约束不具机制强制性） |
 | D-4 | 闭卷条件未测（§4.1） | T40 的工作流对比若继续开卷，结论只能是「闭环走通」，不能是「Agent 能力」 |
-| D-5 | P5 新增受保护输入的钉入时机 | `SPEC-003`（人类批准后）、Gate 的 M0/M1 模型（T36/T37 通过后）。钉入只能由人类写；钉值集合无上限这一缺口已被人类接受（§5.2）。**当下已有一项待重钉**：改了编号的 `docs/SPEC-001.md`（新哈希见 `docs/rossi-smoke.md` §47）。另：phase plan 本身不在钉住集合里，改它不会报警，是否纳入由人类定 |
+| D-5 | P5 新增受保护输入的钉入时机 | `SPEC-003`（人类批准后）、Gate 的 M0/M1 模型（T36/T37 通过后）。钉入只能由人类写；钉值集合无上限这一缺口已被人类接受（§5.2）。改了编号的 `docs/SPEC-001.md` **已重钉**（`df75138a…`，见 `docs/rossi-smoke.md` §48）。另：phase plan 本身不在钉住集合里，改它不会报警，是否纳入由人类定 |
 | D-6 | 脚本层无回归测试（§4.7，已发现 5 个缺陷均无测试覆盖） | P5 dogfooding 仍走 `scripts/run-refinement.sh`：是在 T38 顺带补脚本测试，还是明确留到第二阶段，需要决定，否则会重复同类缺陷 |
 | D-7 | `pi.jsonl` 原件未提交，只有 sha256 指纹（§4.6） | P5 若还要引用工具调用计数，先决定是否落盘，否则计数不可复核 |
 
@@ -103,10 +105,9 @@ plan §4.1 的「额外风险」在 T36 就会命中：计数模型若前提不�
 ```bash
 cd /home/mye/src/llm/intentower
 git status --porcelain                        # 期望：空（改名已在同一提交里落地）
-cargo test --offline                          # 2026-11-04 之后期望：167 passed / **2 FAILED**（tests/baseline.rs），
-                                              # 因为 SPEC-001 改了编号而 baseline 未重钉
-./target/debug/intentower baseline            # 2026-11-04 之后期望：BASELINE CHANGED（SPEC-001 改了编号），
-                                              # exit 2 —— 直到人类重钉；重钉前不得开工 P5
+cargo test --offline                          # 期望：169 passed / 0 failed（R2 重钉后两个 baseline 测试已恢复）
+./target/debug/intentower baseline            # 期望：BASELINE OK: 5 hashes, 3 model ids pinned，exit 0
+                                              # 钉值 docs/SPEC-001.md = df75138af1a98fb81541f5ba05b71b6d645649f232b78a7ef13547acb5a7154e
 ls docs/SPEC-003.md docs/INT-003.md models/gate  # 期望：均不存在（P5 未开工的直接证据）
 git show --summary --stat HEAD~1             # 期望：改名提交，10 个 harness 文件均为 R100，无内容改写
 ls evidence/experiments/harness              # 期望：10 个名字全部 P4-T31-* / P4-T34-*
@@ -119,12 +120,13 @@ grep -o "harness/[A-Za-z0-9._-]*" approvals/P4-GATE.md | sort -u
 1. 不主张 P5 已开始，或 T35–T41 任何一项已完成。
 2. `169 passed` 只说明**现有 Rust 测试**通过；不证明 Gate 实现符合**将要批准**的 SPEC-003，也不构成任何 Event-B 证明（`approvals/P4-GATE.md` §5.5）。
 3. 第 4 节的「就绪」只是输入与工具可用性检查，不是验收结论，更不是 Gate PASS。
-4. 未改动 `AGENTS.md` 与 `approvals/baseline.json`；`intent_or_spec_changed: false`（编号对齐只改
-   id 字符串，不改任何需求语义）。已签署的 `approvals/P4-GATE.md` 只被改过 **6 处文件路径**
+4. Pi 未改动 `AGENTS.md` 与 `approvals/baseline.json`；`intent_or_spec_changed: false`（编号对齐只改
+   id 字符串，不改任何需求语义）。`approvals/baseline.json` 的哈希是由**人类**重钉的（§48）。
+   已签署的 `approvals/P4-GATE.md` 只被改过 **6 处文件路径**
    （人类批准，`docs/rossi-smoke.md` §45），判定、局限与签名字段未动；改名只发生在证据文件的
    **名字**上，证据字节与任何判定/数字均未变。
 5. **但两处人类授权的例外必须说清**（2026-11-04）：`Intentower_Phase1_Research_Development_Plan.md`
    被改了 3 处（T35 / T38 行与头部修订行），已批准的 `docs/SPEC-001.md` 被改了 3 处（Scope、§10
-   的编号与 Status 里的 **R2 待批准** 标记）。两次都是人类直接指令，均只改编号不改语义；
-   代价是 `intentower baseline` 现在 **exit 2**，只有人类重钉才能恢复。历史日志里的 `SPEC-002`
+   的编号与 Status 里的 **R2** 批准行）。两次都是人类直接指令，均只改编号不改语义；R2 已由 zjutoe
+   批准、基线已由人类重钉（`docs/rossi-smoke.md` §47–§48）。历史日志里的 `SPEC-002`
    （`docs/rossi-smoke.md` 各旧章节、ADR-0003 Context）按日志不追溯修改的原则保留。

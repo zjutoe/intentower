@@ -1669,3 +1669,44 @@ cargo test --offline --test baseline 的失败详情：
 
 旧文档与日志里残留的 `SPEC-002`（`docs/rossi-smoke.md` 早期章节如 §24、ADR-0004 的 Context 与
 §Decision 第 3 条）按「日志不追溯改写」原则保留，均带日期可判断当时语境；活引用已改为 `SPEC-003`。
+
+（本节里的 `a05c5452…` 是写作当时的中间值，**不要照它钉**；最终批准与重钉值见 §48。）
+
+## 48. SPEC-001 R2 由人类批准，基线重钉（2026-11-04）
+
+**批准主体只有人类。** 本次批准链是这样发生的：
+
+| 步骤 | 谁做 | 内容 |
+|---|---|---|
+| 1 | zjutoe | `git show 4edd0b6 -- docs/SPEC-001.md` 审阅 R2 的实际改动（确认只有 id 与来源说明） |
+| 2 | zjutoe | 在 `docs/SPEC-001.md` Status 里写入批准措辞：「**R2**：2026-11-04 由 zjutoe 批准：Scope 与 §10 的 `SPEC-002` 改为 `SPEC-003`（编号对齐，仅 id 变化，需求语义未变…）」 |
+| 3 | zjutoe | 把 `approvals/baseline.json` 的 `docs/SPEC-001.md` 钉为新哈希 |
+| 3b | Pi（**人类指令「B」代笔**） | 删掉步骤 2 替换时残留的一行「**尚未重钉**，需人类审查后写入。」——它是我原先那段条款的尾巴，留着会让已批准文档陈述与事实相反 |
+| 3c | zjutoe | 按我请求重钉最终哈希 |
+
+哈希链（每次编辑都会改变哈希，所以**必须**先定稿措辞、后钉基线）：
+
+```
+7c52021f39bb3c23df2def8cbc14d2f92620136f452b0cef29c903d8aa2021d6   P1 基线原值
+34e6f1ac38150f6612088ec610f3b36b45008f9989768e2e7a15c68a8bf6d6e9   R2 措辞后（中间态）
+df75138af1a98fb81541f5ba05b71b6d645649f232b78a7ef13547acb5a7154e   删除残留行后（当前，已钉）
+```
+
+代笔范围有证据可查：`git diff -- docs/SPEC-001.md` 在未暂存部分只有一行 `-  **尚未重钉**，需人类审查后写入。`，
+其余字节由人类写入，Pi 未改动任何需求条文、验收条件或判定语义。
+
+重钉前后的实测（如实包含红灯窗口）：
+
+```
+删除残留行之后：intentower baseline -> BASELINE CHANGED（recorded 34e6f1ac… != current df75138a…）exit 2
+                 cargo test -> 167 passed / 2 FAILED（tests/baseline.rs 的两条一致性断言）
+人类重钉之后：  intentower baseline -> BASELINE OK: 5 hashes, 3 model ids pinned，exit 0
+                 cargo test --offline -> 169 ok / 0 FAILED；cargo test --test baseline -> 11 passed
+```
+
+**一条流程教训**：commit `4edd0b6` 里 SPEC-001 已改、`approvals/baseline.json` 未同步，那段时间
+HEAD 本身不自洽（任何人 clone 到该提交都会看到 exit 2 与 2 个红测试）。受保护文件的编辑与人类的
+重钉应尽量落在**同一个提交**里；本次因为「先由人类批准、再发现残留行」分成了两步，故在此留痕。
+
+仍待人类处理：`MODEL-007` / `MODEL-008` 编号确认、`docs/INT-002.md` 批准或作废、phase plan 是否
+纳入钉住集合（见 §47 与 ADR-0004）。

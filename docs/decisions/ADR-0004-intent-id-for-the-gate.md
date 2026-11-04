@@ -3,6 +3,8 @@
 - **Status**: accepted（2026-11-04，zjutoe 裁定「Gate 意图用 INT-003」）
 - **Amended**: 2026-11-04 同日，人类追加裁定「对齐」-> Gate 规范编号改为 **`SPEC-003`**（见下文 Amendment）。
   本文 §Decision 第 3 条已被该修正推翻，保留原文以供追溯。
+- **R2 approved**: 为对齐而改的 `docs/SPEC-001.md` 已于 2026-11-04 由 zjutoe 批准并重钉基线
+  （`docs/rossi-smoke.md` §48）。
 - **Task**: 开工前置事项（P5 kickoff D-1），非 plan 任务
 
 ## Context
@@ -50,15 +52,17 @@ plan §P5 的 T35 写的是「编写 `docs/INT-002.md` 与 `SPEC-002.md`」，�
 2. 因此追溯链是 `INT-003 -> SPEC-003 -> MODEL-007 (M0) -> MODEL-008 (M1) -> PO -> Evidence`。
 3. 为一致性改了两处**已批准/已冻结**文件（人类直接指令）：
    - `docs/SPEC-001.md` Scope 行（第 7 行）与 §10 Non-goals：`SPEC-002` -> `SPEC-003`，Scope 里
-     留了编号来源说明，Status 行新增 **R2 待批准** 标记（改动本身还没被重新批准）；
+     留了编号来源说明，Status 行先记为 **R2 待批准**；随后 **zjutoe 于 2026-11-04 批准为 R2**
+     （批准措辞由人类本人写入；`docs/rossi-smoke.md` §48）；
    - `Intentower_Phase1_Research_Development_Plan.md`：T35 行改为 `docs/INT-003.md` 与 `SPEC-003.md`，
      T38 行改为 `SPEC-003`，头部新增一行修订记录。
-4. **后果（必须人类处理，agent 不得做）**：`docs/SPEC-001.md` 的 sha256 钉在 `approvals/baseline.json`，
-   改后 `intentower baseline` 如实报 `protected file changed` 并 **exit 2**，而且两个仓库级回归测试
-   （`tests/baseline.rs` 的 `the_committed_baseline_matches_the_repository` 与
-   `the_cli_exits_zero_on_the_committed_baseline`）**现在是红的**。这是设计行为，不是回归。
-   正解：人类审查语义 diff 后自己重钉（新值 `a05c545243d0cbf8603c5d780adf40af551991f767d6c697550317d4b7f67419`，
-   由 `sha256sum docs/SPEC-001.md` 复核）；同时重新批准被改动的 SPEC-001 文本。
+4. **后果（已处理，但只能人类处理，agent 不得做）**：`docs/SPEC-001.md` 的 sha256 钉在
+   `approvals/baseline.json`，改后 `intentower baseline` 如实报 `protected file changed` 并 **exit 2**，
+   两个仓库级回归测试（`tests/baseline.rs`）也跟着红。这是设计行为，不是回归。
+   人类已于 2026-11-04 重钉，当前钉值与实算一致：
+   `df75138af1a98fb81541f5ba05b71b6d645649f232b78a7ef13547acb5a7154e`；
+   `intentower baseline` 回到 `BASELINE OK: 5 hashes, 3 model ids pinned`（exit 0），
+   `cargo test --offline` 回到 169 通过。哈希链与完整过程见 `docs/rossi-smoke.md` §47–§48。
 5. **新发现的口子**：`approvals/baseline.json` 不钉 phase plan 的哈希（5 个钉住路径里没有
    `Intentower_Phase1_Research_Development_Plan.md`），所以改 plan 不会触发任何工具报警，
    只靠约定。是否纳入钉住集合由人类定。
