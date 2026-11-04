@@ -13,7 +13,7 @@ evidence_run: 2026-11-03（UTC，本机时钟口径见 approvals/P3-GATE-R2.md s
 evidence_machine: ai86（CentOS Stream 9；工具链安装记录 docs/tooling-versions-ai86.md）
 llm_served_by: strata-ai90 / qwen3.8-flash-next-iq3_s（SSH 隧道至 ai89；
                bonsai2-27b 自 2026-09-30 起不可用，见 approvals/P3-GATE-R2.md §1 与 docs/rossi-smoke.md §30）
-evidence_log: docs/rossi-smoke.md §36（T31）§37（T33）§38（测试语义变更批准）§39（T34）§40（本 Gate 核验跑）§41（本草稿）§42（修复回路有界尝试）
+evidence_log: docs/rossi-smoke.md §36（T31）§37（T33）§38（测试语义变更批准）§39（T34）§40（本 Gate 核验跑）§41（起草过程）§42（修复回路有界尝试）§43（签署）
 evidence_dir: evidence/experiments/（README.md、run-{A,B,C}.json、seed-1*.json、prefix-run1.json、
               models/*.eventb、harness/*、p4-gate/*、repair/*）
 scope: Intentower_Phase1_Research_Development_Plan.md §P4（T29–T34）与 P4 Gate（plan 第 324 行）
