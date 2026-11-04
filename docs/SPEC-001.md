@@ -2,9 +2,14 @@
 
 - **Parent Intent**: INT-001（已批准，2026-11-02）
 - **Status**: `approved`（2026-11-02 由 zjutoe 整体批准，含 §9 D1/D2/D3；§13 与 §2 的修订 **R1** 于 2026-11-03 由 zjutoe 批准（A1 选 b）；本文件为保护文件，Agent 只读）
+  · **R2 待批准**：2026-11-04 按人类裁定做编号对齐，Scope 与 §10 的 `SPEC-002` 改为 `SPEC-003`
+  （仅编号，语义未变；`docs/decisions/ADR-0004-intent-id-for-the-gate.md`），`approvals/baseline.json`
+  **尚未重钉**，需人类审查后写入。
 - **Approver**: zjutoe（2026-11-02） · **Drafter**: Pi
 - **Plan reference**: §1.2、§3 P2（T14–T22）、§3 P3（T23–T27）、§4.1、§4.2
-- **Scope**: 只定义 `verify`。`gate` 的验收语义属于 **SPEC-002**（T35），本文件不定义批准权限。
+- **Scope**: 只定义 `verify`。`gate` 的验收语义属于 **SPEC-003**（T35），本文件不定义批准权限。
+  （编号对齐：2026-11-04 人类裁定，原写 **SPEC-002**；`SPEC-002` 已不再使用。见
+  `docs/decisions/ADR-0004-intent-id-for-the-gate.md`。）
 
 ---
 
@@ -106,7 +111,7 @@
 
 ## 10. Non-goals（明确排除）
 
-不做验收批准权限（属 `gate`/SPEC-002）；不做可信证明缓存与工作队列；不支持完整 Event-B 数学语言；不证明 Rust 实现与模型对应；不做 GUI/Web/Pi Extension；不承诺任意规模模型的性能。
+不做验收批准权限（属 `gate`/SPEC-003）；不做可信证明缓存与工作队列；不支持完整 Event-B 数学语言；不证明 Rust 实现与模型对应；不做 GUI/Web/Pi Extension；不承诺任意规模模型的性能。
 
 ## 11. Implementation linkage
 

@@ -7,8 +7,8 @@
 
 `evidence/experiments/harness/` 里的文件用的是「harness 跑第几次」的递增序号，不是任务编号：
 `T34-*` 是 T34（escalate）落地后同一批 harness 回归的副本，`T35-*` 是 P4 修复回路有界尝试
-（§42）的 `DRY_RUN` 对照。于是 `T35-dry-seeded-*` 看起来像 **P5 的 T35**（写 `docs/INT-*`/
-`SPEC-002` 的那个任务）的产物，而它其实是 **P4** 的证据，还被已签署记录
+（§42）的 `DRY_RUN` 对照。于是 `T35-dry-seeded-*` 看起来像 **P5 的 T35**（写 Gate 意图与规范的
+那个任务，现为 `INT-003` / `SPEC-003`，见 ADR-0004）的产物，而它其实是 **P4** 的证据，还被已签署记录
 `approvals/P4-GATE.md` §3 的 T31 行引用。
 
 同目录另有两个无前缀文件（`dry-cap-exhausted.json`、`dry-pass.json`），以及全仓库 32 个

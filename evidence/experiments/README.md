@@ -83,8 +83,8 @@ from the row that the gate record lists it under. The ten files in this director
 2026-11-04 under that rule (`git mv` only, no byte of evidence content changed — none of them names
 a task id inside). The old names remain resolvable through the mapping table in ADR-0003; in
 particular the old `T35-dry-seeded-*` trio was **P4** evidence for the T31 orchestrator loop, not
-the plan's P5 task T35 (which writes `docs/INT-*` and `docs/SPEC-002.md` and produces no run
-evidence). Files are not deleted, and the gitignored transcripts under `artifacts/` still contain
+the plan's P5 task T35 (which writes the Gate intent and spec, now `docs/INT-003.md` /
+`docs/SPEC-003.md` per ADR-0004, and produces no run evidence). Files are not deleted, and the gitignored transcripts under `artifacts/` still contain
 the old names because a transcript is not editable history.
 
 ## 6. What these runs do **not** show

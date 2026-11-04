@@ -4,7 +4,10 @@
 > **编制日期**：2026-11-02  
 > **目标平台**：优先 Linux 命令行；macOS 可作为开发环境  
 > **项目口号**：*Refine Downward. Verify Upward.*  
-> **状态**：研究计划，尚未完成可行性验证；本文中 `intentower` 命令均为**计划实现的接口**，不是已存在的程序。
+> **状态**：研究计划，尚未完成可行性验证；本文中 `intentower` 命令均为**计划实现的接口**，不是已存在的程序。  
+> **修订（2026-11-04，人类裁定）**：P5 的 T35 所写意图/规范编号改为 **`INT-003` / `SPEC-003`**
+> （原写 `INT-002` / `SPEC-002`）。`INT-002` 保留给 P4 的恒温器实验意图草案（已被
+> `approvals/MODEL-005.md` 引用）。背景见 `docs/decisions/ADR-0004-intent-id-for-the-gate.md`。
 
 ---
 
@@ -335,10 +338,10 @@ intentower/
 
 | 任务 | 具体指令 | 文件 / 可验收输出 |
 |---|---|---|
-| **T35** | 编写 `docs/INT-002.md` 与 `SPEC-002.md`，描述 Gate 要求、状态枚举、边界情况；人类批准，再继续。 | 已批准 SPEC 明确 `0 条 PO`、缺失、过期、工具错误均不能 PASS |
+| **T35** | 编写 `docs/INT-003.md` 与 `SPEC-003.md`，描述 Gate 要求、状态枚举、边界情况；人类批准，再继续。 | 已批准 SPEC 明确 `0 条 PO`、缺失、过期、工具错误均不能 PASS |
 | **T36** | 建立 Gate 的 Event-B 抽象 M0：必须显式表示必需 PO 数、已证明数及证据是否有效；用不变量表达 GatePass 安全性质。 | Rossi 静态检查通过，PO 非空；不依赖实际 Rust 源码 |
 | **T37** | 建立 Gate 的 M1：加入失败状态分类或状态计数，保持 M0 的 GatePass 条件；用 Rossi + cvc5 生成并检查精化 PO。 | 真实精化证明结果进入 Evidence；不能证明的义务公开列出 |
-| **T38** | 将 `SPEC-002` 的边界场景映射为 Rust Gate 的参数化测试，特别覆盖 `PASS` 误报的所有路径。 | `cargo test` 通过；至少一个故意注入的错误实现会被测试发现 |
+| **T38** | 将 `SPEC-003` 的边界场景映射为 Rust Gate 的参数化测试，特别覆盖 `PASS` 误报的所有路径。 | `cargo test` 通过；至少一个故意注入的错误实现会被测试发现 |
 | **T39** | 对 Gate 实现做一次 Semantic Review：只展示 INT、SPEC、M0/M1、不变量、PO 结果、测试摘要及风险；Codex 可独立审查映射是否完整。 | `evidence/examples/gate-review.md`，明确模型证明与代码测试的差别 |
 | **T40** | 对比普通 Agent 工作流与 Intentower 工作流，至少完成各 2 个微型变更；记录人类审查分钟数、发现缺陷数、Agent 修复轮数、PO 耗时。 | `docs/evaluation.md`；说明样本小、探索性，不宣称统计显著 |
 | **T41** | 收尾：更新 README 的真实能力清单与限制；列出第二阶段候选（代码验证、更多 SMT 语义、证明缓存、Pi Extension、可视化 Review）。 | README 只宣称已实际通过的功能，发布一个可复现的 v0.1 原型说明 |

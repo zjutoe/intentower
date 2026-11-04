@@ -1620,3 +1620,52 @@ exit 0；`ls docs/INT-003.md docs/SPEC-002.md models/gate` 仍全部不存在（
 
 下一步若开工 T35：产出的是**草案**，批准权仍在人类；批准之后 `project.json` 的
 `intent_ids`/`spec_ids` 与 `approvals/baseline.json` 的更新只能由人类写入。
+
+## 47. 人类指令「修改 plan + 编号对齐」：INT-003 / SPEC-003（2026-11-04）
+
+人类裁定两条：**1. 修改 plan；2. 对齐**。执行结果：
+
+| 文件（受保护） | 改动 | 语义是否变化 |
+|---|---|---|
+| `Intentower_Phase1_Research_Development_Plan.md` | T35 行 `docs/INT-002.md`/`SPEC-002.md` → `docs/INT-003.md`/`SPEC-003.md`；T38 行 `SPEC-002` → `SPEC-003`；头部新增一行修订记录 | 否，只有 id |
+| `docs/SPEC-001.md` | Scope 行与 §10 的 `SPEC-002` → `SPEC-003`；Scope 加编号来源说明；Status 新增 **R2 待批准** 标记 | 否，只有 id |
+
+`SPEC-002` 这个编号**不再使用**（不分配给任何文档），追溯链变为
+`INT-003 -> SPEC-003 -> MODEL-007 (M0) -> MODEL-008 (M1) -> PO -> Evidence`（模型 id 仍是建议，待确认）。
+
+这是本仓库第一次改动 phase plan 与已批准 SPEC。两次都只由人类直接指令授权，agent 未自行决定。
+`docs/SPEC-001.md` 文件头写着「本文件为保护文件，Agent 只读」——本次是**人类指示下的例外**，
+且改动尚未被重新批准（Status 里的 R2 标记就是这件事的可见证据）。
+
+实测（如实记录，**包含失败**；以下是全部文件改完后的最终一次运行）：
+
+```
+git diff -U0 --word-diff=porcelain docs/SPEC-001.md      # 只有编号 token + 说明行；无需求措辞变化
+git diff --stat Intentower_Phase1_Research_Development_Plan.md   # 1 file changed, 6 insertions(+), 3 deletions(-)
+sha256sum docs/SPEC-001.md
+  a05c545243d0cbf8603c5d780adf40af551991f767d6c697550317d4b7f67419
+./target/debug/intentower baseline
+  - protected file changed: docs/SPEC-001.md: recorded 7c52021f39bb3c23df2def8cbc14d2f92620136f452b0cef29c903d8aa2021d6 != current a05c545243d0cbf8603c5d780adf40af551991f767d6c697550317d4b7f67419
+  BASELINE CHANGED: 1 protected inputs moved. stop the round; only a human may re-baseline.
+  exit=2
+cargo test --offline
+  73 passed / 0 failed（lib）、3 passed / 0 failed（bin）
+  tests/baseline.rs: 9 passed / **2 FAILED**
+cargo test --offline --test baseline 的失败详情：
+  the_committed_baseline_matches_the_repository  -> "the repository must match its own baseline"
+  the_cli_exits_zero_on_the_committed_baseline   -> left Some(2), right Some(0)
+```
+
+**基线守卫如实报警，而且仓库自己的回归测试也因而红了——这是预期结果，不是回归。**
+失败的 2 个测试（`tests/baseline.rs:150` 与 `:270`）就是「仓库必须与自己的 baseline 一致」
+这条断言。只有人类能重钉 `approvals/baseline.json`（新值
+`a05c545243d0cbf8603c5d780adf40af551991f767d6c697550317d4b7f67419`，请用 `sha256sum docs/SPEC-001.md`
+自行复核）。agent **不会**改 baseline，也**不会**为了让测试变绿而修改测试期望或回退这次编辑。
+其余 167 个测试不读 baseline，仍全绿；Gate 判定也不读 baseline。
+
+另一处口子：`approvals/baseline.json` 的 `sha256` 只钉 INT-001、SPEC-001、counter/m0、
+`project.json`、thermostat/th0 这 5 个路径，**phase plan 本身不钉哈希**——本次改 plan 没有任何
+工具会报警，只靠约定与本文留痕。是否把 plan 纳入钉住集合，属人类裁定（并入 D-5）。
+
+旧文档与日志里残留的 `SPEC-002`（`docs/rossi-smoke.md` 早期章节如 §24、ADR-0004 的 Context 与
+§Decision 第 3 条）按「日志不追溯改写」原则保留，均带日期可判断当时语境；活引用已改为 `SPEC-003`。
