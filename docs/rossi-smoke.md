@@ -1710,3 +1710,48 @@ HEAD 本身不自洽（任何人 clone 到该提交都会看到 exit 2 与 2 个
 
 仍待人类处理：`MODEL-007` / `MODEL-008` 编号确认、`docs/INT-002.md` 批准或作废、phase plan 是否
 纳入钉住集合（见 §47 与 ADR-0004）。
+
+## 49. T35 交付：`docs/INT-003.md` 与 `docs/SPEC-003.md` 草案（2026-11-04）
+
+计划 §5 的 T35：**编写 INT-003 与 SPEC-003，描述 Gate 要求、状态枚举、边界情况；人类批准，再继续。**
+验收是「**已批准**的 SPEC 明确 0 条 PO、缺失、过期、工具错误均不能 PASS」——所以本次只到
+「草案完成」，**批准权在人类**，两份文件 `Status` 均为 `proposed`，Pi 未填写任何批准记录。
+
+起草前先核对实现（不猜）：`gate/policy.rs::judge` 的 PASS 四条件与 FAIL 优先、
+`gate/inventory.rs` 的 5 个问题码（`ZERO_PO`/`DUPLICATE_PO`/`MISSING_PO`/`PARSE_FAILURE`/`NO_BPO_FILE`）、
+`gate/provenance.rs` 的 3 个角色（`model_source`/`po_artifact`/`policy`）、`verify.rs` 的 8 个状态、
+`main.rs` 的 exit 契约（PASS 0 / FAIL 1 / INCOMPLETE 2 / 用法错误 2），以及 `gate --help` 的真实用法
+（`--out` 为报告文件、`--model-id` 默认 `MODEL-001`、`--policy` 可选）。
+
+SPEC-003 §6.1 记的是**真实跑过**的命令（rossi 0.2.3 / cvc5 1.4.2）：
+
+```
+gate --model-id MODEL-001 models/counter -> INCOMPLETE 20 obligations, inputs 4   exit 2
+    理由：m0::sub/act1/FIS 落在 F0 外（node outside F0: quantifier Exists）
+gate --model-id MODEL-002 --policy project.json models/counter -> FAIL 20 obligations, inputs 5  exit 1
+    同一条报告里既有 NOT_DISCHARGED 又有 UNSUPPORTED，判定仍是 FAIL（FAIL 优先，B-11 的真实实例）
+gate --model-id MODEL-003 models/counter -> FAIL 20 obligations                    exit 1
+gate --model-id MODEL-004 models/counter -> PASS 6 obligations, inputs 4           exit 0
+intentower gate（缺参数）                 -> clap 用法错误                          exit 2
+```
+
+SPEC-003 §6 逐条标注「现在是否已有测试」，引用的测试名全部经 grep 核实存在；
+诚实标注了只有部分覆盖或没有覆盖的用例：**B-01（缺端到端）、B-02（缺端到端）、B-13、B-14、B-17 → T38**。
+
+**起草过程中发现一个新缺口（SPEC-003 §10 N-01 / INT-003 Q-01）**：
+Gate 的代码路径完全不读 `approvals/baseline.json`（grep `baseline` 在
+`gate/policy.rs`、`gate/inventory.rs`、`gate/provenance.rs`、`verify.rs`、`report.rs` 中零命中），
+基线只由 `intentower baseline` 单独检查。也就是说**受保护文件被改时，Gate 仍可能对模型给出 PASS**。
+Pi 不擅自把这个补进判定条件（那会改变 Gate 语义，属 C-01 范围），改为提交问题请人类裁定。
+
+本次改动范围：新增 `docs/INT-003.md`（95 行）、`docs/SPEC-003.md`（含 §6.1 实测）；
+更新 `docs/P5-kickoff.md` T35 行；本节留痕。**未改动任何代码、测试、schema、模型或受保护文件。**
+
+验证（实际执行）：
+
+```
+cargo test --offline                 -> 169 ok / 0 FAILED（17 个测试目标 + 0 doc tests）
+./target/debug/intentower baseline   -> BASELINE OK: 5 hashes, 3 model ids pinned, exit 0
+测试名存在性 grep 逐个核对          -> 全部命中；无命中项仅为状态词 `proposed`
+git status --porcelain               -> 仅上述 4 个文件（2 新 2 改）
+```

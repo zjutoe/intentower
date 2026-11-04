@@ -75,7 +75,7 @@ intentower --help                      verify gate report baseline feedback esca
 
 | 任务 | 就绪状态 | 现在缺什么 | 预计改动面（≤3 生产文件） | 验收口径要点 | 不得宣称 |
 |---|---|---|---|---|---|
-| **T35** | 可开工（D-1 已裁定：写 `INT-003` + `SPEC-003`，plan 已同步；验收仍需人类批准） | `docs/INT-003.md` 与 `docs/SPEC-003.md` 均不存在；理由见 ADR-0004 | 2 个文档 | 验收是「**人类批准**的 SPEC 明确 0 条 PO / 缺失 / 过期 / 工具错误均不能 PASS」，agent 交付 ≠ 完成 | 起草本身不产生任何验证结论 |
+| **T35** | **草案已交，等人类批准**（2026-11-04） | `docs/INT-003.md`、`docs/SPEC-003.md` 已写入（均 `Status: proposed`） | 2 个文档 | 验收是「**人类批准**的 SPEC 明确 0 条 PO / 缺失 / 过期 / 工具错误均不能 PASS」，agent 交付 ≠ 完成；批准前不得当作正式语义引用 | 起草不产生任何验证结论；SPEC-003 §10 N-01 新增一个真实缺口：Gate 不读 baseline |
 | **T36** | 就绪 | `models/gate/` 目录尚不存在（plan 布局里已规划） | 1–2 个 `.eventb` + `models.json` | Rossi 静态检查通过、PO **非空**、不依赖 Rust 源码 | 模型通过 ≠ Rust Gate 代码正确 |
 | **T37** | 就绪（有一个风险） | 若计数/集合表达式超出已批准 SMT 子集（Bool + QF_LIA），需**单独批准**的理论扩展任务 | 1 个 `.eventb` + 可能 1 处编码器 | 真实精化 PO 结果进 Evidence，不能证明的义务**公开列出** | `UNSUPPORTED` 不能被跳过或替换成常量 |
 | **T38** | 就绪 | 无（现成基座：`tests/gate_policy.rs` 7、`tests/cli_gate.rs` 8、`tests/report_schema.rs` 5、`tests/inventory.rs` 6） | 测试为主 | 必须包含「故意注入的错误实现会被测试发现」；`judge` 是纯函数，但 exit 码与 report 路径也要覆盖 | `cargo test` 通过 ≠ 模型被证明 |
