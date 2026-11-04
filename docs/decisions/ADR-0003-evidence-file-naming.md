@@ -48,9 +48,10 @@
   （第 18 行是 `harness/*` 通配，不受影响）。
 - **gitignored 的 transcript 不改**：`artifacts/refine/*/pi.jsonl` 里出现的是当时的旧名，
   transcript 是不可改的历史记录（且原件本来就未提交，见 `approvals/P4-GATE.md` §4.6）。
-- **待人类批准的受保护文件改动（尚未执行）**：`approvals/P4-GATE.md` 第 82、97、99 行的 6 处旧名
-  路径。签署记录由 agent 改路径属于保护文件变更，需人类明确批准；
-  批准前旧名仍可通过本表解析，不会有断链的歧义。
+- 已执行的受保护文件改动（人类 2026-11-04 批准，原话「批准」）：`approvals/P4-GATE.md` 第 82、
+  97、99 行共 6 处旧名路径已换为新名（判定、6 个 `Y`、§4 的 7 条局限、§5 的 7 条残余风险、
+  §7 签名字段不动），留痕见 `docs/rossi-smoke.md` §45。注意：`approvals/baseline.json` 并不钉
+  Gate 记录的哈希，所以 `intentower baseline` 不会拦住这类编辑——它成立靠的是人类批准。
 
 ## 未结：其余 32 个证据文件的回填
 

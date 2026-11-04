@@ -79,7 +79,7 @@ Agent 直接读了编排器的 `report.json`；该次也留证于 `repair/seedfi
   `INCOMPLETE`，`1 obligation(s) UNSUPPORTED (not decided): m0::sub/act1/FIS`，
   19 SMT_DISCHARGED + 1 UNSUPPORTED / 20（`p4-gate/negative-control-MODEL-001.json`）。
   **该永久缺口仍然失败，所以上面的 PASS 不是靠放松判定得到的。**
-- harness 的上限耗尽场景（`harness/dry-cap-exhausted.json`）：3 次验证 / 2 次修复后
+- harness 的上限耗尽场景（`harness/P4-T31-dry-cap-exhausted.json`）：3 次验证 / 2 次修复后
   `stop_reason: verify_cap_exhausted`，gate 三轮均 `FAIL`（exit 1），脚本 exit 2。
 - 早期两次尝试的缺陷（Agent 把自查产物写进证据目录、编排器写不出 `run.json`）**保留**在
   `prefix-run1.json` 与 `evidence/experiments/README.md` §4，未删除、未重跑覆盖。
@@ -94,9 +94,9 @@ Agent 直接读了编排器的 `report.json`；该次也留证于 `repair/seedfi
 | # | 计划验收条目 | 证据 / 测试 | 实测结果 | 复核 |
 |---|---|---|---|---|
 | T29 | prompt 含输入文件、允许输出文件、明确限制 | `prompts/refine.md`；`tests/prompts.rs`：`the_prompt_names_one_writable_file_and_the_protected_ones`、`the_prompt_carries_the_limits_and_the_verification_commands`、`the_prompt_states_the_current_measured_state_instead_of_a_promised_pass`、`every_path_either_prompt_names_exists` | 4 passed / 0 failed；实际下发 prompt 归档 `p4-gate/human-run-1-prompt.md`（92 行） | Y |
-| T30 | 一次反馈不超过指定上下文预算；失败原因按类型归纳 | `prompts/repair.md`；`tests/feedback.rs`：`over_budget_is_an_error_and_never_a_shortened_packet`、`the_committed_failure_fits_the_budget_and_names_the_obligation`、`failures_are_grouped_by_type_with_their_ids_and_counts`、`at_most_two_failure_types_are_quoted_in_full_and_the_rest_are_named`、`a_report_that_is_not_traceable_to_the_current_inputs_produces_no_packet` | 预算 8192 B；真实修复包 3645 B（`harness/dry-cap-exhausted.json`）；真实喂给第二次 Pi 调用的包
+| T30 | 一次反馈不超过指定上下文预算；失败原因按类型归纳 | `prompts/repair.md`；`tests/feedback.rs`：`over_budget_is_an_error_and_never_a_shortened_packet`、`the_committed_failure_fits_the_budget_and_names_the_obligation`、`failures_are_grouped_by_type_with_their_ids_and_counts`、`at_most_two_failure_types_are_quoted_in_full_and_the_rest_are_named`、`a_report_that_is_not_traceable_to_the_current_inputs_produces_no_packet` | 预算 8192 B；真实修复包 3645 B（`harness/P4-T31-dry-cap-exhausted.json`）；真实喂给第二次 Pi 调用的包
 2,850 B（`repair/seedfix-1-round1-packet.md`）；超预算是错误而非截断 | Y |
-| T31 | 可手工执行；最多 3 次候选验证、最多 2 次自动修复，超限退出 | `scripts/run-refinement.sh`；`docs/rossi-smoke.md` §36 六场景表、§42；`harness/dry-cap-exhausted.json`、`harness/dry-pass.json`、`harness/T34-gate-exit0-no-report-stop.json`、`harness/T35-dry-seeded-run.json`、`repair/seedfix-1-run.json` | `bash -n` exit 0；happy path exit 0；上限耗尽恰好 3 验证 / 2 修复后 exit 2 并写 `stop.json`；M1 已存在 exit 2；缺 cvc5 exit 2；播种跑 2 验证 / 1 修复后 `pass`（§4.2 新证据） | Y |
+| T31 | 可手工执行；最多 3 次候选验证、最多 2 次自动修复，超限退出 | `scripts/run-refinement.sh`；`docs/rossi-smoke.md` §36 六场景表、§42；`harness/P4-T31-dry-cap-exhausted.json`、`harness/P4-T31-dry-pass.json`、`harness/P4-T31-gate-exit0-no-report-stop.json`、`harness/P4-T31-dry-seeded-run.json`、`repair/seedfix-1-run.json` | `bash -n` exit 0；happy path exit 0；上限耗尽恰好 3 验证 / 2 修复后 exit 2 并写 `stop.json`；M1 已存在 exit 2；缺 cvc5 exit 2；播种跑 2 验证 / 1 修复后 `pass`（§4.2 新证据） | Y |
 | T32 | 每轮前后比较 SHA256，变化即停止，不自动更新批准文件 | `crates/intentower-cli/src/baseline.rs`；`tests/baseline.rs` 11 项（含 `editing_a_protected_file_is_reported`、`repointing_a_pinned_model_id_is_reported`、`the_check_reads_and_never_refreshes_the_baseline`）；§36 注入行 | 注入改 `m0.eventb` → 运行前基线失败，**未调用 gate/Pi**，exit 2；每次真实运行三个检查点均 `BASELINE OK` exit 0 | Y |
 | T33 | 3 次实验全部记录（成功与否、轮数、工具耗时、LLM 调用数、Token/上下文成本），不可只展示最好一次 | `evidence/experiments/run-{A,B,C}.json`、`README.md` §2、`models/th1-run{A,B,C}.eventb` | 3/3 PASS，均第 1 轮；A 16 调用 / 286636 tokens / 峰值 23588 / 151 s；B 20 / 403786 / 30354 / 231 s；C 13 / 220304 / 24412 / 147 s；三份 `th1` 形状不同（阈值 70/30、标签互换、80/20） | Y |
 | T34 | 所有失败类别有确定下一步；不允许"Agent 宣称自己解决了" | `feedback.rs::ESCALATION`（8 行覆盖全部 `Status`）+ `next_step()`（7 条有序规则）；`intentower escalate`；`tests/feedback.rs` 11 项，含 `every_status_the_verifier_can_emit_has_exactly_one_next_step`、`the_next_step_is_read_from_the_report_not_from_what_the_agent_claims`、`a_verdict_that_no_longer_traces_to_its_inputs_is_never_left_as_no_action` | 19 passed / 0 failed（该文件）；向报告注入 `"agent_claim":"我已经修好了"` 输出逐字节不变；钉值被篡改的 PASS 报告 → `TOOLCHAIN_FIRST`（`p4-gate/human-run-1-escalation-after-cleanup.md`） | Y |

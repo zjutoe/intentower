@@ -42,9 +42,9 @@ intentower --help                      verify gate report baseline feedback esca
   `DRY_RUN` 对照，按 `approvals/P4-GATE.md` §3 T31 行的归属），`T35` 这个名字从此留给 P5。
   非保护文件的引用（`evidence/experiments/README.md`、`docs/rossi-smoke.md` §36/§39/§40/§42.5）
   已同步为新名；旧名通过 ADR-0003 映射表永久可解析。留痕见 `docs/rossi-smoke.md` §44。
-- **尚缺一步（需人类批准，agent 不擅自做）**：`approvals/P4-GATE.md` 是已签署记录，第 82、97、99 行
-  引用了 6 处旧名路径。批准后就做纯路径替换（判定、6 个 `Y`、§4 的 7 条局限、§5 的 7 条残余
-  风险、§7 签名字段不动），并在日志里加一节留痕。
+- **已执行的受保护文件改动**：`approvals/P4-GATE.md`（已签署）第 82、97、99 行的 6 处旧名路径
+  已由人类批准并完成（纯路径替换；判定、6 个 `Y`、§4 的 7 条局限、§5 的 7 条残余风险、
+  §7 签名字段不动），留痕见 `docs/rossi-smoke.md` §45。
 - 未做：其余 32 个无任务前缀的证据文件本次不改（约 66 处引用，且
   `evidence/experiments/p4-gate/manifest.json` 的**内容本身**逐条列着同目录文件名与 sha256）。
   建议作为单独的有界任务批准，详见 ADR-0003「未结」一节。
@@ -98,7 +98,8 @@ cargo test --offline                          # 期望：169 passed / 0 failed
 ls docs/SPEC-002.md models/gate               # 期望：均不存在（P5 未开工的直接证据）
 git show --summary --stat HEAD~1             # 期望：改名提交，10 个 harness 文件均为 R100，无内容改写
 ls evidence/experiments/harness              # 期望：10 个名字全部 P4-T31-* / P4-T34-*
-grep -n "harness/" approvals/P4-GATE.md      # 期望：仍是旧名——这一处等人类批准（本文 D-2）
+grep -o "harness/[A-Za-z0-9._-]*" approvals/P4-GATE.md | sort -u
+                                              # 期望：只有新名 + `harness/`（通配那行）；旧名已清
 ```
 
 ## 7. 本文不主张
@@ -106,6 +107,7 @@ grep -n "harness/" approvals/P4-GATE.md      # 期望：仍是旧名——这一
 1. 不主张 P5 已开始，或 T35–T41 任何一项已完成。
 2. `169 passed` 只说明**现有 Rust 测试**通过；不证明 Gate 实现符合**将要批准**的 SPEC-002，也不构成任何 Event-B 证明（`approvals/P4-GATE.md` §5.5）。
 3. 第 4 节的「就绪」只是输入与工具可用性检查，不是验收结论，更不是 Gate PASS。
-4. 本文未改动 `approvals/*`、`docs/INT-*.md`、`docs/SPEC-001.md`、`AGENTS.md` 与 phase plan；
-   `intent_or_spec_changed: false`。改名只发生在 `evidence/experiments/harness/` 的文件**名**上，
-   证据字节与任何判定/数字均未变。
+4. 未改动 `docs/INT-*.md`、`docs/SPEC-001.md`、`AGENTS.md`、phase plan 与 `approvals/baseline.json`；
+   `intent_or_spec_changed: false`。已签署的 `approvals/P4-GATE.md` 只被改过 **6 处文件路径**
+   （人类批准，`docs/rossi-smoke.md` §45），判定、局限与签名字段未动；改名只发生在证据文件的
+   **名字**上，证据字节与任何判定/数字均未变。

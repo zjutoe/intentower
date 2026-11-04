@@ -1573,9 +1573,28 @@ T34-dry-pass-escalation.md          -> P4-T34-dry-pass-escalation.md
 
 **尚未执行、需人类批准的一步**：`approvals/P4-GATE.md` 是已签署记录，里面第 82、97、99 行引用了
 6 处旧名路径。agent 不擅自改签署记录；待人类批准后只做路径替换（判定、6 个 `Y`、§4 的 7 条局限、
-§5 的 7 条残余风险、§7 签名字段一律不动），并由下一节留痕。批准前先不改，旧名仍可按映射表解析。
+§5 的 7 条残余风险、§7 签名字段一律不动），并由下一节留痕。批准前先不改，旧名仍可按映射表解析。（人类随后批准，见 §45。）
 
 其余 32 个无任务前缀的证据文件（`run-{A,B,C}.json`、`seed-1*.json`、`prefix-run1.json`、
 `models/*.eventb`、`repair/*`、`p4-gate/*`）**本次不改**：共约 66 处引用，且
 `evidence/experiments/p4-gate/manifest.json` 的内容本身逐条列着同目录文件名与 sha256——改名的
 代价是动一份由人类 Gate 跑产出的证据文件。建议作为单独的有界任务批准，不夹进撞号修复。
+
+## 45. 已签署记录里的旧名路径：人类批准后替换（2026-11-04）
+
+§44 那条待批动作由人类批准（原话：「批准」）。`approvals/P4-GATE.md` 的改动范围是第 **82、97、99**
+行的 **6 处** `harness/...` 路径，改为 §44 表里的新名：
+
+```
+git diff --stat approvals/P4-GATE.md   # 3 insertions(+), 3 deletions(-)
+git diff -U0 --word-diff=porcelain     # 只有 6 个 harness 路径 token 变化，其余逐字未动
+```
+
+判定（§2）、§3 的六个 `Y`、§4 的 7 条局限、§5 的 7 条残余风险、§6 重跑序列、§7 签名字段**均未动**。
+头部 `evidence_dir` 那行写的是 `harness/*` 通配，本来就不需要改。旧名仍可经
+`docs/decisions/ADR-0003-evidence-file-naming.md` 的映射表解析。
+
+信任边界要写清：`approvals/baseline.json` 钉的是 `INT-001`、`SPEC-001`、`m0.eventb`、`th0.eventb`、
+`project.json` 的哈希，**不含已签署的 Gate 记录本身**，所以 `intentower baseline` 不会（也不该）拦住
+这次编辑。这次编辑成立是因为**人类批准**，不是因为工具放行——这正是 `approvals/P4-GATE.md` §5.1
+那条残余风险的含义。改后 `intentower baseline` 仍为 `BASELINE OK: 5 hashes, 3 model ids pinned`，exit 0。
