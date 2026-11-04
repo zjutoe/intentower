@@ -96,9 +96,9 @@ git status --porcelain                        # 期望：空（改名已在同�
 cargo test --offline                          # 期望：169 passed / 0 failed
 ./target/debug/intentower baseline            # 期望：BASELINE OK: 5 hashes, 3 model ids pinned，exit 0
 ls docs/SPEC-002.md models/gate               # 期望：均不存在（P5 未开工的直接证据）
-git log --stat -1                             # 期望：10 个 harness 文件均为 R（改名），无内容改写
-grep -rn "T35-dry-seeded" approvals docs evidence scripts tasks tests crates | grep -v ADR-0003
-                                              # 期望：只剩 approvals/P4-GATE.md（待批准的旧名）
+git show --summary --stat HEAD~1             # 期望：改名提交，10 个 harness 文件均为 R100，无内容改写
+ls evidence/experiments/harness              # 期望：10 个名字全部 P4-T31-* / P4-T34-*
+grep -n "harness/" approvals/P4-GATE.md      # 期望：仍是旧名——这一处等人类批准（本文 D-2）
 ```
 
 ## 7. 本文不主张
