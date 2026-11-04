@@ -23,15 +23,19 @@ intentower --help                      verify gate report baseline feedback esca
 
 ## 2. 两处开放项：需要人类裁定，都不是缺陷
 
-### D-1 `docs/INT-002.md` 仍是 DRAFT，且编号语义与 P5 的 T35 冲突
+### D-1 `INT-002` 同时被两个意图抢 —— **已解决（2026-11-04 人类裁定：Gate 意图用 INT-003）**
 
-- 现状：`docs/INT-002.md`（agent 起草）写的是**恒温器第二意图**，即 P4 实验载体。人类在 2026-11-03 批准的是**模型文件** `models/thermostat/th0.eventb`（`approvals/MODEL-005.md`），不是这段意图措辞。
-- 冲突：plan 的 P5 **T35** 要求「编写 `docs/INT-002.md` 与 `SPEC-002.md`，描述 Gate 要求、状态枚举、边界情况」，即 plan 语境里的 INT-002 = **Gate 验收意图**。同一个编号被两件不同的意图占用，且两件都还没被批准。
-- 选项（agent 不选择）：
-  - **A（建议）**：批准或作废现有恒温器草案后，把 **Gate 意图编号改为 `INT-003`**，`SPEC-002` 编号保持不变（未被占用；`docs/SPEC-001.md` §7 里「`gate` 的验收语义属于 SPEC-002（T35）」的引用仍然成立）。
-  - **B**：`INT-002` 编号让给 Gate 意图，恒温器意图改编号或删除（它只是实验载体，不是产品需求）。
-  - **C**：一个编号承载两条含义并在文档里显式声明（不建议：意图编号是本项目的追溯锚点）。
-- 无论选哪种：**是否把新的 INT/SPEC 哈希钉入 `approvals/baseline.json` 由人类决定并写入**，agent 永不刷新基线（AGENTS.md §3）。
+- 裁定记录：**`docs/decisions/ADR-0004-intent-id-for-the-gate.md`**。要点：
+  - Gate 验收意图 = `INT-003`，文件 `docs/INT-003.md`。P5 T35 因此写 `docs/INT-003.md` +
+    `docs/SPEC-002.md`，不是 plan 原文里的 `INT-002.md`。phase plan 本身不改（改 plan 需单独任务）。
+  - `INT-002` 仍为恒温器实验意图草案，不重命名也不删（`approvals/MODEL-005.md:13` 按这个名字引用它）。
+  - Gate 的规范仍是 **`SPEC-002`**：已批准并钉基线的 `docs/SPEC-001.md` §7 已经把它预给了 gate 语义。
+    所以 `INT-003 -> SPEC-002` 的编号不对齐是有意的。
+  - 模型编号建议 `MODEL-007`（Gate M0）/ `MODEL-008`（Gate M1）—— 待人类确认，`MODEL-001..006` 已占。
+- **仍开放的子项**：`docs/INT-002.md` 到底是批准还是作废（现在不阻塞 T35，因为 T35 写 INT-003）。
+- **批准后的连锁（只能人类做）**：`project.json` 的 `intent_ids` / `spec_ids` 要加新 id，而
+  `project.json` 的哈希钉在 `approvals/baseline.json` 里；改完 `intentower baseline` 会
+  `HashChanged` exit 2，正解是人类重钉基线，**不是**让 agent 去改 baseline。
 
 ### D-2 `harness/T35-*` 与 plan 里 P5 的 T35 撞号 —— **已解决（2026-11-04 人类裁定）**
 
@@ -64,7 +68,7 @@ intentower --help                      verify gate report baseline feedback esca
 
 | 任务 | 就绪状态 | 现在缺什么 | 预计改动面（≤3 生产文件） | 验收口径要点 | 不得宣称 |
 |---|---|---|---|---|---|
-| **T35** | **阻塞**（等 D-1 编号裁定 + 人类批准） | Gate 意图的 INT 草案不存在（现有草案是恒温器）；`docs/SPEC-002.md` 不存在 | 2 个文档 | 验收是「**人类批准**的 SPEC 明确 0 条 PO / 缺失 / 过期 / 工具错误均不能 PASS」，agent 交付 ≠ 完成 | 起草本身不产生任何验证结论 |
+| **T35** | 可开工（D-1 已裁定：写 `INT-003`；验收仍需人类批准） | `docs/INT-003.md` 与 `docs/SPEC-002.md` 均不存在。注意偏离 plan 原文（它写的是 `INT-002.md`），理由见 ADR-0004 | 2 个文档 | 验收是「**人类批准**的 SPEC 明确 0 条 PO / 缺失 / 过期 / 工具错误均不能 PASS」，agent 交付 ≠ 完成 | 起草本身不产生任何验证结论 |
 | **T36** | 就绪 | `models/gate/` 目录尚不存在（plan 布局里已规划） | 1–2 个 `.eventb` + `models.json` | Rossi 静态检查通过、PO **非空**、不依赖 Rust 源码 | 模型通过 ≠ Rust Gate 代码正确 |
 | **T37** | 就绪（有一个风险） | 若计数/集合表达式超出已批准 SMT 子集（Bool + QF_LIA），需**单独批准**的理论扩展任务 | 1 个 `.eventb` + 可能 1 处编码器 | 真实精化 PO 结果进 Evidence，不能证明的义务**公开列出** | `UNSUPPORTED` 不能被跳过或替换成常量 |
 | **T38** | 就绪 | 无（现成基座：`tests/gate_policy.rs` 7、`tests/cli_gate.rs` 8、`tests/report_schema.rs` 5、`tests/inventory.rs` 6） | 测试为主 | 必须包含「故意注入的错误实现会被测试发现」；`judge` 是纯函数，但 exit 码与 report 路径也要覆盖 | `cargo test` 通过 ≠ 模型被证明 |
@@ -77,10 +81,11 @@ intentower --help                      verify gate report baseline feedback esca
 ## 5. 建议的开工顺序（每步只指派一个任务）
 
 ```
-0. 人类裁定 D-1（INT 编号）与 D-3（Agent 访问规则）
-1. T35 起草 → 人类批准 SPEC-002（+ 决定是否钉入基线）
-2. T36  Gate 抽象 M0（Rossi 检查 + PO 非空 + 约束可满足性检查，防 vacuous proof）
-3. T37  M1 精化 + cvc5 真实结果
+0. 已裁定：D-1 编号（ADR-0004）、D-2 证据命名（ADR-0003）。开工前还建议裁定 D-3（Agent 访问规则）
+1. T35 起草 docs/INT-003.md + docs/SPEC-002.md → 人类批准
+   → 然后人类更新 project.json 的 intent_ids/spec_ids 并重钉 baseline.json（agent 不得做）
+2. T36  Gate 抽象 M0（建议 MODEL-007；Rossi 检查 + PO 非空 + 约束可满足性检查，防 vacuous proof）
+3. T37  M1 精化（MODEL-008）+ cvc5 真实结果
 4. T38  SPEC-002 边界场景 → Rust 参数化测试（含注入错误实现必被发现）
 5. T39  Semantic Review（强模型渠道）
 6. T40  两种工作流对比  7. T41 收尾
@@ -95,7 +100,7 @@ cd /home/mye/src/llm/intentower
 git status --porcelain                        # 期望：空（改名已在同一提交里落地）
 cargo test --offline                          # 期望：169 passed / 0 failed
 ./target/debug/intentower baseline            # 期望：BASELINE OK: 5 hashes, 3 model ids pinned，exit 0
-ls docs/SPEC-002.md models/gate               # 期望：均不存在（P5 未开工的直接证据）
+ls docs/SPEC-002.md docs/INT-003.md models/gate  # 期望：均不存在（P5 未开工的直接证据）
 git show --summary --stat HEAD~1             # 期望：改名提交，10 个 harness 文件均为 R100，无内容改写
 ls evidence/experiments/harness              # 期望：10 个名字全部 P4-T31-* / P4-T34-*
 grep -o "harness/[A-Za-z0-9._-]*" approvals/P4-GATE.md | sort -u

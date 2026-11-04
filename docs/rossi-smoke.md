@@ -1598,3 +1598,25 @@ git diff -U0 --word-diff=porcelain     # 只有 6 个 harness 路径 token 变�
 `project.json` 的哈希，**不含已签署的 Gate 记录本身**，所以 `intentower baseline` 不会（也不该）拦住
 这次编辑。这次编辑成立是因为**人类批准**，不是因为工具放行——这正是 `approvals/P4-GATE.md` §5.1
 那条残余风险的含义。改后 `intentower baseline` 仍为 `BASELINE OK: 5 hashes, 3 model ids pinned`，exit 0。
+
+## 46. D-1 裁定：Gate 验收意图编号为 INT-003（人类，2026-11-04）
+
+人类裁定「Gate 意图用 INT-003」。记录在 `docs/decisions/ADR-0004-intent-id-for-the-gate.md`，
+含义有三条：
+
+1. P5 的 T35 写 `docs/INT-003.md` + `docs/SPEC-002.md`。**这与 plan 原文（写 `docs/INT-002.md`）
+   不一致**；phase plan 是受保护文件，本次没改它，偏离由 ADR-0004 记录。若要正式改 plan，
+   需要单独任务。
+2. `docs/INT-002.md` 仍是恒温器实验意图的草案编号，不动它（`approvals/MODEL-005.md:13` 按这个名字
+   引用它）。它批准还是作废仍未裁定，但已不阻塞 T35。
+3. Gate 的规范仍是 `SPEC-002`，因为已批准且钉入基线的 `docs/SPEC-001.md` §7 早已把 gate 语义
+   预给 SPEC-002。因此 `INT-003 -> SPEC-002` 的编号不对齐是刻意的，不是笔误。
+
+本次只新增/修改文档（`docs/decisions/ADR-0004-*.md` 新建、`docs/P5-kickoff.md`、`docs/INT-002.md`
+的 Related 与「不主张」一节、本节）。`docs/INT-002.md` 本身仍是 **DRAFT**，状态未变，本次只是
+写明它不占用 Gate 意图的编号。批准文件（INT-001、SPEC-001、project.json、m0.eventb、th0.eventb、
+baseline.json）未被触碰；改后 `intentower baseline` 仍 `BASELINE OK: 5 hashes, 3 model ids pinned`，
+exit 0；`ls docs/INT-003.md docs/SPEC-002.md models/gate` 仍全部不存在（P5 未开工）。
+
+下一步若开工 T35：产出的是**草案**，批准权仍在人类；批准之后 `project.json` 的
+`intent_ids`/`spec_ids` 与 `approvals/baseline.json` 的更新只能由人类写入。
