@@ -20,11 +20,13 @@
 //! not check everything" would hide it.
 
 use std::collections::BTreeMap;
+use std::ffi::OsString;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::time::Duration;
 
 use crate::gate::inventory;
 use crate::gate::provenance;
+use crate::report::bounded_output;
 use crate::solver::cvc5::Cvc5;
 use crate::verify::{self, Status};
 
@@ -172,11 +174,11 @@ fn outcomes_of(inventory: &inventory::Inventory, solver: &Cvc5) -> Vec<Outcome> 
         .collect()
 }
 
-/// Re-run the POG over `sources` and decide. `work` is a scratch directory;
-/// the project directory inside it is recreated every time, so a leftover
-/// `.bpo` cannot be mistaken for current output.
+/// Re-run the POG over `sources` and decide. Each run retains its own input
+/// snapshots and POG beneath `work`, so neither concurrent nor later runs can
+/// replace the evidence this decision names.
 pub fn run(sources: &[PathBuf], project: &str, work: &Path) -> Decision {
-    run_with(sources, project, work, None)
+    run_with(sources, project, work, None, Cvc5::from_env().timeout)
 }
 
 /// `policy` is an optional policy file (for example a baselined `project.json`)
@@ -186,64 +188,178 @@ pub fn run_with(
     project: &str,
     work: &Path,
     policy: Option<&Path>,
+    timeout: Duration,
 ) -> Decision {
-    let dir = work.join(project);
-    let _ = std::fs::remove_dir_all(&dir);
-
-    // Provenance can only hash bytes that exist; a missing source is reported
-    // explicitly below rather than dropped quietly.
-    let missing: Vec<String> = sources
-        .iter()
-        .filter(|source| !source.exists())
-        .map(|source| source.to_string_lossy().to_string())
-        .collect();
-    let present: Vec<PathBuf> = sources
-        .iter()
-        .filter(|source| source.exists())
-        .cloned()
-        .collect();
-
-    let mut cmd = Command::new("rossi");
-    cmd.args(["export", "--build", "-o"]).arg(&dir);
-    for source in sources {
-        cmd.arg(source);
-    }
-    let build = match cmd.output() {
-        Ok(output) if output.status.success() => true,
-        Ok(output) => {
-            let mut decision = judge(false, false, Vec::new());
-            decision.inputs = provenance::collect(&present, &dir, policy);
-            decision.reasons.push(format!(
-                "rossi stderr: {}",
-                String::from_utf8_lossy(&output.stderr).trim()
-            ));
-            note_missing(&mut decision, &missing);
-            return decision;
-        }
+    let root = match run_directory(work, project) {
+        Ok(root) => root,
         Err(err) => {
             let mut decision = judge(false, false, Vec::new());
-            decision.inputs = provenance::collect(&present, &dir, policy);
-            decision.reasons.push(format!("could not run rossi: {err}"));
-            note_missing(&mut decision, &missing);
+            decision.reasons.push(err);
+            return decision;
+        }
+    };
+    let dir = root.join(project);
+    let (snapshots, mut inputs) = match snapshot_inputs(sources, policy, &root) {
+        Ok(inputs) => inputs,
+        Err(err) => {
+            let mut decision = judge(false, false, Vec::new());
+            decision.reasons.push(err);
             return decision;
         }
     };
 
+    let mut args: Vec<OsString> = ["export", "--build", "-o"].map(OsString::from).to_vec();
+    args.push(dir.as_os_str().to_owned());
+    args.extend(snapshots.iter().map(|source| source.as_os_str().to_owned()));
+    let build = match bounded_output("rossi", &args, timeout) {
+        Ok(result) if result.timed_out => {
+            let mut decision = judge(false, false, Vec::new());
+            decision.inputs = inputs;
+            let message = format!(
+                "TIMEOUT: rossi export --build exceeded {}s; stdout: {}; stderr: {}",
+                timeout.as_secs_f64(),
+                String::from_utf8_lossy(&result.output.stdout).trim(),
+                String::from_utf8_lossy(&result.output.stderr).trim()
+            );
+            decision.reasons.push(message.clone());
+            decision.inventory_issues.push(inventory::Issue {
+                code: "TIMEOUT",
+                message,
+                obligation_id: None,
+            });
+            return decision;
+        }
+        Ok(result) if result.output.status.success() => true,
+        Ok(result) => {
+            let mut decision = judge(false, false, Vec::new());
+            decision.inputs = inputs;
+            decision.reasons.push(format!(
+                "rossi exited {}; stdout: {}; stderr: {}",
+                result.output.status,
+                String::from_utf8_lossy(&result.output.stdout).trim(),
+                String::from_utf8_lossy(&result.output.stderr).trim()
+            ));
+            return decision;
+        }
+        Err(err) => {
+            let mut decision = judge(false, false, Vec::new());
+            decision.inputs = inputs;
+            decision.reasons.push(format!("could not run rossi: {err}"));
+            return decision;
+        }
+    };
+
+    // Pin artifacts before parsing/solving them, rather than describing bytes
+    // that may have replaced them after the solver finished.
+    inputs.extend(provenance::collect(&[], &dir, None));
     let inv = inventory::collect(&dir);
-    let solver = Cvc5::from_env();
-    let mut decision = judge(build, inv.is_complete(), outcomes_of(&inv, &solver));
-    decision.inputs = provenance::collect(&present, &dir, policy);
+    let solver = Cvc5 {
+        bin: std::env::var("INTENTOWER_CVC5")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| PathBuf::from("cvc5")),
+        timeout,
+    };
+    let mut outcomes = outcomes_of(&inv, &solver);
+    let changed = changed_inputs(&inputs);
+    if !changed.is_empty() {
+        for outcome in &mut outcomes {
+            outcome.detail = Some(format!(
+                "{} was obtained before input drift; re-run verification: {}",
+                outcome.status.as_str(),
+                changed.join("; ")
+            ));
+            outcome.status = Status::Stale;
+        }
+    }
+    let mut decision = judge(build, inv.is_complete(), outcomes);
+    decision.inputs = inputs;
     decision.inventory_issues = inv.issues.clone();
-    note_missing(&mut decision, &missing);
+    decision.reasons.extend(changed);
     decision
 }
 
-fn note_missing(decision: &mut Decision, missing: &[String]) {
-    if !missing.is_empty() {
-        decision
-            .reasons
-            .push(format!("model source(s) not found: {}", missing.join(", ")));
+/// Reserve an exclusive run directory. Atomic creation refuses a collision;
+/// it never deletes or reuses another run's artifacts.
+fn run_directory(work: &Path, project: &str) -> Result<PathBuf, String> {
+    let mut components = Path::new(project).components();
+    if !matches!(components.next(), Some(std::path::Component::Normal(_)))
+        || components.next().is_some()
+    {
+        return Err(format!(
+            "project must be a single directory name: {project:?}"
+        ));
     }
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|err| format!("cannot timestamp the POG run: {err}"))?
+        .as_nanos();
+    std::fs::create_dir_all(work)
+        .map_err(|err| format!("cannot create POG workspace {work:?}: {err}"))?;
+    let root = work.join(format!("run-{}-{timestamp}", std::process::id()));
+    std::fs::create_dir(&root)
+        .map_err(|err| format!("cannot reserve exclusive POG directory {root:?}: {err}"))?;
+    Ok(root)
+}
+
+/// Hash and snapshot the same bytes. Rossi reads only these copies, so an
+/// edit followed by an undo cannot bind an intermediate model to this hash.
+fn snapshot_inputs(
+    sources: &[PathBuf],
+    policy: Option<&Path>,
+    root: &Path,
+) -> Result<(Vec<PathBuf>, Vec<provenance::Input>), String> {
+    let mut snapshots = Vec::new();
+    let mut inputs = Vec::new();
+    for (index, source) in sources.iter().enumerate() {
+        let bytes = std::fs::read(source)
+            .map_err(|err| format!("model source(s) not found or unreadable: {source:?}: {err}"))?;
+        let name = source
+            .file_name()
+            .ok_or_else(|| format!("model source has no file name: {source:?}"))?;
+        let dir = root.join("sources").join(index.to_string());
+        std::fs::create_dir_all(&dir)
+            .map_err(|err| format!("cannot create source snapshot directory {dir:?}: {err}"))?;
+        let snapshot = dir.join(name);
+        std::fs::write(&snapshot, &bytes)
+            .map_err(|err| format!("cannot write source snapshot {snapshot:?}: {err}"))?;
+        snapshots.push(snapshot);
+        inputs.push(provenance::Input {
+            role: provenance::MODEL_SOURCE,
+            path: source.to_string_lossy().to_string(),
+            sha256: provenance::sha256(&bytes),
+        });
+    }
+    if let Some(policy) = policy {
+        let bytes =
+            std::fs::read(policy).map_err(|err| format!("cannot read policy {policy:?}: {err}"))?;
+        inputs.push(provenance::Input {
+            role: provenance::POLICY,
+            path: policy.to_string_lossy().to_string(),
+            sha256: provenance::sha256(&bytes),
+        });
+    }
+    Ok((snapshots, inputs))
+}
+
+fn changed_inputs(inputs: &[provenance::Input]) -> Vec<String> {
+    inputs
+        .iter()
+        .filter_map(|input| match std::fs::read(&input.path) {
+            Ok(bytes) => {
+                let current = provenance::sha256(&bytes);
+                (current != input.sha256).then(|| {
+                    format!(
+                        "STALE: {}: recorded {} != current {current}",
+                        input.path, input.sha256
+                    )
+                })
+            }
+            Err(err) => Some(format!(
+                "STALE: {}: cannot re-read input: {err}",
+                input.path
+            )),
+        })
+        .collect()
 }
 
 #[cfg(test)]

@@ -335,6 +335,11 @@ pub fn render(report: &Value, budget: usize) -> Result<String, String> {
             })
             .and_then(|row| row["detail"].as_str())
             .unwrap_or("-");
+        // Keep diagnostics in one table cell; the report retains raw streams.
+        let detail = detail
+            .replace('\\', "\\\\")
+            .replace('|', "\\|")
+            .replace(['\r', '\n'], " ");
         out.push_str(&format!(
             "| `{status}` | {} | {} | {detail} |\n",
             ids.len(),

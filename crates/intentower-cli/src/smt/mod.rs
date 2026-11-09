@@ -81,22 +81,23 @@ pub(crate) fn describe_predicate(kind: &PredicateKind) -> String {
     }
 }
 
-/// Render an Event-B identifier as an SMT-LIB symbol. Plain names stay bare;
-/// anything else is pipe-quoted, which SMT-LIB allows. Names containing `|` or
-/// control characters cannot be quoted, so they fail instead of being mangled.
-///
-/// `'` is **not** part of an SMT-LIB simple symbol, and Event-B after-values
-/// are named `count'`, so primed names must be quoted: cvc5 rejects a bare
-/// `count'` with `Parse Error: Error finding token`.
+/// Put every source identifier in the same private SMT namespace. Even a
+/// source name already starting with `intentower_` receives the prefix, so
+/// renaming never merges it with another source name or a built-in symbol.
+/// Preserve the complete source text; quote spaces, Unicode and after-value
+/// apostrophes. Reject quoted-symbol delimiters, escapes and control characters.
 pub fn smt_name(ident: &str) -> SmtResult<String> {
-    let bare = !ident.is_empty()
-        && !ident.chars().next().unwrap().is_ascii_digit()
-        && ident.chars().all(|c| c.is_ascii_alphanumeric() || c == '_');
-    if bare {
-        return Ok(ident.to_string());
-    }
-    if ident.is_empty() || ident.contains('|') || ident.chars().any(char::is_control) {
+    if ident.is_empty() || ident.contains(['|', '\\']) || ident.chars().any(char::is_control) {
         return Err(SmtError::BadName(ident.to_string()));
     }
-    Ok(format!("|{ident}|"))
+    let symbol = format!("intentower_{ident}");
+    // The fixed prefix supplies a legal initial character, even for `1a`.
+    if symbol
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '_')
+    {
+        Ok(symbol)
+    } else {
+        Ok(format!("|{symbol}|"))
+    }
 }

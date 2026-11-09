@@ -1,0 +1,848 @@
+{
+  "task_id": "REVIEW-P4-DIFF",
+  "status": "done",
+  "parent": [
+    "INT-001 C-01 through C-06",
+    "SPEC-001 SP-G1 through SP-G9",
+    "AGENTS.md section8 P4"
+  ],
+  "scope": "Read-only preparation for human review of accumulated repairs; no new source changes and no human approval asserted",
+  "comparison": {
+    "base_commit": "f5bae6e541338b6248255dbfc053ae291d500a58",
+    "start_changed_paths": 54,
+    "tracked_modified": 14,
+    "untracked": 40,
+    "categories": {
+      "source_or_script_paths": 15,
+      "test_paths": 15,
+      "task_record_paths": 24
+    },
+    "tracked_line_delta": {
+      "added": 787,
+      "deleted": 293
+    },
+    "untracked_added_lines": 7444,
+    "counts_note": "git diff --stat excludes untracked files. Three of the 15 source/script paths contain only adjusted inline SMT test expectations. This task adds two task records, bringing the final workspace count to56 (14 tracked modifications and42 untracked), without changing the54 starting files."
+  },
+  "changed_files": [
+    "tasks/TASK-REVIEW-P4-DIFF.md",
+    "tasks/REVIEW-P4-DIFF-results.json"
+  ],
+  "current_diff_files": [
+    {
+      "path": "crates/intentower-cli/src/feedback.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "f1192c34214bc3e981aa466a255c53cce6a24cd9c65607b5aad0e595a797bf42",
+      "added": 5,
+      "deleted": 0
+    },
+    {
+      "path": "crates/intentower-cli/src/gate/policy.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "184edb20d1c7492943e1446c4aa17bceab9e26a629923ad7aa89e6e3e5408be3",
+      "added": 159,
+      "deleted": 43
+    },
+    {
+      "path": "crates/intentower-cli/src/main.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "49075d65c9fc22d6b647193a0da53f905902154ee155d31858f6467d4ae97a64",
+      "added": 83,
+      "deleted": 6
+    },
+    {
+      "path": "crates/intentower-cli/src/report.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "201002cb0f490b530e1a2b4adc1c9d360b52baa3151f0fd15995c59eec8f070f",
+      "added": 217,
+      "deleted": 64
+    },
+    {
+      "path": "crates/intentower-cli/src/smt/arithmetic.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "d445626630fc1b82535e35db4b5a68da2d6af058017b23412155f518e6a922d4",
+      "added": 33,
+      "deleted": 15
+    },
+    {
+      "path": "crates/intentower-cli/src/smt/atoms.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "1f57bfdb09f121d5988a0d0823c308d310556da617e56b289947a7b014d4f541",
+      "added": 15,
+      "deleted": 5
+    },
+    {
+      "path": "crates/intentower-cli/src/smt/encode.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "1f4eb162f63d2fdede506729cfd93097f005ec5be958bb935dee3d3a4bee27f2",
+      "added": 24,
+      "deleted": 25
+    },
+    {
+      "path": "crates/intentower-cli/src/smt/logic.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "d8c96a57ce28adc02c81a6f0e3388c192fe92bbd23770051f591ba5c2133ea86",
+      "added": 23,
+      "deleted": 11
+    },
+    {
+      "path": "crates/intentower-cli/src/smt/mod.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "e470b7e1812600933048909199ed789df069b088b6005b9a1899aaf5aa3ef05e",
+      "added": 16,
+      "deleted": 15
+    },
+    {
+      "path": "crates/intentower-cli/src/solver/cvc5.rs",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "af55ace9ba19f081db935e1f0c9a38346ef8d8ae4876680895fc81c24cff9ecf",
+      "added": 61,
+      "deleted": 83
+    },
+    {
+      "path": "crates/intentower-cli/tests/feedback.rs",
+      "git_status": " M",
+      "category": "test",
+      "sha256": "9563250fd66966bb3dc2314f449d2270ee0660f17531fcdf334e8e23328a330e",
+      "added": 22,
+      "deleted": 9
+    },
+    {
+      "path": "crates/intentower-cli/tests/gate_policy.rs",
+      "git_status": " M",
+      "category": "test",
+      "sha256": "a3d908938a1ac8261bb81a7e2e4c6433d566b69c7103e566d8df7bc764dadf3e",
+      "added": 58,
+      "deleted": 4
+    },
+    {
+      "path": "scripts/run-refinement.sh",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "06e0dce5c7f0427fe3ee3ad746c4ba7fbfdfc61769e7a4b3909b8f1f98137178",
+      "added": 67,
+      "deleted": 12
+    },
+    {
+      "path": "scripts/validate-report.py",
+      "git_status": " M",
+      "category": "source_or_script",
+      "sha256": "768999e55912cea0c53806e8218d2b29fe58c74d1c5ef8c6f565c5de63cb0d66",
+      "added": 4,
+      "deleted": 1
+    },
+    {
+      "path": "crates/intentower-cli/src/output_paths.rs",
+      "git_status": "??",
+      "category": "source_or_script",
+      "sha256": "abf505a20503c0d681be8de1247dca6e15c7522e71ae842b348e541aa66cd110",
+      "added": 95,
+      "deleted": 0
+    },
+    {
+      "path": "crates/intentower-cli/src/report/cancellation.rs",
+      "git_status": "??",
+      "category": "source_or_script",
+      "sha256": "795bf1fd219ffa763e7fb590d8008a61237ee21a61982b9e18f2f8abef959779",
+      "added": 68,
+      "deleted": 0
+    },
+    {
+      "path": "crates/intentower-cli/src/report/validation.rs",
+      "git_status": "??",
+      "category": "source_or_script",
+      "sha256": "40b2b351b75a4a69ef9fb531e15e0985605c46c38d8d7f74cfadc47e74303ee4",
+      "added": 263,
+      "deleted": 0
+    },
+    {
+      "path": "crates/intentower-cli/tests/report_validation.rs",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "57d03b22248816f957a643a9739b68e70fb596e84c867ef494c1e692bf829e1a",
+      "added": 613,
+      "deleted": 0
+    },
+    {
+      "path": "crates/intentower-cli/tests/smt_labels.rs",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "9d084e8389dbb135d605e06b990093d62aa0e1247dd199f4c6b664257c9d8cd9",
+      "added": 98,
+      "deleted": 0
+    },
+    {
+      "path": "crates/intentower-cli/tests/smt_names.rs",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "29fd108870723b8ce4950114ad5ce288874f65c57a300be594d5456c67e9b49b",
+      "added": 233,
+      "deleted": 0
+    },
+    {
+      "path": "crates/intentower-cli/tests/solver_diagnostics.rs",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "2a3eaab3e442cdb2b6ac15f4ecb61598f3f1724f61941e18c4b885d5898bdb3d",
+      "added": 535,
+      "deleted": 0
+    },
+    {
+      "path": "crates/intentower-cli/tests/vacuity_warning.rs",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "e55f56b3677a67a940f4c5d585d9ad11a631d99dddc3a05293bdd0299f6fefad",
+      "added": 286,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-FINAL-INTEGRATION-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "cc50d1630d498bac7f3817ca956510cc3a65663632f15898507bc352512330f9",
+      "added": 394,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P1-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "a3a118070d7ae925d3370516ad4744e1db078a64f6f73ead11ce16e6459f6fdc",
+      "added": 124,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-CLI-TIMEOUT-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "97f642c3da52c7679660a3825fbdfd3b486b2d458c8c215e2c49b039fff140cd",
+      "added": 150,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-DRY-RUN-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "57302578fe072f9a947c2a2f427e37903ee7f47ca765348a3ae17f17f2225bc3",
+      "added": 194,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-MISSING-TOOL-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "5361d1d0b59b7569fff24a9386cb34939890e192bcf30b62cd8610abd7325b6c",
+      "added": 249,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-NESTED-TIMEOUT-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "6973cfcd5dd2e814d62c5d23aec636933d7cf675ff86384388dfa2b285f9a1b2",
+      "added": 326,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-OUTPUT-ALIAS-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "797a565c926949a540b909e28a1af612bf897bf22095d9a0d5cd2bc73a317741",
+      "added": 219,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-REPORT-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "412bd8afd36c6492eb234e6fe02314329ef918f0d022b2b494e87f3e7d45961f",
+      "added": 143,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-SCRIPT-TIMEOUT-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "9e95c2a5186c7bab09fc8539aea4ce02cba27e7fa19de9fa2deddcf5fc08b687",
+      "added": 139,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-SMT-NAMES-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "87f79f13d7956450624e06c803241ba54b2f5c488e1eaeed0c372a464d7759f3",
+      "added": 184,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-SOLVER-DIAGNOSTICS-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "afe0acf1e1b7f3a6ad941ca00ad7ef4d0cad65daecfb547967d020fb2327bd6f",
+      "added": 209,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/REVIEW-P2-VACUITY-JSON-results.json",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "9b830cd57f757cc2bf9b4269296e2b4efcb8a827db770c62035875468f135cd8",
+      "added": 223,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-FINAL-INTEGRATION.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "85f27ae66c93101836c5c5d28a71a16e5b3da3d0c70ab9d0b4eae9a315e85062",
+      "added": 28,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P1.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "3246be8b06fff798eca0bbbc00c04e0e35c90b666e3d07a3c7471a71058c96b9",
+      "added": 39,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-CLI-TIMEOUT.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "a159d78994ff8065665b88589b330e6747cc45c20b9c7b9a444ad5bdd32e0806",
+      "added": 34,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-DRY-RUN.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "5ef1ec14e0d291d40aa92fdf97c64770181f134964eed73d8abbd24c7ea333c4",
+      "added": 32,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-MISSING-TOOL.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "b2e3202872c66488aff1b8618048633e0b5cbcfed2a6f48c241a1ddd77fca715",
+      "added": 36,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-NESTED-TIMEOUT.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "5cd2d0604c420f3f08a781787f2d09cb6b01892c00184da9658e30e5ba876ce7",
+      "added": 35,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-OUTPUT-ALIAS.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "46be271a979d07861b9f7c21e2271f6d4363f5770855b8299cec7f41ed1c7cb6",
+      "added": 34,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-REPORT.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "8263fe89dc68cae7c06a13fb7875db349f48f42f8fda5db254aea1c7002be8cc",
+      "added": 37,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-SCRIPT-TIMEOUT.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "4be665b7a1a0c9f6074da7098badd4dd191e1540cf264b663dff36cf8e988bf8",
+      "added": 31,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-SMT-NAMES.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "0029b1ccd1ae4e7a0bd3df9823e8eddc2a6f7c5edcf734ec14d7c04a3f2e4c54",
+      "added": 33,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-SOLVER-DIAGNOSTICS.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "917ec5899c8f702fecb7d8b7037305e43ffb5b686f6c3b15bba7ab7018ebbc29",
+      "added": 34,
+      "deleted": 0
+    },
+    {
+      "path": "tasks/TASK-REVIEW-P2-VACUITY-JSON.md",
+      "git_status": "??",
+      "category": "task_record",
+      "sha256": "2f65a435431232b7438cd642a74c5060c8a0cc04e77fa989f175bcdc8a99b71c",
+      "added": 31,
+      "deleted": 0
+    },
+    {
+      "path": "tests/test_cli_timeouts.py",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "5d667f9399e71d8095b11e65aeaa49819bcc37d814d19df0203c1dde073b4b0a",
+      "added": 308,
+      "deleted": 0
+    },
+    {
+      "path": "tests/test_gate_isolation.py",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "618259b4a5819170f35c4aea68380eede0665a2f7cb5f75590f735f5ce197318",
+      "added": 231,
+      "deleted": 0
+    },
+    {
+      "path": "tests/test_missing_tools.py",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "93e72df940d5fbd1833e6b4cf87740886597f8c2d404e7fd66a5c8eaec7af292",
+      "added": 248,
+      "deleted": 0
+    },
+    {
+      "path": "tests/test_nested_timeouts.py",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "67bab87290d5cf8aceca5365732f314a40f6da5d6d78c1cc71832adb698d1707",
+      "added": 358,
+      "deleted": 0
+    },
+    {
+      "path": "tests/test_output_aliases.py",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "75be495c8571c200b1a2ddb8eb964ff7d74f744e39820bccb87d7a5073264822",
+      "added": 417,
+      "deleted": 0
+    },
+    {
+      "path": "tests/test_refinement_binding.py",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "e704b3ee1731b73285248a471e8917388bb390d13940ab80026dc8a057e9a271",
+      "added": 212,
+      "deleted": 0
+    },
+    {
+      "path": "tests/test_refinement_dry_run.py",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "0918f72c809336de93b455d24174c7904d6c7ae7f7911029419905cda6e21780",
+      "added": 214,
+      "deleted": 0
+    },
+    {
+      "path": "tests/test_refinement_timeouts.py",
+      "git_status": "??",
+      "category": "test",
+      "sha256": "373d2ab16e3325d133d8c5551eaa956faccbb876ef08365bc35121d496e442a4",
+      "added": 307,
+      "deleted": 0
+    }
+  ],
+  "behavior_changes": [
+    {
+      "id": "D01",
+      "topic": "POG运行隔离与证据新鲜度",
+      "paths": [
+        "crates/intentower-cli/src/gate/policy.rs"
+      ],
+      "before": "重复使用并删除固定POG目录；输入哈希在验证后收集",
+      "after": "每次原子保留run-PID-time目录，使用源文件快照生成PO；先钉源/策略/PO哈希，结束后检测漂移并标STALE",
+      "requirements": [
+        "INT-001 C-02/C-03",
+        "SPEC-001 SP-G1/SP-G3/SP-G6/SP-G9"
+      ],
+      "external_effect": "产物路径变为pog/run-<pid>-<timestamp>/<model-id>/，保留历史证据并增加磁盘占用"
+    },
+    {
+      "id": "D02",
+      "topic": "候选文件与本轮验证绑定",
+      "paths": [
+        "scripts/run-refinement.sh"
+      ],
+      "before": "用文本匹配模型ID，未严格绑定实际候选和成功报告的源集合",
+      "after": "解析models.json，核对规范路径、候选成员关系、每轮源集合与PASS报告中的当前源哈希",
+      "requirements": [
+        "INT-001 C-02/C-03/C-05"
+      ],
+      "external_effect": "候选未参与模型、manifest换绑或成功报告缺少候选时停止"
+    },
+    {
+      "id": "D03",
+      "topic": "SMT标签与变量命名",
+      "paths": [
+        "crates/intentower-cli/src/smt/encode.rs",
+        "crates/intentower-cli/src/smt/mod.rs",
+        "crates/intentower-cli/src/smt/atoms.rs",
+        "crates/intentower-cli/src/smt/arithmetic.rs",
+        "crates/intentower-cli/src/smt/logic.rs"
+      ],
+      "before": "PO标签直接进入SMT set-info字符串；变量名可能与SMT内建符号冲突",
+      "after": "移除可执行SMT中的标签插值，标签保留在报告；所有变量统一加intentower_前缀并拒绝非法引用字符",
+      "requirements": [
+        "INT-001 C-03/C-04",
+        "SPEC-001 SP-G4/SP-G5/SP-G9"
+      ],
+      "external_effect": "生成的SMT变量名变化；atoms/arithmetic/logic三个文件仅调整内联测试期望，未扩展其生产算术或逻辑规则"
+    },
+    {
+      "id": "D04",
+      "topic": "报告读取与展示",
+      "paths": [
+        "crates/intentower-cli/src/report.rs",
+        "crates/intentower-cli/src/report/validation.rs",
+        "crates/intentower-cli/src/feedback.rs",
+        "scripts/validate-report.py"
+      ],
+      "before": "Rust读取器只做局部结构检查；部分损坏类型可使Python交叉校验抛错",
+      "after": "按冻结schema1.0检查字段、类型、PO唯一性/总数、PASS一致性与scope；先处理schema错误；摘要/反馈转义多行诊断",
+      "requirements": [
+        "INT-001 C-02/C-03",
+        "SPEC-001 SP-G1/SP-G2/SP-G3"
+      ],
+      "external_effect": "以前可能被展示或作为反馈的非法报告现在被拒绝；schema本身未改"
+    },
+    {
+      "id": "D05",
+      "topic": "工具期限与取消",
+      "paths": [
+        "crates/intentower-cli/src/main.rs",
+        "crates/intentower-cli/src/report.rs",
+        "crates/intentower-cli/src/report/cancellation.rs",
+        "crates/intentower-cli/src/solver/cvc5.rs",
+        "scripts/run-refinement.sh"
+      ],
+      "before": "部分版本/构建调用无统一有界监管；外层取消可能留下内部工具组",
+      "after": "新增--timeout-secs（参数优先于环境变量，默认30秒/次）；版本/导出/求解共用GNU timeout和文件捕获；外层TERM后1秒KILL；CLI退出关联活跃监管组取消",
+      "requirements": [
+        "INT-001 C-05/C-06",
+        "SPEC-001 SP-G7"
+      ],
+      "external_effect": "新增GNU timeout运行依赖；取消实现仅支持Linux x86_64/glibc LP64并依赖已审查GNU8.32行为；工具继承阻塞SIGALRM；其它ABI明确编译失败"
+    },
+    {
+      "id": "D06",
+      "topic": "工具不可用与预检失败",
+      "paths": [
+        "crates/intentower-cli/src/main.rs",
+        "crates/intentower-cli/src/report.rs"
+      ],
+      "before": "版本查询失败会panic或不能形成明确失败工件",
+      "after": "立即退出2，记录真实命令、supervisor退出码/信号与输出；写独立<report>.error.json，保留已有验证报告",
+      "requirements": [
+        "INT-001 C-06",
+        "SPEC-001 section3/5"
+      ],
+      "external_effect": "预检失败记录与验证报告分开，不能作为新的PASS证据"
+    },
+    {
+      "id": "D07",
+      "topic": "求解器诊断保留",
+      "paths": [
+        "crates/intentower-cli/src/solver/cvc5.rs",
+        "crates/intentower-cli/src/feedback.rs",
+        "crates/intentower-cli/src/report.rs"
+      ],
+      "before": "部分失败只保留stderr或最后一行，原始错误信息丢失",
+      "after": "失败分类保留完整stdout/stderr；JSON留原文，Markdown安全转义，超预算反馈明确拒绝",
+      "requirements": [
+        "INT-001 C-02/C-06",
+        "SPEC-001 section5"
+      ],
+      "external_effect": "错误证据更完整，预算拒绝仍生效；快速124/137不误判TIMEOUT"
+    },
+    {
+      "id": "D08",
+      "topic": "dry-run事实记录",
+      "paths": [
+        "scripts/run-refinement.sh"
+      ],
+      "before": "根据是否观察到LLM完成事件推断dry_run",
+      "after": "仅DRY_RUN=1记为dry_run，缺失/部分/失败事件不构成跳过Pi证据",
+      "requirements": [
+        "INT-001 C-06"
+      ],
+      "external_effect": "真实调用Pi但没有完成事件的运行不再被误记为dry-run"
+    },
+    {
+      "id": "D09",
+      "topic": "空洞证明限制",
+      "paths": [
+        "crates/intentower-cli/src/report.rs"
+      ],
+      "before": "JSON未明确附上前提一致性尚未建立的限定",
+      "after": "所有新报告issues附ASSUMPTION_CONSISTENCY_NOT_ESTABLISHED；不修改PO状态或Gate判定",
+      "requirements": [
+        "SPEC-001 SP-G8"
+      ],
+      "external_effect": "报告警告增加；没有新增前提可满足性证明"
+    },
+    {
+      "id": "D10",
+      "topic": "输出覆盖输入防护",
+      "paths": [
+        "crates/intentower-cli/src/main.rs",
+        "crates/intentower-cli/src/output_paths.rs",
+        "crates/intentower-cli/src/report.rs"
+      ],
+      "before": "--out可覆盖刚验证的源并仍返回PASS",
+      "after": "工具调用前及实际写入前检查报告/诊断与模型源、manifest、显式policy及彼此的路径和inode冲突，覆盖相对路径、软链接和硬链接",
+      "requirements": [
+        "INT-001 C-02/C-03",
+        "SPEC-001 SP-G3"
+      ],
+      "external_effect": "冲突路径退出2且保留原输入；检查不构成恶意并发文件系统隔离"
+    }
+  ],
+  "unchanged_contracts": [
+    "Approved INT-001 and SPEC-001 content and protected baseline unchanged",
+    "PASS still requires successful build, complete nonempty PO inventory and every obligation SMT_DISCHARGED",
+    "Exit codes0/1/2 and eight obligation status values unchanged",
+    "F0 remains Boolean logic plus QF_LIA; no theory extension or removal of applicable hypotheses",
+    "Model files, schema1.0, policy, dependencies and task limits (3 candidate verifications/2 repairs) unchanged",
+    "No implementation formal-verification or human intent-correctness claim is added"
+  ],
+  "approval_review": {
+    "approved_intent": "docs/INT-001.md remains approved",
+    "approved_spec": "docs/SPEC-001.md remains approved (including R1/R2)",
+    "previous_P4_signature": {
+      "path": "approvals/P4-GATE.md",
+      "status": "SIGNED",
+      "signed_by": "zjutoe",
+      "signed_at": "2026-11-04T02:30Z",
+      "scope": "Historical T29-T34 experiment; preserved, not a new signature for current patches"
+    },
+    "draft_statuses": {
+      "docs/INT-002.md": "DRAFT, thermostat intent (not the approved MODEL-005 model itself)",
+      "docs/INT-003.md": "proposed",
+      "docs/SPEC-003.md": "proposed"
+    },
+    "pending_human_review": [
+      {
+        "id": "H1",
+        "kind": "Draft drift, not an edit to an approved Spec",
+        "path": "docs/SPEC-003.md",
+        "sections": [
+          "section1 --out/intermediate path and execution order",
+          "G-I",
+          "B-16"
+        ],
+        "draft": "Delete and rebuild fixed pog/<model-id> before each run",
+        "current": "Reserve fresh pog/run-<pid>-<timestamp>/<model-id> and preserve prior runs; pin actual source snapshots and PO hashes before solving",
+        "action": "Present a semantic draft update before treating the Gate draft as current and approved; do not restore unsafe deletion merely to match draft wording"
+      },
+      {
+        "id": "H2",
+        "kind": "New platform boundary",
+        "path": "crates/intentower-cli/src/report/cancellation.rs",
+        "current": "Reviewed Linux x86_64/glibc LP64, GNU timeout8.32, creating-thread/active-supervisor semantics and inherited blockedSIGALRM",
+        "action": "Human review should explicitly account for this support boundary; no claim of portability to arbitrary OS/ABI/tools"
+      },
+      {
+        "id": "H3",
+        "kind": "Existing open Gate-policy decisions, not introduced or resolved by this patch",
+        "paths": [
+          "docs/INT-003.md section6 Q-01/Q-02",
+          "docs/SPEC-003.md section10 N-01/N-02"
+        ],
+        "current": "Standalone gate still does not require baselineOK or compare tool versions against policy pins; the refinement script separately calls baseline",
+        "action": "Human decides these semantics during T35 approval; current fixes do not silently choose them"
+      }
+    ],
+    "outcome": "No protected requirement text was changed or acceptance criterion weakened by these repairs. The concrete observable changes and remaining proposed Gate-policy decisions above are supplied for human review; this is not P4/P5 sign-off."
+  },
+  "verification": {
+    "executed_this_task": [
+      {
+        "command": "git status --short",
+        "exit_code": 0,
+        "result": "Initial14 tracked modified plus40 untracked"
+      },
+      {
+        "command": "git diff --stat",
+        "exit_code": 0,
+        "result": "Tracked14 files,787 insertions,293 deletions"
+      },
+      {
+        "command": "git log -3 --oneline",
+        "exit_code": 0,
+        "result": "HEAD f5bae6e; Gate INT/SPEC draft commit follows approvedSPEC-001 R2"
+      },
+      {
+        "command": "git diff HEAD --exit-code -- docs approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+        "exit_code": 0,
+        "result": "No protected/draft documentation, model, schema, policy or dependency modifications"
+      },
+      {
+        "command": "timeout 10s target/debug/intentower baseline",
+        "exit_code": 0,
+        "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+      },
+      {
+        "command": "timeout 5s target/debug/intentower verify --help",
+        "exit_code": 0,
+        "result": "verify --out remains a directory; --timeout-secs is documented"
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      },
+      {
+        "command": "Python Git inventory, SHA256 preservation and prior verification chain comparison",
+        "exit_code": 0,
+        "result": "All54 starting files unchanged this task; prior48 unaffected paths and five final frozen hashes match"
+      }
+    ],
+    "prior_full_suite_evidence": {
+      "path": "tasks/REVIEW-P2-NESTED-TIMEOUT-results.json",
+      "sha256": "6973cfcd5dd2e814d62c5d23aec636933d7cf675ff86384388dfa2b285f9a1b2",
+      "commands": [
+        {
+          "command": "timeout 60s cargo test --locked --offline --lib solver::cvc5::tests",
+          "exit_code": 0,
+          "result": "10 passed; 0 failed"
+        },
+        {
+          "command": "timeout 180s cargo test --locked --offline",
+          "exit_code": 0,
+          "result": "183 passed, 0 failed, 0 ignored; doc-tests 0"
+        },
+        {
+          "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 180s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+          "exit_code": 0,
+          "result": "88 passed in 65.814 seconds"
+        }
+      ],
+      "frozen_sha256": {
+        "crates/intentower-cli/src/report.rs": "201002cb0f490b530e1a2b4adc1c9d360b52baa3151f0fd15995c59eec8f070f",
+        "crates/intentower-cli/src/report/cancellation.rs": "795bf1fd219ffa763e7fb590d8008a61237ee21a61982b9e18f2f8abef959779",
+        "crates/intentower-cli/src/solver/cvc5.rs": "af55ace9ba19f081db935e1f0c9a38346ef8d8ae4876680895fc81c24cff9ecf",
+        "tests/test_nested_timeouts.py": "67bab87290d5cf8aceca5365732f314a40f6da5d6d78c1cc71832adb698d1707",
+        "tasks/TASK-REVIEW-P2-NESTED-TIMEOUT.md": "5cd2d0604c420f3f08a781787f2d09cb6b01892c00184da9658e30e5ba876ce7"
+      }
+    },
+    "freshness": "The previous task's50-path snapshot and final five frozen hashes still match the allowed preservation chain. No source or test has changed in this documentation-only task.",
+    "full_suites_this_task": {
+      "status": "not_run",
+      "reason": "No source changes; previous actual183 Rust/88 Python pass results are cited, not presented as rerun"
+    },
+    "formal_proof_this_task": {
+      "status": "not_run",
+      "reason": "This task inventories differences and approval boundaries, not a formal-model verification task"
+    },
+    "closure_records": {
+      "REVIEW-FINAL-INTEGRATION F1": "tasks/REVIEW-P2-OUTPUT-ALIAS-results.json: done, independent accept",
+      "REVIEW-FINAL-INTEGRATION F2": "tasks/REVIEW-P2-NESTED-TIMEOUT-results.json: done, independent accept"
+    },
+    "history_note": "Earlier result files retain their original needs_review verdicts and historical failures; later bounded closure records identify F1/F2 fixes."
+  },
+  "commands_run": [
+    {
+      "command": "git status --short",
+      "exit_code": 0,
+      "result": "Initial14 tracked modified plus40 untracked"
+    },
+    {
+      "command": "git diff --stat",
+      "exit_code": 0,
+      "result": "Tracked14 files,787 insertions,293 deletions"
+    },
+    {
+      "command": "git log -3 --oneline",
+      "exit_code": 0,
+      "result": "HEAD f5bae6e; Gate INT/SPEC draft commit follows approvedSPEC-001 R2"
+    },
+    {
+      "command": "git diff HEAD --exit-code -- docs approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0,
+      "result": "No protected/draft documentation, model, schema, policy or dependency modifications"
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "timeout 5s target/debug/intentower verify --help",
+      "exit_code": 0,
+      "result": "verify --out remains a directory; --timeout-secs is documented"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "Python Git inventory, SHA256 preservation and prior verification chain comparison",
+      "exit_code": 0,
+      "result": "All54 starting files unchanged this task; prior48 unaffected paths and five final frozen hashes match"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Inventory includes tracked and untracked repair paths",
+      "status": "passed",
+      "result": "54 paths listed with status/category/hash/line delta"
+    },
+    {
+      "check": "Actual behavior changes mapped to approved requirements",
+      "status": "passed",
+      "result": "10 change groups; no status/F0/PASS relaxation found in this bounded diff audit"
+    },
+    {
+      "check": "Protected files and baseline",
+      "status": "passed",
+      "result": "Protected diff0 and baseline5hash/3model0"
+    },
+    {
+      "check": "Evidence freshness and preservation",
+      "status": "passed",
+      "result": "54 starting files unchanged; prior tests explicitly separated from current checks"
+    },
+    {
+      "check": "Human decision boundaries stated",
+      "status": "passed",
+      "result": "HistoricalP4 signature preserved; proposedGate drafts and platform/policy decisions are not self-approved"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "remaining_risks": [
+    "This completes diff-review preparation, not a new human signature or approval of INT-003/SPEC-003",
+    "SPEC-003 is a proposed historical draft whose fixed-directory description needs reconciliation with the repaired implementation",
+    "Platform and cancellation lifecycle limits, path check/write races, assumption consistency and model-versus-code proof limits remain as recorded",
+    "No new real LLM refinement experiment or P5 Gate model proof was performed in this task"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "T35: propose the concrete Gate-draft reconciliation and resolve human policy choices before approval or T36; do not edit approved inputs or re-pin baseline"
+}
+

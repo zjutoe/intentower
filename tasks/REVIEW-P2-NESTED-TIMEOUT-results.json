@@ -1,0 +1,326 @@
+{
+  "task_id": "REVIEW-P2-NESTED-TIMEOUT",
+  "status": "done",
+  "parent": [
+    "SPEC-001 SP-G7 and section 5 TIMEOUT/TOOL_ERROR",
+    "INT-001 C-03/C-05/C-06"
+  ],
+  "closes_finding": "REVIEW-FINAL-INTEGRATION F2",
+  "changed_files": [
+    "crates/intentower-cli/src/report.rs",
+    "crates/intentower-cli/src/report/cancellation.rs",
+    "crates/intentower-cli/src/solver/cvc5.rs",
+    "tests/test_nested_timeouts.py",
+    "tasks/TASK-REVIEW-P2-NESTED-TIMEOUT.md",
+    "tasks/REVIEW-P2-NESTED-TIMEOUT-results.json"
+  ],
+  "behavior": [
+    "Each active GNU timeout supervisor blocks SIGALRM before registering PR_SET_PDEATHSIG=SIGALRM and verifies the creating CLI PID before exec; failures do not fall back to an unbound supervisor",
+    "GNU timeout 8.32 unblocks ALRM after assigning the monitored child PID, so a pending CLI-death notification reaches its configured process-group KILL handler without the identified fork/PID-registration race",
+    "Version queries, Rossi export/build and cvc5 proof calls share the same bounded supervisor and group cancellation ownership",
+    "Solver executable paths retain OsStr bytes; SMT arguments, strict UTF-8 output, complete diagnostics and verdict parsing remain",
+    "Fast solver exit 124/137 remains TOOL_ERROR; actual per-call expiry remains TIMEOUT; no cancellation produces a current PASS/report",
+    "The FFI is explicitly limited to reviewed x86_64 Linux/glibc LP64; unsupported target configurations fail compilation"
+  ],
+  "commands_run": [
+    {
+      "command": "rustfmt --edition 2024 crates/intentower-cli/src/report.rs crates/intentower-cli/src/report/cancellation.rs crates/intentower-cli/src/solver/cvc5.rs",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 60s cargo build --locked --offline",
+      "exit_code": 0,
+      "result": "Initial build and final LP64 cfg refinement build succeeded"
+    },
+    {
+      "command": "timeout 60s cargo test --locked --offline --lib solver::cvc5::tests",
+      "exit_code": 0,
+      "result": "10 passed; 0 failed"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 180s python3 /tmp/intentower-nested-timeout-run-_zzi9bnk/run.py",
+      "executed_by": "test_nested_timeout",
+      "exit_code": 0,
+      "result": "11 methods, 21 cases, 36.457 seconds; runner records evidence after existing assertions without changing outcomes"
+    },
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 0,
+      "result": "183 passed, 0 failed, 0 ignored; doc-tests 0"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 180s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "88 passed in 65.814 seconds"
+    },
+    {
+      "command": "timeout 10s cargo fmt --all -- --check",
+      "exit_code": 0,
+      "result": "Passed before and after final cfg restriction"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --exit-code -- docs approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0
+    },
+    {
+      "command": "Python task-start SHA256 check and report.rs/cvc5.rs snapshot diff",
+      "exit_code": 0,
+      "result": "Only the two authorized existing production paths changed among 50 starting dirty paths; other 48 unchanged. Five final frozen hashes match"
+    },
+    {
+      "command": "rustc -vV",
+      "exit_code": 0,
+      "result": "rustc 1.99.1; x86_64-unknown-linux-gnu"
+    },
+    {
+      "command": "timeout 5s timeout --version",
+      "exit_code": 0,
+      "result": "GNU coreutils 8.32"
+    },
+    {
+      "command": "timeout 5s rossi --version",
+      "exit_code": 0,
+      "result": "rossi 0.2.3"
+    },
+    {
+      "command": "timeout 5s cvc5 --version",
+      "exit_code": 0,
+      "result": "cvc5 1.4.2 [git 282d5e0]"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Original F2 outer Gate cancellation",
+      "status": "passed",
+      "evidence": "GATE_TIMEOUT=1 vs tool deadline20; export blocker supervisor, wrapper and TERM-ignoring child stop in bounded poll; script2 without report/run.json/PASS"
+    },
+    {
+      "check": "All four invocation stages",
+      "status": "passed",
+      "evidence": "Rossi version, cvc5 version, Rossi export and cvc5 solving covered by outer timeout and direct TERM/KILL"
+    },
+    {
+      "check": "No delayed writes",
+      "status": "passed",
+      "evidence": "16 blocking cases; 48 recorded process identities no longer running and all scheduled 2-second delayed-write markers absent"
+    },
+    {
+      "check": "Normal/error/deadline classifications",
+      "status": "passed",
+      "evidence": "Real PASS/FAIL/invalid INCOMPLETE, per-tool TIMEOUT, fast solver124/137 TOOL_ERROR and complete solver diagnostics"
+    },
+    {
+      "check": "Full suites and preservation",
+      "status": "passed",
+      "evidence": "183 Rust/88 Python; formatting, diff, protected baseline and prior dirty-file hashes pass"
+    },
+    {
+      "check": "Independent frozen review",
+      "status": "passed",
+      "evidence": "Non-author accepts final frozen increment and authorizes closing F2; 9 independent cases, including deterministic fork-window injection in the real CLI; 12 recorded cancelled processes gone, no delayed writes"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "regression_model_results": {
+    "scope": "Temporary regression reports only, not implementation correctness proof or a whole-project PO inventory. Repeated test executions are not aggregated as distinct obligations",
+    "author_target": [
+      {
+        "case": "normal PASS",
+        "gate": "PASS",
+        "total": 6,
+        "discharged": 6,
+        "not_discharged": 0
+      },
+      {
+        "case": "normal FAIL",
+        "gate": "FAIL",
+        "total": 6,
+        "discharged": 4,
+        "not_discharged": 2
+      },
+      {
+        "case": "invalid model",
+        "gate": "INCOMPLETE",
+        "total": 0,
+        "claim": "Build failure; no proof claim"
+      },
+      {
+        "case": "export timeout",
+        "gate": "INCOMPLETE",
+        "total": 0,
+        "claim": "Timed-out POG; no proof claim"
+      },
+      {
+        "case": "solver deadline",
+        "gate": "INCOMPLETE",
+        "total": 1,
+        "timeout": 1
+      },
+      {
+        "case": "fast solver exit124",
+        "gate": "INCOMPLETE",
+        "total": 1,
+        "tool_error": 1
+      },
+      {
+        "case": "fast solver exit137",
+        "gate": "INCOMPLETE",
+        "total": 1,
+        "tool_error": 1
+      }
+    ],
+    "cancelled_invocations": "No current report was written; no current PO inventory or discharge count is claimed",
+    "author_evidence": "/tmp/intentower-nested-timeout-run-_zzi9bnk/results.json",
+    "author_log": "/tmp/intentower-nested-timeout-run-_zzi9bnk/suite.log",
+    "author_artifact_hashes": {
+      "/tmp/intentower-nested-timeout-run-_zzi9bnk/run.py": "78c7191f537c9eb33b69965be8586663eb9851990c8b022db1aea3719f2c7611",
+      "/tmp/intentower-nested-timeout-run-_zzi9bnk/results.json": "a5b20476f4bf3361b4b6b07d099ac274dd4d02055193f04519aecc7f9c279c6b",
+      "/tmp/intentower-nested-timeout-run-_zzi9bnk/suite.log": "4fa6019ecde5b720f719dfad06a0356c5f653ed892c7a5f282acad0bce22803d"
+    }
+  },
+  "design_evidence": {
+    "author": "review_nested_timeout (non-author)",
+    "initial_proposal": "Rejected before production: unblocked parent-death SIGALRM can run GNU cleanup after fork but before monitored_pid assignment, leaving the tool alive",
+    "deterministic_probe": "/tmp/intentower-nested-timeout-design-review-ecrc3_ru/probe.json",
+    "observed_unblocked": {
+      "timeout_exit": 137,
+      "child_state": "S"
+    },
+    "observed_blocked": {
+      "timeout_exit": -9,
+      "child_state": "gone"
+    },
+    "adopted_correction": "Block ALRM before registering parent-death notification; GNU handles the pending notification after monitored PID registration",
+    "primary_sources": [
+      "https://man7.org/linux/man-pages/man2/PR_SET_PDEATHSIG.2const.html",
+      "https://raw.githubusercontent.com/coreutils/coreutils/v8.32/src/timeout.c"
+    ],
+    "local_abi": "/usr/include/bits/types/__sigset_t.h and /usr/include/bits/sigaction.h; 128-byte unsigned-long signal set, SIG_BLOCK=0"
+  },
+  "development": {
+    "failed_acceptance_checks": 0,
+    "repair_rounds": 0,
+    "real_llm_calls": 0,
+    "production_files_changed": 3,
+    "old_test_changes": "Only the authorized missing-binary unit assertion was updated to factual supervisor exit127, concrete nonexistent path and captured timeout stderr; all other old tests retain starting hashes",
+    "cfg_refinement": "Static self-review added pointer-width64 to reject x32 before final review acceptance. Current-host compiled behavior unchanged; final build/fmt and independent verification use final source",
+    "independent_probe_fixture_correction": "The independent review probe initially replaced INIT inside INITIALISATION and failed to reach the intended solver stage. Only its /tmp fixture was corrected; real CLI returned INCOMPLETE. This was not a production repair and is not counted as passing cancellation evidence.",
+    "independent_probe_failed_attempts": 1
+  },
+  "preserved_prior_work": "48 other task-start dirty/untracked files and all historical findings/results remain byte-identical; approved Intent/Spec, models, policies, baseline, dependencies, schema, AGENTS and plan unchanged",
+  "remaining_risks": [
+    "Cancellation is asynchronous and verified using bounded polling; exited/zombie processes are distinguished from still-running processes",
+    "Supported platform/behavior is x86_64 Linux/glibc LP64 with reviewed GNU timeout8.32; the code does not establish other timeout implementations or versions",
+    "Tools inherit blocked SIGALRM; current Rossi/cvc5 calls use external deadlines and do not enable cvc5 --tlimit. This is not transparent signal-mask preservation for arbitrary external tools",
+    "PR_SET_PDEATHSIG follows the creating thread; the contract is the current synchronous CLI, not a general worker-thread process lifecycle",
+    "Only active supervised tool process groups are covered; completed tools' detached background children or arbitrary setsid/credentials/daemon escapes are outside the guarantee",
+    "Source tests and temporary model regressions do not formally prove implementation correctness or grant human phase-gate approval"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "P4: human review of the current diff against approved Intent/Spec; no automatic approval",
+  "independent_review": {
+    "reviewer": "review_nested_timeout",
+    "author_of_reviewed_changes": false,
+    "verdict": "accept",
+    "may_close_f2": true,
+    "commands_run": [
+      {
+        "command": "PYTHONDONTWRITEBYTECODE=1 timeout 45s python3 /tmp/intentower-nested-timeout-independent-review.py",
+        "exit_code": 1,
+        "source_preserved_as": "/tmp/intentower-nested-timeout-independent-review-v1.py",
+        "evidence": "/tmp/intentower-nested-timeout-independent-ogehl8tv/evidence.json",
+        "passed_before_failure": [
+          "original-f2",
+          "direct-term"
+        ],
+        "failure": "Reviewer fixture replaced INIT inside INITIALISATION, producing EVENT 0IALISATION; direct-kill never reached solving. Actual CLI correctly returned INCOMPLETE. No production finding."
+      },
+      {
+        "command": "PYTHONDONTWRITEBYTECODE=1 timeout 30s python3 /tmp/intentower-nested-timeout-independent-review.py",
+        "exit_code": 0,
+        "evidence": "/tmp/intentower-nested-timeout-independent-1mh5f5fq/evidence.json",
+        "passed": [
+          "direct-kill",
+          "real-pass",
+          "real-fail",
+          "real-incomplete",
+          "fast-124",
+          "fast-137",
+          "deterministic-fork-window"
+        ],
+        "correction": "Only /tmp template changed to INITIAL_VALUE; two earlier passing cancellation cases omitted from rerun."
+      },
+      {
+        "command": "diff -u task-start/report.rs current report.rs; diff -u task-start/cvc5.rs current cvc5.rs",
+        "exit_code": 1,
+        "result": "Expected task changes, not a failed production check"
+      },
+      {
+        "command": "git diff --exit-code -- docs approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+        "exit_code": 0
+      },
+      {
+        "command": "Python SHA256 final freeze and task-start comparisons",
+        "exit_code": 0,
+        "result": "Five final hashes and 48 unchanged other starting paths match"
+      }
+    ],
+    "acceptance": {
+      "independent_passed_cases": 9,
+      "recorded_cancelled_processes": 12,
+      "all_cancelled_states": "gone",
+      "delayed_write_markers": 0,
+      "protected_git_diff_exit": 0,
+      "start_paths": 50,
+      "unrelated_start_paths_unchanged": 48,
+      "five_frozen_paths_match": true
+    },
+    "artifact_hashes": {
+      "/tmp/intentower-nested-timeout-independent-review-v1.py": "1baa835ac75d76b932ba1b9702947d07e95c6f1cc0229bc9ba9566b10b9f4775",
+      "/tmp/intentower-nested-timeout-independent-review.py": "357cacd8ae14a6ab1d6d4acc8366b8ecb03ab36b39ebc5a351b7e23aa5596ae4",
+      "/tmp/intentower-nested-timeout-independent-ogehl8tv/evidence.json": "d09e83cbac52f346f3756b15e23614b254eb94f4f9388de5751d4cfe0c60ca76",
+      "/tmp/intentower-nested-timeout-independent-1mh5f5fq/evidence.json": "7ead75925e54456b0e6fdba14f568054b1c6c892c96393a3086d2a5054edf93f",
+      "/tmp/intentower-nested-timeout-design-review-ecrc3_ru/inject.c": "12a859722e3a5cb11a1f728121a796c500f18721ea967dbcc8d43e926ec8cad0",
+      "/tmp/intentower-nested-timeout-design-review-ecrc3_ru/probe.json": "14f805989c47db8d2fab3e98fedf510b031c1342021a7425efda6dfe7eb3472e",
+      "/tmp/intentower-nested-timeout-independent-1mh5f5fq/inject.c": "fbdcdbb4cb4a6a7964a74759f9ac73c2fa360f4b179e8d958bf33e380a383c85"
+    },
+    "summary_path": "/tmp/intentower-nested-timeout-independent-review-summary.json",
+    "summary_sha256": "d3b38326de7188dd3950bd2a1d7b5766e6b7f26a0dbd219209049c40addbb56f",
+    "model_results": {
+      "total": 4,
+      "discharged": 1,
+      "not_discharged": 1,
+      "tool_error": 2,
+      "unknown": 0,
+      "unsupported": 0,
+      "note": "Only four completed single-PO reports; invalid/interruptions do not establish proof results."
+    },
+    "limits": "Reviewer ran bounded independent probes, not full Rust/Python suites; main agent ran the full suites"
+  },
+  "frozen_sha256": {
+    "crates/intentower-cli/src/report.rs": "201002cb0f490b530e1a2b4adc1c9d360b52baa3151f0fd15995c59eec8f070f",
+    "crates/intentower-cli/src/report/cancellation.rs": "795bf1fd219ffa763e7fb590d8008a61237ee21a61982b9e18f2f8abef959779",
+    "crates/intentower-cli/src/solver/cvc5.rs": "af55ace9ba19f081db935e1f0c9a38346ef8d8ae4876680895fc81c24cff9ecf",
+    "tests/test_nested_timeouts.py": "67bab87290d5cf8aceca5365732f314a40f6da5d6d78c1cc71832adb698d1707",
+    "tasks/TASK-REVIEW-P2-NESTED-TIMEOUT.md": "5cd2d0604c420f3f08a781787f2d09cb6b01892c00184da9658e30e5ba876ce7"
+  },
+  "historical_records": "REVIEW-FINAL-INTEGRATION and OUTPUT-ALIAS results are preserved as historical evidence. F1 closure is recorded in REVIEW-P2-OUTPUT-ALIAS-results.json; this record closes F2, without rewriting the earlier needs_review verdict."
+}
+

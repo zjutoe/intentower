@@ -19,7 +19,7 @@
 #   DRY_RUN=1            skip the LLM call; exercises the loop, caps and guards only
 #   ALLOW_EXISTING_M1=1  let a run start when the refinement file already exists
 #   INTENTOWER_BIN=...   path to the intentower binary
-#   PI_TIMEOUT / GATE_TIMEOUT   seconds; every external tool gets a timeout
+#   PI_TIMEOUT / GATE_TIMEOUT   positive whole seconds; TERM then KILL after 1s
 #   SEED_M1=<file>       start from a deliberately imperfect M1: it is copied to the
 #                        refinement file and round 1 is verified without any LLM call,
 #                        so the only way to a fix is gate -> packet -> Pi.
@@ -37,8 +37,9 @@ M1_FILE=${3:-models/thermostat/th1.eventb}
 MAX_VERIFY=3
 MAX_REPAIR=2
 FEEDBACK_BUDGET=8192
-PI_TIMEOUT=${PI_TIMEOUT:-900}
-GATE_TIMEOUT=${GATE_TIMEOUT:-600}
+KILL_GRACE=1s
+PI_TIMEOUT=${PI_TIMEOUT-900}
+GATE_TIMEOUT=${GATE_TIMEOUT-600}
 BIN=${INTENTOWER_BIN:-./target/debug/intentower}
 RUN_DIR=artifacts/refine/run-$(date -u +%Y%m%dT%H%M%SZ)-$$  # PID keeps two runs in the same second apart
 # The agent's own gate self-checks go here, never into RUN_DIR: in the first run 2
@@ -57,15 +58,63 @@ PY
   exit "$1"
 }
 
+candidate_binding() { # candidate_binding [successful gate report]
+  python3 - "$MODEL_DIR" "$MODEL_ID" "$M1_FILE" "${1:-}" <<'PY'
+import hashlib, json, pathlib, sys
+
+model_dir, model_id, candidate, report_path = sys.argv[1:]
+try:
+    directory = pathlib.Path(model_dir)
+    manifest = json.loads((directory / "models.json").read_text())
+    if not isinstance(manifest, dict) or model_id not in manifest:
+        raise ValueError(f"{model_id} is not listed in {directory / 'models.json'}")
+    files = manifest[model_id]
+    if not isinstance(files, list) or not files or not all(isinstance(p, str) and p for p in files):
+        raise ValueError(f"{model_id} must name a nonempty array of source paths")
+    sources = sorted(str((directory / path).resolve()) for path in files)
+    if len(set(sources)) != len(sources):
+        raise ValueError(f"{model_id} lists a source more than once")
+    candidate = str(pathlib.Path(candidate).resolve())
+    if candidate not in sources:
+        raise ValueError(f"candidate {candidate} is not a source of {model_id}")
+    if report_path:
+        report = json.loads(pathlib.Path(report_path).read_text())
+        if report.get("model_id") != model_id or report.get("gate", {}).get("status") != "PASS":
+            raise ValueError("successful gate report does not describe this model's PASS")
+        rows = [row for row in report["inputs"] if row.get("role") == "model_source"]
+        paths = [str(pathlib.Path(row["path"]).resolve()) for row in rows]
+        if sorted(paths) != sources:
+            raise ValueError("gate report source set does not match this round's model sources")
+        for path, row in zip(paths, rows):
+            if hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest() != row["sha256"]:
+                raise ValueError(f"gate report source hash does not match current bytes: {path}")
+except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
+    print(f"candidate binding: {error}", file=sys.stderr)
+    sys.exit(2)
+print(json.dumps(sources))
+PY
+}
+
+python3 - "$PI_TIMEOUT" "$GATE_TIMEOUT" <<'PY' || stop 2 "invalid timeout configuration"
+import sys
+for name, value in zip(("PI_TIMEOUT", "GATE_TIMEOUT"), sys.argv[1:]):
+    try:
+        valid = value.isascii() and value.isdecimal() and int(value) > 0
+    except ValueError:
+        valid = False
+    if not valid:
+        print(f"{name} must be positive whole seconds: {value!r}", file=sys.stderr)
+        sys.exit(2)
+PY
+
 mkdir -p "$RUN_DIR" "$SCRATCH" || exit 2
 echo "run dir: $RUN_DIR"
 
 # ---- preflight: tools present, model pair named, M1 not pre-existing ----
-for tool in "$BIN" rossi cvc5 pi; do
+for tool in "$BIN" rossi cvc5 pi timeout; do
   command -v "$tool" >/dev/null 2>&1 || [ -x "$tool" ] || stop 2 "missing tool: $tool"
 done
-[ -f "$MODEL_DIR/models.json" ] || stop 2 "no models.json in $MODEL_DIR"
-grep -q "\"$MODEL_ID\"" "$MODEL_DIR/models.json" || stop 2 "$MODEL_ID is not listed in $MODEL_DIR/models.json"
+MODEL_SOURCES=$(candidate_binding) || stop 2 "candidate is not bound to the selected model"
 if [ -f "$M1_FILE" ] && [ "${ALLOW_EXISTING_M1:-0}" != 1 ]; then
   stop 2 "$M1_FILE already exists; move it out of the way so the run measures a real refinement (ALLOW_EXISTING_M1=1 overrides for harness tests)"
 fi
@@ -130,7 +179,7 @@ while [ "$verify" -lt "$MAX_VERIFY" ]; do
     echo 0 > "$round/pi.seconds"
   else
     start=$(date +%s)
-    timeout "$PI_TIMEOUT" pi --print --no-session --mode json -- "$prompt" \
+    timeout --kill-after="$KILL_GRACE" "$PI_TIMEOUT" pi --print --no-session --mode json -- "$prompt" \
       > "$round/pi.jsonl" 2> "$round/pi.err"
     pi_exit=$?
     echo "$pi_exit" > "$round/pi.exit"
@@ -141,12 +190,15 @@ while [ "$verify" -lt "$MAX_VERIFY" ]; do
 
   # ---- protected inputs after the LLM touched the tree ----
   "$BIN" baseline || stop 2 "baseline changed after round $verify (the agent moved a protected input)"
+  current_sources=$(candidate_binding) || stop 2 "candidate binding changed after round $verify"
+  [ "$current_sources" = "$MODEL_SOURCES" ] || stop 2 "selected model sources changed after round $verify"
 
   # ---- the only thing that produces new evidence ----
   start=$(date +%s)
-  timeout "$GATE_TIMEOUT" "$BIN" gate "$MODEL_DIR" --model-id "$MODEL_ID" --out "$round/report.json" \
+  timeout --kill-after="$KILL_GRACE" "$GATE_TIMEOUT" "$BIN" gate "$MODEL_DIR" --model-id "$MODEL_ID" --out "$round/report.json" \
     > "$round/gate.log" 2>&1
   gate_exit=$?
+  echo "$gate_exit" > "$round/gate.exit"
   gate_seconds=$(( $(date +%s) - start ))
   echo "$gate_seconds" > "$round/gate.seconds"
   echo "round $verify: gate exit $gate_exit in ${gate_seconds}s ($(grep -oE 'PASS|FAIL|INCOMPLETE' "$round/gate.log" | head -1))"
@@ -162,6 +214,8 @@ while [ "$verify" -lt "$MAX_VERIFY" ]; do
   done
 
   if [ "$gate_exit" -eq 0 ]; then
+    current_sources=$(candidate_binding "$round/report.json") || stop 2 "gate PASS is not bound to this round's sources"
+    [ "$current_sources" = "$MODEL_SOURCES" ] || stop 2 "selected model sources changed during round $verify"
     stop_reason=pass
     break
   fi
@@ -207,10 +261,10 @@ fi
 cat "$RUN_DIR/escalation.md"
 
 # ---- run.json: every round, every LLM call, every gate verdict ----
-python3 - "$RUN_DIR" "$MODEL_DIR" "$MODEL_ID" "$M1_FILE" "$verify" "$repairs" "$gate_exit" "$stop_reason" "${SEED_M1:-}" "${seed_sha:-}" "${NO_SELFCHECK:-0}" <<'PY' || stop 2 "could not write run.json"
+python3 - "$RUN_DIR" "$MODEL_DIR" "$MODEL_ID" "$M1_FILE" "$verify" "$repairs" "$gate_exit" "$stop_reason" "${SEED_M1:-}" "${seed_sha:-}" "${NO_SELFCHECK:-0}" "${DRY_RUN:-0}" <<'PY' || stop 2 "could not write run.json"
 import json, pathlib, re, sys
 
-run_dir, model_dir, model_id, m1, verify, repairs, gate_exit, reason, seed, seed_sha, noself = sys.argv[1:12]
+run_dir, model_dir, model_id, m1, verify, repairs, gate_exit, reason, seed, seed_sha, noself, dry_run = sys.argv[1:13]
 root = pathlib.Path(run_dir)
 rounds = []
 for d in sorted(root.glob("round-*")):
@@ -270,7 +324,7 @@ for d in sorted(root.glob("round-*")):
 # anything in the evidence directory that the orchestrator did not create is reported, not deleted
 expected = {"run.json", "stop.json", "escalation.md"}
 own = {"prompt.md", "pi.jsonl", "pi.err", "pi.exit", "pi.seconds", "gate.log",
-       "gate.seconds", "report.json", "packet.md", "feedback.log"}
+       "gate.exit", "gate.seconds", "report.json", "packet.md", "feedback.log"}
 for d in root.glob("round-*"):
     if (d / "pi.jsonl").is_file():
         expected.add(str(d.relative_to(root)))
@@ -289,7 +343,8 @@ summary = {
     "repairs_used": int(repairs),
     "gate_exit": int(gate_exit),
     "stop_reason": reason,
-    "dry_run": not any(r["llm"]["calls"] for r in rounds),
+    # Missing completion events do not establish that Pi was skipped.
+    "dry_run": dry_run == "1",
     "seeded_from": {"path": seed, "sha256": seed_sha} if seed else None,
     "prompt_condition": "no_selfcheck" if noself == "1" else "selfcheck_allowed",
     "llm_models_seen": sorted({m for r in rounds for m in r["llm"]["models"]}),

@@ -1,0 +1,124 @@
+{
+  "task_id": "REVIEW-P1",
+  "status": "done",
+  "parent": ["INT-001", "SPEC-001"],
+  "base_head": "f5bae6e541338b6248255dbfc053ae291d500a58",
+  "changed_files": [
+    "crates/intentower-cli/src/smt/encode.rs",
+    "crates/intentower-cli/src/gate/policy.rs",
+    "scripts/run-refinement.sh",
+    "crates/intentower-cli/tests/smt_labels.rs",
+    "crates/intentower-cli/tests/gate_policy.rs",
+    "tests/test_gate_isolation.py",
+    "tests/test_refinement_binding.py",
+    "tasks/TASK-REVIEW-P1.md",
+    "tasks/REVIEW-P1-results.json"
+  ],
+  "commands_run": [
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 0,
+      "result": "171 Rust tests passed; 0 failed; 0 ignored; doc-tests: 0"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "12 tests passed in 3.463 seconds; actual Rossi/cvc5 and CLI, Pi protocol stub only"
+    },
+    {
+      "command": "timeout 10s bash -n scripts/run-refinement.sh",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "tools": {
+    "rossi": "rossi 0.2.3",
+    "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+  },
+  "acceptance": [
+    {
+      "check": "labels cannot inject SMT commands",
+      "status": "passed",
+      "evidence": "smt_labels::labels_cannot_turn_a_broken_initialisation_into_a_proof; ordinary and injected labels each retain FAIL for invalid initialization and PASS for valid initialization"
+    },
+    {
+      "check": "source bytes are bound to the actual POG run",
+      "status": "passed",
+      "evidence": "test_gate_isolation: edits/deletion yield STALE and exit 2, original hashes retained; temporary good-model edit plus undo cannot replace the snapshotted bad model"
+    },
+    {
+      "check": "concurrent POG runs and old evidence remain independent",
+      "status": "passed",
+      "evidence": "test_gate_isolation: good/bad runs sharing report parent and model ID retain PASS/FAIL respectively, disjoint PO paths, matching artifact hashes, and later report rendering without STALE"
+    },
+    {
+      "check": "candidate M1 participates in the selected model's verification",
+      "status": "passed",
+      "evidence": "test_refinement_binding: unrelated candidate, malformed mapping, manifest repoint, missing candidate report row and wrong hash rejected; valid canonical candidate path passes actual model verification"
+    },
+    {
+      "check": "approved inputs unchanged",
+      "status": "passed",
+      "evidence": "baseline check and final diff inspection; no approved Intent/Spec/M0, policy, approval, phase-plan or AGENTS changes"
+    },
+    {
+      "check": "independent non-author review of frozen implementation",
+      "status": "passed",
+      "evidence": "review_p1_repairs: no_blocking_findings; four P1 findings can close within task scope"
+    }
+  ],
+  "independent_review": {
+    "reviewer": "review_p1_repairs",
+    "verdict": "no_blocking_findings",
+    "author_of_reviewed_changes": false,
+    "production_sha256": {
+      "crates/intentower-cli/src/smt/encode.rs": "218a6992cdf57fc85a7c0405e48c8472c64ae75b09593fb310e7597f663172d3",
+      "crates/intentower-cli/src/gate/policy.rs": "04d3139827807e0cda7e77c0d91af74201fbcc3c694d43ebc7d18b589ac3a62b",
+      "scripts/run-refinement.sh": "8953fcfaaa3f65e1b86ba2c86172ed3da97d053f88f1826fd667d3af93651d6b"
+    },
+    "commands_run": [
+      {"command": "timeout 60s cargo test --locked --offline --test smt_labels", "exit_code": 0, "result": "1 test passed; four real single-PO scenarios"},
+      {"command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v", "exit_code": 0, "result": "12 tests passed"},
+      {"command": "timeout 10s target/debug/intentower baseline", "exit_code": 0},
+      {"command": "git diff --check", "exit_code": 0}
+    ]
+  },
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "regression_model_results": {
+    "scope": "Four label regression models only; not formal verification of implementation source code or an aggregate of the test suite",
+    "total": 4,
+    "discharged": 2,
+    "not_discharged": 2,
+    "unknown": 0,
+    "unsupported": 0
+  },
+  "repair_rounds_after_failed_acceptance": 0,
+  "remaining_risks": [
+    "Seven previously reviewed P2 findings remain: report validation, external-tool timeouts, missing-tool failure reporting, SMT identifier collisions, solver error-output retention, dry-run classification and vacuity warning in JSON",
+    "Pi was a protocol stub; no real LLM refinement experiment was run",
+    "Tests and independent code review do not formally prove implementation source code correct",
+    "No human phase-gate approval or re-signing is implied; snapshots and hashes do not isolate malicious local processes"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "Handle the remaining P2 findings in a separately scoped task before requesting phase-gate re-approval"
+}

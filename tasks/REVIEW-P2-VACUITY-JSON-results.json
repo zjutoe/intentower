@@ -1,0 +1,223 @@
+{
+  "task_id": "REVIEW-P2-VACUITY-JSON",
+  "status": "done",
+  "parent": [
+    "SPEC-001 SP-G8/B08",
+    "Phase plan section 4.1 and T23/T28",
+    "INT-001 C-02/C-06"
+  ],
+  "changed_files": [
+    "crates/intentower-cli/src/report.rs",
+    "crates/intentower-cli/tests/solver_diagnostics.rs",
+    "crates/intentower-cli/tests/vacuity_warning.rs",
+    "tasks/TASK-REVIEW-P2-VACUITY-JSON.md",
+    "tasks/REVIEW-P2-VACUITY-JSON-results.json"
+  ],
+  "production_behavior_files": [
+    "crates/intentower-cli/src/report.rs"
+  ],
+  "behavior": [
+    "Every newly generated JSON report receives exactly one model-level ASSUMPTION_CONSISTENCY_NOT_ESTABLISHED issue whose message includes assumption consistency not established",
+    "Uses the existing schema-1.0 issue code/message fields without obligation_id; no schema or reader changes",
+    "The warning qualifies PASS, FAIL and INCOMPLETE without changing Gate verdicts, reasons, exit codes, PO identities/statuses, or existing scope flags",
+    "All per-PO error details remain present alongside the warning; the diagnostic regression changes only two total-issue counts",
+    "Existing Markdown evidence boundary and historical reports remain intact; no production consistency checker was added"
+  ],
+  "commands_run": [
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 0,
+      "result": "Final default-parallel complete suite: 183 passed, 0 failed, 0 ignored; doc-tests 0"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "40 passed in 24.478 seconds"
+    },
+    {
+      "command": "timeout 90s cargo test --locked --offline --test vacuity_warning --test solver_diagnostics -- --test-threads=1 --nocapture",
+      "exit_code": 0,
+      "result": "Bounded diagnostic check: 5 existing diagnostic tests plus 2 new warning tests passed; this did not replace the complete default-parallel acceptance run"
+    },
+    {
+      "command": "timeout 10s cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --exit-code -- docs approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0
+    },
+    {
+      "command": "Python task-start SHA256 preservation check and bounded snapshot diff inspection",
+      "exit_code": 0,
+      "result": "36 other dirty/untracked files are byte-identical; report.rs only adds the 6-line model-level warning; solver_diagnostics.rs only changes the two allowed count assertions"
+    },
+    {
+      "command": "timeout 5s target/debug/intentower verify --help",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 5s rossi --version",
+      "exit_code": 0,
+      "result": "rossi 0.2.3"
+    },
+    {
+      "command": "timeout 5s cvc5 --version",
+      "exit_code": 0,
+      "result": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "All new report verdict classes carry one accurate model-level warning",
+      "status": "passed",
+      "evidence": "Real consistent PASS, refuted FAIL, quantified-FIS INCOMPLETE and contradictory-guard PASS retain the exact SP-G8 text"
+    },
+    {
+      "check": "Vacuous discharge is qualified without inventing a consistency result",
+      "status": "passed",
+      "evidence": "Two actual guard-model POs remain SMT_DISCHARGED; a separate test-only probe preserves all actual typed hypotheses/types and confirms they are unsatisfiable, with a satisfiable positive control"
+    },
+    {
+      "check": "No PO or original diagnostic is lost",
+      "status": "passed",
+      "evidence": "Freshly loaded Rossi typed PO IDs equal complete report IDs; each failed PO keeps its own issue; existing 5-test diagnostic target passes"
+    },
+    {
+      "check": "Frozen schema and historical readers remain compatible",
+      "status": "passed",
+      "evidence": "New reports pass the unchanged Rust reader and actual Python JSON Schema validator; Markdown boundary remains visible; historical schema-1.0 fixtures still read"
+    },
+    {
+      "check": "Full tests, formatting, baseline and preservation",
+      "status": "passed",
+      "evidence": "183 Rust and 40 Python tests, formatting/diff/baseline and protected-file checks pass"
+    },
+    {
+      "check": "Independent frozen non-author review",
+      "status": "passed",
+      "evidence": "review_vacuity_json reports no findings; this P2 may close"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "regression_model_results": {
+    "scope": "Only the four temporary regression models; not implementation source-code proof or a project-wide inventory",
+    "total": 9,
+    "discharged": 7,
+    "not_discharged": 1,
+    "unknown": 0,
+    "unsupported": 1,
+    "cases": {
+      "consistent": {
+        "total": 2,
+        "discharged": 2,
+        "verdict": "PASS"
+      },
+      "refuted": {
+        "total": 2,
+        "discharged": 1,
+        "not_discharged": 1,
+        "verdict": "FAIL"
+      },
+      "outside_f0": {
+        "total": 3,
+        "discharged": 2,
+        "unsupported": 1,
+        "verdict": "INCOMPLETE"
+      },
+      "contradictory_guard": {
+        "total": 2,
+        "discharged": 2,
+        "verdict": "PASS"
+      }
+    },
+    "test_only_hypothesis_probes": {
+      "transformation": "Clone each actual typed Po and replace only typed_goal with same-factory literal BFalse. Existing encoding then checks H and not false, equivalent to H, without textual translation",
+      "consistent_event": "sat",
+      "contradictory_guard": "unsat",
+      "production_capability_added": false
+    }
+  },
+  "development_evidence": {
+    "repair_rounds": 1,
+    "fixture_failure": {
+      "command": "timeout 90s cargo test --locked --offline --test vacuity_warning -- --nocapture",
+      "exit_code": 101,
+      "result": "1 passed, 1 failed: the ANY-parameter plus deterministic-assignment test fixture generated only 2 INV POs and PASS instead of the expected quantified FIS",
+      "correction": "Changed only the test event to x :| x' >= 0 using syntax confirmed in existing repository/Rossi tests; real POG now generates 3 POs including unsupported existential FIS. Expected INCOMPLETE and all assertions were retained"
+    },
+    "intermittent_stub_execution": {
+      "command": "timeout 90s cargo test --locked --offline --test vacuity_warning --test solver_diagnostics -- --nocapture",
+      "exit_codes": [
+        101,
+        101
+      ],
+      "observed": "Existing negative-protocol test could not start its freshly written nonzero Python stub: Text file busy (os error 26). Four other diagnostic tests passed on each attempt; cargo stopped before running the new target",
+      "isolated_command": "timeout 30s cargo test --locked --offline --test solver_diagnostics negative_protocol_faults_keep_both_streams_without_becoming_proofs -- --exact --nocapture",
+      "isolated_exit_code": 0,
+      "followup": "Unchanged stub passed in the serial bounded target and the final full default-parallel suite. No retries, waits, fallback or assertion weakening were added to source; underlying intermittent cause was not diagnosed"
+    }
+  },
+  "independent_review": {
+    "reviewer": "review_vacuity_json",
+    "author_of_reviewed_changes": false,
+    "verdict": "no_blocking_findings",
+    "reported_verdict": "approved",
+    "human_approval": false,
+    "commands_run": [
+      {
+        "command": "timeout 90s cargo test --locked --offline --test vacuity_warning -- --nocapture --test-threads=1",
+        "exit_code": 0,
+        "result": "2 passed; four independently generated reports, 9 actual POs"
+      },
+      {
+        "command": "Task-start snapshot and frozen SHA256 comparison",
+        "exit_code": 0,
+        "result": "All four frozen files match; prior files differ only at the two allowed paths"
+      },
+      {
+        "command": "git diff --exit-code -- docs approvals schemas Cargo.lock Cargo.toml crates/intentower-cli/Cargo.toml project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md models",
+        "exit_code": 0
+      }
+    ],
+    "evidence": [
+      "/tmp/intentower-vacuity-14-1794191253542330864-contradictory-guard",
+      "/tmp/intentower-vacuity-14-1794191253798089017-consistent",
+      "/tmp/intentower-vacuity-14-1794191254058394148-refuted",
+      "/tmp/intentower-vacuity-14-1794191254297914298-outside-f0"
+    ],
+    "limits": "Reviewer ran the bounded target and static/protected checks; the main agent ran the complete 183 Rust / 40 Python suites. Reviewer PO counts refer only to its temporary regression models"
+  },
+  "frozen_sha256": {
+    "crates/intentower-cli/src/report.rs": "e1d45cc78f03a679fab7c556bca165cd7a1882d9369c699803de036295f303e0",
+    "crates/intentower-cli/tests/solver_diagnostics.rs": "2a3eaab3e442cdb2b6ac15f4ecb61598f3f1724f61941e18c4b885d5898bdb3d",
+    "crates/intentower-cli/tests/vacuity_warning.rs": "e55f56b3677a67a940f4c5d585d9ad11a631d99dddc3a05293bdd0299f6fefad",
+    "tasks/TASK-REVIEW-P2-VACUITY-JSON.md": "2f65a435431232b7438cd642a74c5060c8a0cc04e77fa989f175bcdc8a99b71c"
+  },
+  "preserved_prior_work": "All other 36 task-start dirty/untracked files retain starting hashes; historical reports/results, approved inputs, model sources, schema, policy and dependencies unchanged",
+  "remaining_risks": [
+    "One prior P2 finding remains: structured missing-tool failure reports",
+    "Production still does not establish assumption consistency; the new issue reports that existing limit",
+    "Temporary diagnostic stubs returned intermittent ETXTBSY twice during targeted parallel checks; the complete final default suite passed, but the underlying intermittent cause remains unexplained",
+    "Regression proofs, tests and independent review do not formally prove implementation code correct or constitute human phase-gate approval"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "REVIEW-P2-MISSING-TOOL: repair structured missing-tool failure reporting without inventing tool versions or weakening the frozen report contract"
+}

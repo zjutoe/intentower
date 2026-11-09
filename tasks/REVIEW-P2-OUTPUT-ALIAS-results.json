@@ -1,0 +1,219 @@
+{
+  "task_id": "REVIEW-P2-OUTPUT-ALIAS",
+  "status": "done",
+  "parent": [
+    "SPEC-001 SP-G3 and sections 5/6",
+    "INT-001 C-02/C-03/C-06"
+  ],
+  "closes_finding": "REVIEW-FINAL-INTEGRATION F1",
+  "changed_files": [
+    "crates/intentower-cli/src/main.rs",
+    "crates/intentower-cli/src/output_paths.rs",
+    "crates/intentower-cli/src/report.rs",
+    "tests/test_output_aliases.py",
+    "tasks/TASK-REVIEW-P2-OUTPUT-ALIAS.md",
+    "tasks/REVIEW-P2-OUTPUT-ALIAS-results.json"
+  ],
+  "behavior": [
+    "Live verify/gate reject report or preflight diagnostic paths that alias selected model sources, models.json or an explicit policy, returning exit 2 before tools or writes",
+    "Report and preflight diagnostic paths must also be distinct from each other",
+    "Prospective paths resolve existing prefixes before parent components, resume filesystem resolution after missing/.. returns to an existing directory, and reject unresolvable links",
+    "Existing targets are compared by device/inode as well as resolved path, covering hardlinks without treating identical file contents as identity",
+    "Every actual report/diagnostic write rechecks the boundaries; version failures retain the original error when a late collision is also found",
+    "The diagnostic path is derived by one shared function used by both validation and writing",
+    "Ordinary PASS/FAIL, schema 1.0, noncolliding diagnostics, POG behavior and prior I/O error handling are retained"
+  ],
+  "commands_run": [
+    {
+      "command": "timeout 60s cargo build --locked --offline",
+      "exit_code": 0,
+      "result": "First build succeeded"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 30s python3 -m unittest discover -s tests -p 'test_missing_tools.py' -k unwritable -v",
+      "exit_code": 0,
+      "result": "Original tool error plus diagnostic write error behavior retained; 1 passed"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 90s python3 -m unittest discover -s tests -p test_output_aliases.py -v",
+      "executed_by": "test_output_alias",
+      "exit_code": 0,
+      "result": "25 tests passed on first run in 3.260 seconds"
+    },
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 0,
+      "result": "183 passed, 0 failed, 0 ignored; doc-tests 0"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "77 passed in 29.288 seconds"
+    },
+    {
+      "command": "timeout 10s cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --exit-code -- docs approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0
+    },
+    {
+      "command": "Python task-start SHA256 check plus main.rs/report.rs bounded snapshot comparison",
+      "exit_code": 0,
+      "result": "44 other prior dirty/untracked files remain unchanged; main adds only boundary calls/module declaration, report extracts the shared diagnostic-path function"
+    },
+    {
+      "command": "timeout 5s target/debug/intentower gate --help",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 5s rustc --version",
+      "exit_code": 0,
+      "result": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Original F1 fails safely",
+      "status": "passed",
+      "evidence": "Direct source output exits 2 before tools and leaves source/manifest bytes unchanged; independent probe repeats the original failure class"
+    },
+    {
+      "check": "Both live commands protect source, manifest and explicit policy",
+      "status": "passed",
+      "evidence": "Direct, relative/parent, symbolic-link, parent-link, selected-input alias and hardlink cases reject without creating artifacts or POG"
+    },
+    {
+      "check": "Diagnostic paths and output-to-output aliases cannot bypass validation",
+      "status": "passed",
+      "evidence": "Source/policy diagnostic collisions, diagnostic links to inputs and mutual report/error symbolic/hardlinks preserve both inputs and prior evidence"
+    },
+    {
+      "check": "Filesystem path semantics distinguish safe and colliding outputs",
+      "status": "passed",
+      "evidence": "missing/../source-link rejects before directory creation; symlink/.. follows the real parent; distinct-inode identical-content outputs and valid Unicode/new directories remain usable"
+    },
+    {
+      "check": "Late filesystem changes are rechecked at actual writers",
+      "status": "passed",
+      "evidence": "Version/export-created aliases and late mutual output links reject before writing; original version exit-7 diagnosis is retained"
+    },
+    {
+      "check": "Real model outcomes and existing error handling remain correct",
+      "status": "passed",
+      "evidence": "Actual Rossi/cvc5 PASS/FAIL reports, unchanged schema validation, preserved historical diagnostics and original unwritable-parent error behavior"
+    },
+    {
+      "check": "Full suites and protected baseline",
+      "status": "passed",
+      "evidence": "183 Rust / 77 Python, formatting/diff/baseline and original-file preservation checks pass"
+    },
+    {
+      "check": "Independent frozen review",
+      "status": "passed",
+      "evidence": "review_output_alias accepts the bounded fix and states F1 may close"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "regression_model_results": {
+    "scope": "Temporary regression reports only, not implementation source-code proof or a whole-project PO inventory; repeated executions are not aggregated as unique model obligations",
+    "test_author_target": {
+      "report_obligations": 16,
+      "discharged": 14,
+      "not_discharged": 2,
+      "unknown": 0,
+      "unsupported": 0,
+      "late_rejected_writes": 3,
+      "late_rejection_claim": "Actual export/solver calls observed; no current report was written, so no additional PO status is claimed"
+    },
+    "independent_probe_reports": {
+      "total": 2,
+      "discharged": 1,
+      "not_discharged": 1,
+      "unknown": 0,
+      "unsupported": 0,
+      "late_rejection_claim": "Only real POG/solver calls observed for rejected late writes"
+    }
+  },
+  "independent_review": {
+    "reviewer": "review_output_alias",
+    "author_of_reviewed_changes": false,
+    "verdict": "accept",
+    "may_close_f1": true,
+    "design_review": "Reviewed prospective-path semantics, inode checks, shared error path and writer rechecks before implementation; no blocking issue",
+    "commands_run": [
+      {
+        "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 30s python3 -m unittest discover -s tests -p 'test_output_aliases.py' -v",
+        "exit_code": 0,
+        "result": "25 passed in 3.254 seconds"
+      },
+      {
+        "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 30s python3 /tmp/intentower-output-alias-independent-probe.py",
+        "exit_code": 0,
+        "result": "8 independent temporary probes passed"
+      },
+      {
+        "command": "Frozen SHA256 and task-start comparison",
+        "exit_code": 0,
+        "result": "All five frozen hashes match; only main/report changed among 46 starting paths, other 44 unchanged"
+      },
+      {
+        "command": "git diff --exit-code -- docs approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+        "exit_code": 0
+      }
+    ],
+    "additional_boundaries": [
+      "Original F1 command exits 2, starts no tools and preserves source/manifest",
+      "Resumed symlink/hardlink resolution after missing parent traversal",
+      "Dangling symbolic link rejection",
+      "Late hardlink creation and version failure plus mutual output links",
+      "Actual PASS/FAIL reports validate with Draft202012Validator and retain correct source SHA256",
+      "Successful run retains historical diagnostic bytes"
+    ],
+    "probe_source": "/tmp/intentower-output-alias-independent-probe.py",
+    "probe_sha256": "2b5f1c6fa37f798a2f77ee99dd07193a9e2999de1c9299f4b844fb0dea92f7b7",
+    "evidence": "/tmp/intentower-output-alias-review-_yvwa4su/evidence.json",
+    "evidence_sha256": "b18f14805b6d1748d2bf6804eab79c8a93890d775e612b19afc2b915370fd775",
+    "limits": "Independent reviewer ran the bounded target/probes, not full suites; the main agent executed Rust 183 / Python 77"
+  },
+  "frozen_sha256": {
+    "crates/intentower-cli/src/main.rs": "49075d65c9fc22d6b647193a0da53f905902154ee155d31858f6467d4ae97a64",
+    "crates/intentower-cli/src/report.rs": "0a8cbece113cc076fc92ebba9c6657a0566bf5b684664de569b64e567bce5ac2",
+    "crates/intentower-cli/src/output_paths.rs": "abf505a20503c0d681be8de1247dca6e15c7522e71ae842b348e541aa66cd110",
+    "tests/test_output_aliases.py": "75be495c8571c200b1a2ddb8eb964ff7d74f744e39820bccb87d7a5073264822",
+    "tasks/TASK-REVIEW-P2-OUTPUT-ALIAS.md": "46be271a979d07861b9f7c21e2271f6d4363f5770855b8299cec7f41ed1c7cb6"
+  },
+  "development": {
+    "failed_acceptance_checks": 0,
+    "repair_rounds": 0,
+    "old_tests_modified": false,
+    "real_llm_calls": 0
+  },
+  "preserved_prior_work": "44 other starting dirty/untracked files, including prior needs_review findings and historical result files, retain their starting hashes. Approved inputs, schema, policy, plan, dependencies and AGENTS unchanged",
+  "remaining_risks": [
+    "REVIEW-FINAL-INTEGRATION F2 remains open: outer timeout cancellation does not propagate to the nested tool group",
+    "Path checks are workflow guards and do not isolate malicious concurrent filesystem mutation or eliminate the check/write race",
+    "The fix is scoped to live verify/gate JSON/preflight writers; historical display/feedback/escalation consumers are outside this task",
+    "Model regression outcomes and source tests do not formally prove implementation correctness or grant human phase-gate approval"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "REVIEW-P2-NESTED-TIMEOUT"
+}

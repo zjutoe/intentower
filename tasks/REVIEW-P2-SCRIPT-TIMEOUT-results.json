@@ -1,0 +1,139 @@
+{
+  "task_id": "REVIEW-P2-SCRIPT-TIMEOUT",
+  "status": "done",
+  "parent": [
+    "INT-001",
+    "SPEC-001"
+  ],
+  "base_head": "f5bae6e541338b6248255dbfc053ae291d500a58",
+  "changed_files": [
+    "scripts/run-refinement.sh",
+    "tests/test_refinement_timeouts.py",
+    "tasks/TASK-REVIEW-P2-SCRIPT-TIMEOUT.md",
+    "tasks/REVIEW-P2-SCRIPT-TIMEOUT-results.json"
+  ],
+  "behavior": [
+    "Pi and Gate deadlines send TERM at the configured limit, then KILL to the still-monitored process group after a fixed 1-second grace",
+    "PI_TIMEOUT/GATE_TIMEOUT require positive whole seconds, rejecting zero, empty, negative and nonnumeric values before Pi or CLI calls; defaults remain 900/600 when unset",
+    "Pi nonzero exit retains the existing behavior: only a real Gate verification of the candidate can lead to success",
+    "Gate timeout cannot succeed from a report alone, including a real PASS report written before the wrapper blocked",
+    "Each round persists gate.exit in addition to existing pi.exit, and registers gate.exit as orchestrator-owned evidence",
+    "Candidate binding, baseline guards and caps of three verifications/two repairs are unchanged"
+  ],
+  "commands_run": [
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "30 passed in 20.044 seconds"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 90s python3 -m unittest discover -s tests -p 'test_refinement_timeouts.py' -v",
+      "exit_code": 0,
+      "result": "Test author: 6 passed in 10.652 seconds, first run; includes 12 invalid-configuration subcases"
+    },
+    {
+      "command": "timeout 10s bash -n scripts/run-refinement.sh",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --exit-code -- schemas/report.schema.json approvals docs/INT-001.md docs/SPEC-001.md models project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0,
+      "result": "No protected, schema, model or dependency changes"
+    }
+  ],
+  "checks_not_run": [
+    {
+      "command": "cargo test --locked --offline",
+      "status": "not_run",
+      "reason": "All Rust source, tests and dependency files are unchanged from the preceding 174-test passing run; source hashes and cross-language regressions were checked instead"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "TERM-ignoring blocked Pi/Gate and their same-group descendants stop",
+      "status": "passed",
+      "evidence": "1-second limit plus 1-second kill grace; independent harness enforces a 10-second bound; no recorded process remains running"
+    },
+    {
+      "check": "Pi timeout cannot substitute for model verification",
+      "status": "passed",
+      "evidence": "Valid candidate succeeds only after actual Rossi/cvc5 Gate; invalid candidate yields script exit 2"
+    },
+    {
+      "check": "Gate timeout cannot accept a leftover report",
+      "status": "passed",
+      "evidence": "No-report and real-PASS-report-then-block cases both yield script exit 2 with actual gate.exit=137 retained"
+    },
+    {
+      "check": "Existing evidence and controls preserved",
+      "status": "passed",
+      "evidence": "pi.exit/gate.exit and logs retained; normal real verification passes with no unexpected entries; caps, candidate binding and baseline remain"
+    },
+    {
+      "check": "Configuration fails explicitly before tool calls",
+      "status": "passed",
+      "evidence": "12 Pi/Gate zero, empty, negative, nonnumeric and fractional-value subcases rejected"
+    },
+    {
+      "check": "Independent non-author review",
+      "status": "passed",
+      "evidence": "review_script_timeouts: no_blocking_findings; original reviewed CLI and script timeout paths can close"
+    }
+  ],
+  "independent_review": {
+    "reviewer": "review_script_timeouts",
+    "author_of_reviewed_changes": false,
+    "verdict": "no_blocking_findings",
+    "production_sha256": {
+      "scripts/run-refinement.sh": "1fc1143d743d8af4357d24959b7f7a79f9fc375bc927b6d74ffb46b85926342c"
+    },
+    "commands_run": [
+      {
+        "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 60s python3 -m unittest discover -s tests -p 'test_refinement_timeouts.py' -v",
+        "exit_code": 0,
+        "result": "6 passed in 10.624 seconds"
+      },
+      {
+        "command": "timeout 10s bash -n scripts/run-refinement.sh",
+        "exit_code": 0
+      },
+      {
+        "command": "timeout 10s target/debug/intentower baseline",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ],
+    "scope_check": "In-memory reversal of this task's edits restored the previously reviewed script hash; old candidate binding and other prior behavior were not rewritten"
+  },
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "repair_rounds_after_failed_acceptance": 0,
+  "preserved_prior_work": "All files present at task start are byte-identical except the authorized script; all Rust code, old tests and historical result records are unchanged",
+  "remaining_risks": [
+    "Five other prior P2 findings remain: structured missing-tool failure reporting, SMT identifier collisions, solver error-output retention, dry-run classification and vacuity warning in JSON",
+    "Termination applies to the monitored process group, not arbitrary early-exit or detached daemons",
+    "Pi was a protocol stub; no real LLM refinement experiment was performed",
+    "Tests and independent review do not formally prove source-code correctness or constitute human phase-gate approval"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "Repair SMT identifier namespace collisions in a separately scoped task"
+}

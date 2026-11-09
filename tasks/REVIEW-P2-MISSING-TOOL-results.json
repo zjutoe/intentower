@@ -1,0 +1,249 @@
+{
+  "task_id": "REVIEW-P2-MISSING-TOOL",
+  "status": "done",
+  "parent": [
+    "SPEC-001 sections 3.2 and 5, SP-G3/SP-G7, B05",
+    "INT-001 C-02/C-06",
+    "T23/T27"
+  ],
+  "changed_files": [
+    "crates/intentower-cli/src/main.rs",
+    "crates/intentower-cli/src/report.rs",
+    "tests/test_missing_tools.py",
+    "tasks/TASK-REVIEW-P2-MISSING-TOOL.md",
+    "tasks/REVIEW-P2-MISSING-TOOL-results.json"
+  ],
+  "behavior": [
+    "Failed version preconditions write <verification_report>.error.json, report its path on stderr, return exit 2 and stop before POG",
+    "The separate tool_preflight_failure artifact records request context, verification_started=false, the failed tool query, actual available process status/captures and only previously observed real versions",
+    "No unknown tool version is invented; unavailable captures/status remain null, distinct from actual captured empty strings",
+    "Status source is explicitly timeout_supervisor; command names the requested tool query rather than pretending the wrapper result was independently measured on the tool process",
+    "Complete valid UTF-8 stdout/stderr are retained for failed queries, including whitespace, Unicode, carriage returns and long streams",
+    "Schema-1.0 reports and readers are unchanged; report/feedback/escalate reject the independent diagnostic as verification evidence",
+    "Existing verification reports and POG evidence are preserved on preflight failure; normal recovery still creates the original report and leaves historical diagnostics in place",
+    "No binary fallback, additional tool query, timeout/lifecycle change, PO/Gate semantic change or protected-file edit"
+  ],
+  "failure_contract": {
+    "artifact_type": "tool_preflight_failure",
+    "format_version": 1,
+    "path_suffix": ".error.json",
+    "error_fields": [
+      "status",
+      "command",
+      "status_source",
+      "exit_code",
+      "signal",
+      "stdout",
+      "stderr",
+      "message"
+    ],
+    "request_fields": [
+      "operation",
+      "model_id",
+      "model_dir",
+      "verification_report",
+      "verification_started",
+      "tool",
+      "versions_observed"
+    ],
+    "no_verification_claims": [
+      "schema_version",
+      "gate",
+      "obligations",
+      "po_total"
+    ],
+    "preflight_order": [
+      "rossi --version",
+      "configured cvc5 --version"
+    ],
+    "write_failure_behavior": "Return exit 2 with both original version error and diagnostic write error; do not claim a saved file or panic",
+    "history": "A later failed attempt may replace the diagnostic at the chosen output path. Existing verification reports and POG trees are not overwritten by preflight failure. Success does not read or remove prior diagnostics"
+  },
+  "commands_run": [
+    {
+      "command": "timeout 60s cargo build --locked --offline",
+      "exit_code": 0,
+      "result": "Real CLI built successfully"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 90s python3 -m unittest discover -s tests -p 'test_missing_tools.py' -v",
+      "exit_code": 0,
+      "result": "New target: 12 passed on first run in 1.653 seconds"
+    },
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 0,
+      "result": "Default full Rust suite: 183 passed, 0 failed, 0 ignored; doc-tests 0"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "Full Python suite: 52 passed in 32.902 seconds"
+    },
+    {
+      "command": "timeout 10s cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --exit-code -- docs approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0
+    },
+    {
+      "command": "Python task-start SHA256 preservation check and bounded main.rs/report.rs snapshot comparison",
+      "exit_code": 0,
+      "result": "39 other pre-existing dirty/untracked paths remain byte-identical; only version-result data, diagnostic writing and ordered preflight error handling changed"
+    },
+    {
+      "command": "timeout 5s target/debug/intentower escalate --help",
+      "exit_code": 0
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Real missing Rossi/cvc5/supervisor failures are structured and fail before POG",
+      "status": "passed",
+      "evidence": "Restricted temporary PATH plus a nonexistent configured cvc5 path; exit 2, correct command and actual wrapper exit/captures; missing Rossi does not query the second tool"
+    },
+    {
+      "check": "Only genuinely observed versions and outputs are recorded",
+      "status": "passed",
+      "evidence": "Real version strings checked against independently executed installed tools; empty versus unavailable streams distinguished; large valid UTF-8 streams retained completely"
+    },
+    {
+      "check": "All existing version-error classifications and bounds are retained",
+      "status": "passed",
+      "evidence": "Non-executable, nonzero, empty first line, signal, timeout and fast exits 124/137 covered without proof stubs or fallback"
+    },
+    {
+      "check": "Diagnostics cannot authorize proof or replace historical evidence",
+      "status": "passed",
+      "evidence": "All three readers reject the format without new output; old PASS remains byte-identical while current attempt exits 2; recovery uses actual original-schema reports"
+    },
+    {
+      "check": "Diagnostic write failures are explicit and remain exit 2",
+      "status": "passed",
+      "evidence": "Blocked output parent and an independently tested directory at the diagnostic path preserve the original failure plus the I/O error without panic"
+    },
+    {
+      "check": "Complete regression, formatting, baseline and preservation",
+      "status": "passed",
+      "evidence": "183 Rust / 52 Python, fmt/diff/baseline and protected-path checks passed; 39 prior paths unchanged"
+    },
+    {
+      "check": "Independent contract and frozen implementation review",
+      "status": "passed",
+      "evidence": "review_missing_tool: within existing Spec precondition-failure semantics, no_blocking_findings; this P2 may close"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "regression_model_results": {
+    "scope": "Temporary controls only, not an implementation source-code proof or a project-wide inventory. Failed preflights generate no new PO inventory and make no zero-PO report claim",
+    "author_new_target_positive_controls": {
+      "runs": 2,
+      "po_per_run": 1,
+      "discharged_per_run": 1,
+      "tools": "Actual installed Rossi/cvc5"
+    },
+    "independent_real_model_probe": {
+      "total": 3,
+      "discharged": 2,
+      "not_discharged": 1,
+      "unknown": 0,
+      "unsupported": 0,
+      "expected_negative": true
+    }
+  },
+  "independent_review": {
+    "reviewer": "review_missing_tool",
+    "author_of_reviewed_changes": false,
+    "verdict": "no_blocking_findings",
+    "contract_review": "The independent preflight diagnostic supplements SPEC-001 section 3.2 without changing the complete verification-report contract or approved acceptance semantics",
+    "commands_run": [
+      {
+        "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 45s python3 -m unittest discover -s tests -p 'test_missing_tools.py' -v",
+        "exit_code": 0,
+        "result": "12 passed in 1.744 seconds"
+      },
+      {
+        "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 45s python3 /tmp/intentower-review-p2-missing-tool-independent.py",
+        "exit_code": 0,
+        "result": "7 scenarios, three consumer rejections, actual 3-PO recovery controls: 2 discharged / 1 NOT_DISCHARGED"
+      },
+      {
+        "command": "Task-start snapshots and final frozen SHA256 checks",
+        "exit_code": 0,
+        "result": "Four frozen files match; 39 other starting dirty paths unchanged"
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --exit-code -- docs approvals schemas Cargo.lock Cargo.toml crates/intentower-cli/Cargo.toml project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md models",
+        "exit_code": 0
+      },
+      {
+        "command": "timeout 10s target/debug/intentower verify --help",
+        "exit_code": 0
+      },
+      {
+        "command": "timeout 5s rossi --version",
+        "exit_code": 0,
+        "result": "rossi 0.2.3"
+      },
+      {
+        "command": "timeout 5s cvc5 --version",
+        "exit_code": 0,
+        "result": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+      }
+    ],
+    "additional_boundaries": [
+      "Relative Unicode report path",
+      "Consecutive failures update diagnostics/observed-version prefix while preserving original report and complete POG-tree hashes",
+      "Readers preserve existing output files when rejecting diagnostics",
+      "Directory at diagnostic path does not trigger panic or a false saved-file claim",
+      "Real recovery preserves schema-1.0 FAIL/NOT_DISCHARGED as well as PASS behavior and verify output-directory conventions"
+    ],
+    "probe_source": "/tmp/intentower-review-p2-missing-tool-independent.py",
+    "probe_sha256": "9c77f65b56b3812312a44d58b46e3741fcdc1ec30a7f65ceda03a4c02f38e611",
+    "limits": "Independent reviewer ran the bounded target/probes and static checks; the main agent ran full Rust/Python suites. Neither constitutes human phase-gate approval"
+  },
+  "frozen_sha256": {
+    "crates/intentower-cli/src/main.rs": "a321c1979b42aad9966a3b61c1260d35818e59dc636544405452f7b276dbb452",
+    "crates/intentower-cli/src/report.rs": "4ed86ec76939a4a4dcd1b0dee3cd0249fbd1acfef5e6c71119deaf4ddcc038aa",
+    "tests/test_missing_tools.py": "93e72df940d5fbd1833e6b4cf87740886597f8c2d404e7fd66a5c8eaec7af292",
+    "tasks/TASK-REVIEW-P2-MISSING-TOOL.md": "b2e3202872c66488aff1b8618048633e0b5cbcfed2a6f48c241a1ddd77fca715"
+  },
+  "development": {
+    "failed_checks": 0,
+    "repair_rounds": 0,
+    "real_llm_calls": 0
+  },
+  "preserved_prior_work": "Only main.rs/report.rs differ among the 41 task-start dirty/untracked paths; all 39 others, historical results and protected/schema/dependency paths are unchanged",
+  "review_closure": "Closes the last previously recorded P2 finding; final integration review of the accumulated uncommitted repairs is suggested, without claiming the whole project has no other defects",
+  "remaining_risks": [
+    "The diagnostic covers version preconditions; it is deliberately not a schema-1.0 verification report",
+    "Historical diagnostics can remain after recovery, and old verification reports are preserved on preflight failure; the current command exit status and emitted path identify the current outcome",
+    "Output decoding keeps the existing UTF-8-lossy policy; full valid UTF-8 streams are preserved, not an arbitrary-byte archive",
+    "Regression proofs, source tests and review do not formally verify implementation code or grant human phase-gate approval"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "REVIEW-FINAL-INTEGRATION: independent final review of the accumulated fixes and their interaction; no commit, deployment or protected-file changes"
+}

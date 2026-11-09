@@ -197,9 +197,63 @@ fn the_decision_names_the_exact_bytes_it_verified() {
         assert_eq!(input.sha256, on_disk, "{}", input.path);
     }
 
-    // A second run over unchanged sources is not stale against the first.
+    // A second run must retain the first run's artifacts. Sources and PO
+    // contents stay equal; the two runs deliberately use different PO paths.
     let second = policy::run(&sources, "counter-m0m1-rodin", &work("provenance"));
-    let reasons = intentower_cli::gate::provenance::staleness(&first.inputs, &second.inputs);
-    println!("re-run staleness: {reasons:?}");
-    assert!(reasons.is_empty());
+    let model_inputs = |decision: &policy::Decision| {
+        decision
+            .inputs
+            .iter()
+            .filter(|input| input.role == intentower_cli::gate::provenance::MODEL_SOURCE)
+            .cloned()
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(model_inputs(&first), model_inputs(&second));
+    let artifacts = |decision: &policy::Decision| {
+        decision
+            .inputs
+            .iter()
+            .filter(|input| input.role == intentower_cli::gate::provenance::PO_ARTIFACT)
+            .map(|input| {
+                assert_eq!(
+                    input.sha256,
+                    intentower_cli::gate::provenance::hash_file(Path::new(&input.path)),
+                    "each run keeps its own evidence"
+                );
+                (
+                    Path::new(&input.path).file_name().unwrap().to_owned(),
+                    input.sha256.clone(),
+                )
+            })
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(artifacts(&first), artifacts(&second));
+    assert!(first.inputs.iter().any(|input| {
+        input.role == intentower_cli::gate::provenance::PO_ARTIFACT
+            && !second.inputs.iter().any(|other| other.path == input.path)
+    }));
+    let statuses = |decision: &policy::Decision| {
+        decision
+            .outcomes
+            .iter()
+            .map(|outcome| (outcome.id.clone(), outcome.status))
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(statuses(&first), statuses(&second));
+}
+
+#[test]
+fn a_project_name_cannot_escape_its_exclusive_directory() {
+    for project in ["../counter", "/tmp/counter", "nested/counter", ".", ""] {
+        let decision = policy::run(&[], project, &work("invalid-project"));
+        assert_eq!(decision.verdict, Verdict::Incomplete);
+        assert!(!decision.build_ok);
+        assert!(decision.outcomes.is_empty());
+        assert!(
+            decision
+                .reasons
+                .iter()
+                .any(|reason| reason.contains("single directory name"))
+        );
+    }
 }

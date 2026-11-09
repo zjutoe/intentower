@@ -1,0 +1,394 @@
+{
+  "task_id": "REVIEW-FINAL-INTEGRATION",
+  "status": "needs_review",
+  "parent": "infrastructure-only: final independent integration review of accumulated REVIEW-P1/P2 repairs against approved INT-001/SPEC-001",
+  "changed_files": [
+    "tasks/TASK-REVIEW-FINAL-INTEGRATION.md",
+    "tasks/REVIEW-FINAL-INTEGRATION-results.json"
+  ],
+  "reviewed_base_head": "f5bae6e541338b6248255dbfc053ae291d500a58",
+  "review_scope": "Frozen accumulated diff and its direct interactions; no production/test changes, commits, deployments, dependency changes or real LLM calls",
+  "findings": [
+    {
+      "id": "F1",
+      "priority": "P2",
+      "title": "Report output can overwrite a verified input while the command still returns PASS",
+      "locations": [
+        {
+          "path": "crates/intentower-cli/src/main.rs",
+          "line": 481
+        },
+        {
+          "path": "crates/intentower-cli/src/gate/policy.rs",
+          "line": 263
+        }
+      ],
+      "trigger": "Run real gate with --out equal to the selected model's m.eventb source path",
+      "observed": "Gate discharges the original single PO, returns exit 0/PASS, then report::write replaces the source with JSON after the final input-drift check. Immediate report rendering returns exit 2/STALE",
+      "impact": "Destroys the selected source file and leaves the current input bytes different from the bytes associated with the just-returned PASS",
+      "origin": "Existing boundary defect, also present before the repair series; exposed by the final input-binding review, not a new SMT proof error",
+      "evidence": "/tmp/intentower-final-a-output-overlap-xj_bvvko/evidence.json",
+      "reproduction_source": "/tmp/intentower-final-a-output-overlap-xj_bvvko/reproduce.py",
+      "reproduction_source_execution": "Syntax-compiled only; not rerun after the two actual reviewer probes",
+      "hashes": {
+        "original_and_recorded_source": "d3bab56ab7ae6b273b22681b666dca717cd3bde81d4f2a92039e55e4b92b9006",
+        "source_after_report_write": "917857f8b63f25b0db7b0ac77e5130f135100a84c674bcb6449c9442e5a60c77"
+      },
+      "proposed_repair": "Reject output/input collisions before any write. Include model sources, manifest and policy plus canonical/symlink/hardlink aliases in a separate task; retain normal output behavior",
+      "confirmed_reproduction_scope": "Direct overlap with a model source was executed; the broader alias/input matrix is proposed acceptance coverage, not a claim that each variant was tested here",
+      "implemented": false
+    },
+    {
+      "id": "F2",
+      "priority": "P2",
+      "title": "Outer Gate timeout can leave the project's inner tool process group running",
+      "locations": [
+        {
+          "path": "scripts/run-refinement.sh",
+          "line": 198
+        },
+        {
+          "path": "crates/intentower-cli/src/report.rs",
+          "line": 176
+        }
+      ],
+      "trigger": "GATE_TIMEOUT=1, INTENTOWER_TIMEOUT_SECS=20; real CLI and version queries, controlled blocking rejection wrapper for Rossi export",
+      "observed": "Refinement script returns exit 2 after 1.172520812600851 seconds without a report; inner timeout supervisor, Rossi wrapper and its child are still running in their own group",
+      "impact": "Cancellation of the outer command does not cancel the owned inner tool tree. Remaining tools could continue computation or artifact writes after the run stops",
+      "fact_inference_boundary": "Running process states were directly observed. Later artifact writes were not demonstrated and are an inferred consequence of surviving tool processes",
+      "limit": "No false PASS was observed; the inner invocation still has its configured 20-second deadline. This is not evidence of infinite waiting or failure of the previous monitored-group KILL tests",
+      "origin": "Newly exposed integration limitation from nested supervisors, rather than an arbitrary external daemon escaping monitoring",
+      "evidence": "/tmp/intentower-final-b-nested-timeout-es6orbi5/probe.json",
+      "reproduction_source": "/tmp/intentower-final-b-nested-timeout.py",
+      "cleanup": "Probe finally sent KILL to its recorded temporary process group",
+      "proposed_repair": "Handle cancellation propagation to the project's nested supervisors/tool trees in a separate bounded task, with real-CLI inner-blocker regression and explicit lifecycle semantics",
+      "implemented": false
+    }
+  ],
+  "commands_run": [
+    {
+      "command": "timeout 10s python3 /tmp/intentower-final-integration-start-q6k83hzj/evidence_audit.py",
+      "exit_code": 0,
+      "result": "44 existing paths frozen, 26 source/test/script paths match the most recent complete suites; HEAD/index and tracked modes unchanged; nine historical result records audited"
+    },
+    {
+      "command": "git diff --cached --exit-code",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --exit-code -- docs approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "5 hashes / 3 model IDs pinned"
+    },
+    {
+      "command": "timeout 5s rossi --version",
+      "exit_code": 0,
+      "result": "rossi 0.2.3"
+    },
+    {
+      "command": "timeout 5s cvc5 --version",
+      "exit_code": 0,
+      "result": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+    },
+    {
+      "command": [
+        "/home/mye/src/llm/intentower/target/debug/intentower",
+        "gate",
+        "/tmp/intentower-final-a-output-overlap-xj_bvvko",
+        "--out",
+        "/tmp/intentower-final-a-output-overlap-xj_bvvko/m.eventb",
+        "--timeout-secs",
+        "5"
+      ],
+      "executed_by": "final_gate_smt",
+      "exit_code": 0,
+      "result": "PASS for original 1-PO model; source overwritten by report JSON"
+    },
+    {
+      "command": "Immediate real report rendering of the overlapping output",
+      "executed_by": "final_gate_smt",
+      "exit_code": 2,
+      "result": "STALE, original recorded source hash differs from current overwritten source"
+    },
+    {
+      "command": "timeout --kill-after=2s 12s python3 /tmp/intentower-final-b-nested-timeout.py",
+      "executed_by": "final_reports_loop",
+      "exit_code": 0,
+      "result": "Counterexample assertions pass: tested script exits 2 but supervisor/wrapper/child all remain state S"
+    },
+    {
+      "command": "git diff --check",
+      "executed_by": "independent reviewers",
+      "exit_code": 0
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Frozen production/tests and historical evidence preserved",
+      "status": "passed",
+      "evidence": "All 44 starting paths remain byte-identical; this task adds only its task/result documents"
+    },
+    {
+      "check": "Prior finding closure evidence audited without rewriting history",
+      "status": "passed",
+      "evidence": "Nine completed records map four original P1 findings and seven P2 categories; new residual findings are recorded separately"
+    },
+    {
+      "check": "Latest complete suite provenance bound to current source",
+      "status": "passed",
+      "evidence": "Same HEAD/index, exact task-start plus final-frozen hashes from REVIEW-P2-MISSING-TOOL cover the current 26 source/test/script paths; full suites are reused, not claimed as newly run"
+    },
+    {
+      "check": "Output writing preserves current verified source binding",
+      "status": "failed",
+      "evidence": "F1: real source-overlap probe returns PASS then leaves source as report JSON; immediate display is STALE"
+    },
+    {
+      "check": "Outer Gate cancellation terminates owned nested tool groups",
+      "status": "failed",
+      "evidence": "F2: outer deadline returns while inner supervisor/wrapper/child remain running under a longer independent deadline"
+    },
+    {
+      "check": "Independent final acceptance without substantive findings",
+      "status": "failed",
+      "evidence": "Both independent groups report needs_review with one reproducible P2 each"
+    }
+  ],
+  "historical_closure_matrix": [
+    {
+      "original_priority": "P1",
+      "category": "SMT label injection",
+      "records": [
+        "REVIEW-P1"
+      ],
+      "integration": "No new blocker in the bounded label/typed-encoding review"
+    },
+    {
+      "original_priority": "P1",
+      "category": "Source-byte binding and input drift",
+      "records": [
+        "REVIEW-P1"
+      ],
+      "integration": "Previous snapshot/drift fixes retained; F1 exposes an additional post-verification output collision"
+    },
+    {
+      "original_priority": "P1",
+      "category": "Concurrent POG isolation and preserved evidence",
+      "records": [
+        "REVIEW-P1"
+      ],
+      "integration": "No new blocker in the bounded exclusive-directory review"
+    },
+    {
+      "original_priority": "P1",
+      "category": "Candidate M1 source-set/hash binding",
+      "records": [
+        "REVIEW-P1"
+      ],
+      "integration": "No new blocker in the bounded binding review"
+    },
+    {
+      "original_priority": "P2",
+      "category": "Report schema validation",
+      "records": [
+        "REVIEW-P2-REPORT"
+      ],
+      "integration": "Reader contract preserved; independent diagnostics remain rejected as proof reports"
+    },
+    {
+      "original_priority": "P2",
+      "category": "External tool deadlines",
+      "records": [
+        "REVIEW-P2-CLI-TIMEOUT",
+        "REVIEW-P2-SCRIPT-TIMEOUT"
+      ],
+      "integration": "Prior per-call and monitored-group fixes retained; F2 exposes project-owned nested-group cancellation"
+    },
+    {
+      "original_priority": "P2",
+      "category": "Structured missing-tool failure records",
+      "records": [
+        "REVIEW-P2-MISSING-TOOL"
+      ],
+      "integration": "Preflight diagnostics, null captures and original report/schema boundary retained"
+    },
+    {
+      "original_priority": "P2",
+      "category": "SMT identifier collisions",
+      "records": [
+        "REVIEW-P2-SMT-NAMES"
+      ],
+      "integration": "Unified injective mapping retained"
+    },
+    {
+      "original_priority": "P2",
+      "category": "Solver error-output retention",
+      "records": [
+        "REVIEW-P2-SOLVER-DIAGNOSTICS"
+      ],
+      "integration": "Complete streams, display escaping and budget refusal preserved"
+    },
+    {
+      "original_priority": "P2",
+      "category": "dry_run classification",
+      "records": [
+        "REVIEW-P2-DRY-RUN"
+      ],
+      "integration": "Configuration-based classification preserved"
+    },
+    {
+      "original_priority": "P2",
+      "category": "Vacuity warning in JSON",
+      "records": [
+        "REVIEW-P2-VACUITY-JSON"
+      ],
+      "integration": "Model-level issue retained without changing Gate or adding a consistency checker"
+    }
+  ],
+  "reused_verification": {
+    "executed_this_task": false,
+    "source_record": "tasks/REVIEW-P2-MISSING-TOOL-results.json",
+    "source_state_matches": true,
+    "source_paths_checked": 26,
+    "rust": {
+      "command": "timeout 180s cargo test --locked --offline",
+      "prior_exit_code": 0,
+      "passed": 183,
+      "failed": 0,
+      "ignored": 0
+    },
+    "python": {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "prior_exit_code": 0,
+      "passed": 52
+    },
+    "reason_not_repeated": "No source or tool-version change; fresh targeted probes addressed the previously uncovered interaction risks",
+    "authority_limit": "Historical JSON and hashes document test provenance only; they do not authorize a Gate PASS"
+  },
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "regression_model_results": {
+    "scope": "Only the new reviewer A temporary probes, not the whole suite or implementation source-code proof",
+    "model_scenarios": 1,
+    "executions": 2,
+    "total": 2,
+    "discharged": 2,
+    "not_discharged": 0,
+    "unknown": 0,
+    "unsupported": 0,
+    "qualification": "Actual POs were discharged for the original input bytes; F1 is the later source overwrite, not a spurious SMT discharge",
+    "nested_timeout_probe": {
+      "proof_required": false,
+      "po_generated_before_cancellation": 0,
+      "reason": "Controlled rejection blocks before actual export/PO generation; no model proof claimed"
+    }
+  },
+  "independent_reviews": [
+    {
+      "reviewer": "final_gate_smt",
+      "author_of_reviewed_changes": false,
+      "verdict": "needs_review",
+      "finding": "F1",
+      "other_scope": "No further confirmed material findings in labels, names, snapshotting, isolation and candidate binding",
+      "probe_development": "Initial metadata summary accessed the wrong status_counts field and exited 1 after Gate 0/report 2; corrected summary exited 0. Two actual single-PO runs total; no repository repair"
+    },
+    {
+      "reviewer": "final_reports_loop",
+      "author_of_reviewed_changes": false,
+      "verdict": "needs_review",
+      "finding": "F2",
+      "other_scope": "No further confirmed material findings in preflight diagnostics, schema readers, vacuity issues, error rendering/budget or successful-candidate binding"
+    }
+  ],
+  "frozen_existing_sha256": {
+    "crates/intentower-cli/src/report/validation.rs": "40b2b351b75a4a69ef9fb531e15e0985605c46c38d8d7f74cfadc47e74303ee4",
+    "crates/intentower-cli/tests/report_validation.rs": "57d03b22248816f957a643a9739b68e70fb596e84c867ef494c1e692bf829e1a",
+    "crates/intentower-cli/tests/smt_labels.rs": "9d084e8389dbb135d605e06b990093d62aa0e1247dd199f4c6b664257c9d8cd9",
+    "crates/intentower-cli/tests/smt_names.rs": "29fd108870723b8ce4950114ad5ce288874f65c57a300be594d5456c67e9b49b",
+    "crates/intentower-cli/tests/solver_diagnostics.rs": "2a3eaab3e442cdb2b6ac15f4ecb61598f3f1724f61941e18c4b885d5898bdb3d",
+    "crates/intentower-cli/tests/vacuity_warning.rs": "e55f56b3677a67a940f4c5d585d9ad11a631d99dddc3a05293bdd0299f6fefad",
+    "tasks/REVIEW-P1-results.json": "a3a118070d7ae925d3370516ad4744e1db078a64f6f73ead11ce16e6459f6fdc",
+    "tasks/REVIEW-P2-CLI-TIMEOUT-results.json": "97f642c3da52c7679660a3825fbdfd3b486b2d458c8c215e2c49b039fff140cd",
+    "tasks/REVIEW-P2-DRY-RUN-results.json": "57302578fe072f9a947c2a2f427e37903ee7f47ca765348a3ae17f17f2225bc3",
+    "tasks/REVIEW-P2-MISSING-TOOL-results.json": "5361d1d0b59b7569fff24a9386cb34939890e192bcf30b62cd8610abd7325b6c",
+    "tasks/REVIEW-P2-REPORT-results.json": "412bd8afd36c6492eb234e6fe02314329ef918f0d022b2b494e87f3e7d45961f",
+    "tasks/REVIEW-P2-SCRIPT-TIMEOUT-results.json": "9e95c2a5186c7bab09fc8539aea4ce02cba27e7fa19de9fa2deddcf5fc08b687",
+    "tasks/REVIEW-P2-SMT-NAMES-results.json": "87f79f13d7956450624e06c803241ba54b2f5c488e1eaeed0c372a464d7759f3",
+    "tasks/REVIEW-P2-SOLVER-DIAGNOSTICS-results.json": "afe0acf1e1b7f3a6ad941ca00ad7ef4d0cad65daecfb547967d020fb2327bd6f",
+    "tasks/REVIEW-P2-VACUITY-JSON-results.json": "9b830cd57f757cc2bf9b4269296e2b4efcb8a827db770c62035875468f135cd8",
+    "tasks/TASK-REVIEW-P1.md": "3246be8b06fff798eca0bbbc00c04e0e35c90b666e3d07a3c7471a71058c96b9",
+    "tasks/TASK-REVIEW-P2-CLI-TIMEOUT.md": "a159d78994ff8065665b88589b330e6747cc45c20b9c7b9a444ad5bdd32e0806",
+    "tasks/TASK-REVIEW-P2-DRY-RUN.md": "5ef1ec14e0d291d40aa92fdf97c64770181f134964eed73d8abbd24c7ea333c4",
+    "tasks/TASK-REVIEW-P2-MISSING-TOOL.md": "b2e3202872c66488aff1b8618048633e0b5cbcfed2a6f48c241a1ddd77fca715",
+    "tasks/TASK-REVIEW-P2-REPORT.md": "8263fe89dc68cae7c06a13fb7875db349f48f42f8fda5db254aea1c7002be8cc",
+    "tasks/TASK-REVIEW-P2-SCRIPT-TIMEOUT.md": "4be665b7a1a0c9f6074da7098badd4dd191e1540cf264b663dff36cf8e988bf8",
+    "tasks/TASK-REVIEW-P2-SMT-NAMES.md": "0029b1ccd1ae4e7a0bd3df9823e8eddc2a6f7c5edcf734ec14d7c04a3f2e4c54",
+    "tasks/TASK-REVIEW-P2-SOLVER-DIAGNOSTICS.md": "917ec5899c8f702fecb7d8b7037305e43ffb5b686f6c3b15bba7ab7018ebbc29",
+    "tasks/TASK-REVIEW-P2-VACUITY-JSON.md": "2f65a435431232b7438cd642a74c5060c8a0cc04e77fa989f175bcdc8a99b71c",
+    "tests/test_cli_timeouts.py": "5d667f9399e71d8095b11e65aeaa49819bcc37d814d19df0203c1dde073b4b0a",
+    "tests/test_gate_isolation.py": "618259b4a5819170f35c4aea68380eede0665a2f7cb5f75590f735f5ce197318",
+    "tests/test_missing_tools.py": "93e72df940d5fbd1833e6b4cf87740886597f8c2d404e7fd66a5c8eaec7af292",
+    "tests/test_refinement_binding.py": "e704b3ee1731b73285248a471e8917388bb390d13940ab80026dc8a057e9a271",
+    "tests/test_refinement_dry_run.py": "0918f72c809336de93b455d24174c7904d6c7ae7f7911029419905cda6e21780",
+    "tests/test_refinement_timeouts.py": "373d2ab16e3325d133d8c5551eaa956faccbb876ef08365bc35121d496e442a4",
+    "crates/intentower-cli/src/feedback.rs": "f1192c34214bc3e981aa466a255c53cce6a24cd9c65607b5aad0e595a797bf42",
+    "crates/intentower-cli/src/gate/policy.rs": "184edb20d1c7492943e1446c4aa17bceab9e26a629923ad7aa89e6e3e5408be3",
+    "crates/intentower-cli/src/main.rs": "a321c1979b42aad9966a3b61c1260d35818e59dc636544405452f7b276dbb452",
+    "crates/intentower-cli/src/report.rs": "4ed86ec76939a4a4dcd1b0dee3cd0249fbd1acfef5e6c71119deaf4ddcc038aa",
+    "crates/intentower-cli/src/smt/arithmetic.rs": "d445626630fc1b82535e35db4b5a68da2d6af058017b23412155f518e6a922d4",
+    "crates/intentower-cli/src/smt/atoms.rs": "1f57bfdb09f121d5988a0d0823c308d310556da617e56b289947a7b014d4f541",
+    "crates/intentower-cli/src/smt/encode.rs": "1f4eb162f63d2fdede506729cfd93097f005ec5be958bb935dee3d3a4bee27f2",
+    "crates/intentower-cli/src/smt/logic.rs": "d8c96a57ce28adc02c81a6f0e3388c192fe92bbd23770051f591ba5c2133ea86",
+    "crates/intentower-cli/src/smt/mod.rs": "e470b7e1812600933048909199ed789df069b088b6005b9a1899aaf5aa3ef05e",
+    "crates/intentower-cli/src/solver/cvc5.rs": "180ed4d089cea52bbfb57df3180bf2272da35910eebc14029d8614bb4895e201",
+    "crates/intentower-cli/tests/feedback.rs": "9563250fd66966bb3dc2314f449d2270ee0660f17531fcdf334e8e23328a330e",
+    "crates/intentower-cli/tests/gate_policy.rs": "a3d908938a1ac8261bb81a7e2e4c6433d566b69c7103e566d8df7bc764dadf3e",
+    "scripts/run-refinement.sh": "06e0dce5c7f0427fe3ee3ad746c4ba7fbfdfc61769e7a4b3909b8f1f98137178",
+    "scripts/validate-report.py": "768999e55912cea0c53806e8218d2b29fe58c74d1c5ef8c6f565c5de63cb0d66"
+  },
+  "evidence_artifact_sha256": {
+    "/tmp/intentower-final-integration-start-q6k83hzj/hashes.json": "13995873cef16f0653776a5021ba7dc711b0e3a40d862dd243eefbb637bf8344",
+    "/tmp/intentower-final-integration-start-q6k83hzj/evidence_audit.py": "5d4d8f682093c27f6f96ca3fb26f08e7c4ad6690f404b9317127099aad4d4abd",
+    "/tmp/intentower-final-integration-start-q6k83hzj/evidence-audit.json": "23225965fc8eba4ebec43981ca5cbd265ee806ee7160f070d0102f65c8813a8a",
+    "/tmp/intentower-final-a-output-overlap-xj_bvvko/evidence.json": "a8b131b4a8c306fa6a74471318fc372eb4f81cce021e424c58fea19961e1498e",
+    "/tmp/intentower-final-a-output-overlap-xj_bvvko/reproduce.py": "a9163dfa55b84f7b76d06c03986d6ab018cc933be8da6a4e1a44481b0ff74316",
+    "/tmp/intentower-final-b-nested-timeout.py": "9ecf36d41361b1799b22e862529787501840a69f4a9dc354193bc073af17256c",
+    "/tmp/intentower-final-b-nested-timeout-es6orbi5/probe.json": "c9d15bc057073ec09409d87b3d8b1760ee7e291d1092f9f830c8767184d9907f"
+  },
+  "baseline": {
+    "executed_this_task": true,
+    "exit_code": 0,
+    "pinned_hashes": 5,
+    "pinned_model_ids": 3
+  },
+  "approval_state": {
+    "approved_intent_and_spec_unchanged": true,
+    "spec_003": "proposed, unchanged",
+    "human_phase_gate_granted": false
+  },
+  "remaining_risks": [
+    "F1 remains unfixed: colliding output can destroy an input and return PASS for prior bytes",
+    "F2 remains unfixed: outer Gate deadline does not cancel inner project-owned process groups",
+    "Prior records' probe/fixture corrections and intermittent ETXTBSY observations are preserved; current review does not claim those historical limits were formally eliminated",
+    "Bounded code review, regression models and source tests do not constitute whole-project or implementation formal verification"
+  ],
+  "intent_or_spec_changed": false,
+  "production_or_test_changed": false,
+  "repair_rounds": 0,
+  "real_llm_calls": 0,
+  "next_task_suggestion": "REVIEW-P2-OUTPUT-ALIAS: reject report/input path overlap before writing, including path aliases; then separately address REVIEW-P2-NESTED-TIMEOUT",
+  "suggested_task_order": [
+    "REVIEW-P2-OUTPUT-ALIAS",
+    "REVIEW-P2-NESTED-TIMEOUT"
+  ]
+}

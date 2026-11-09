@@ -27,10 +27,8 @@ pub fn encode(po: &Po) -> SmtResult<String> {
     }
     free_idents(&po.typed_goal, &mut names)?;
 
-    let mut lines = vec![
-        "(set-logic QF_LIA)".to_string(),
-        format!("(set-info :source \"{}::{}\")", po.machine, po.id),
-    ];
+    // PO labels belong in the report, never in executable SMT-LIB text.
+    let mut lines = vec!["(set-logic QF_LIA)".to_string()];
     for name in &names {
         lines.push(format!(
             "(declare-fun {} () {})",
@@ -148,9 +146,8 @@ mod tests {
         assert_eq!(
             script,
             "(set-logic QF_LIA)\n\
-             (set-info :source \"m::evt/inv1/INV\")\n\
-             (declare-fun a () Int)\n\
-             (assert (not (>= a 0)))\n\
+             (declare-fun intentower_a () Int)\n\
+             (assert (not (>= intentower_a 0)))\n\
              (check-sat)\n"
         );
     }
@@ -164,7 +161,7 @@ mod tests {
         ))
         .unwrap();
         assert!(
-            script.contains("(assert (and (>= a 0) (>= b 1) (= a b) (not (>= (+ a b) 1))))"),
+            script.contains("(assert (and (>= intentower_a 0) (>= intentower_b 1) (= intentower_a intentower_b) (not (>= (+ intentower_a intentower_b) 1))))"),
             "{script}"
         );
         assert!(script.starts_with("(set-logic QF_LIA)\n"));
@@ -180,7 +177,7 @@ mod tests {
         ))
         .unwrap();
         for name in ["a", "b", "c"] {
-            let needle = format!("(declare-fun {name} () Int)");
+            let needle = format!("(declare-fun intentower_{name} () Int)");
             assert_eq!(
                 script.matches(&needle).count(),
                 1,
@@ -215,9 +212,8 @@ mod tests {
 
     #[test]
     fn distinct_idents_never_share_one_smt_symbol() {
-        // smt_name is injective over names it accepts: bare names never start
-        // with `|`, quoted names never contain one. So no runtime collision
-        // check is needed in encode(); this test pins that property.
+        // Prefix every input, including names already carrying that prefix.
+        // Quoting preserves the full text and never normalizes distinct names.
         let names = [
             "a",
             "b",
@@ -228,10 +224,14 @@ mod tests {
             "abstract_count",
             "a.b",
             "a-b",
+            "true",
+            "intentower_true",
+            "intentower_a",
+            "A",
         ];
         let symbols: BTreeSet<String> = names.iter().map(|n| smt_name(n).unwrap()).collect();
         assert_eq!(symbols.len(), names.len(), "smt_name must be injective");
-        assert!(smt_name("a|b").is_err() && smt_name("").is_err());
+        assert!(smt_name("a|b").is_err() && smt_name(r"a\b").is_err() && smt_name("").is_err());
     }
 
     #[test]
@@ -269,8 +269,8 @@ mod tests {
         .unwrap();
         assert!(
             script.contains(
-                "(assert (and (and (or (>= a 0) (<= b 0)) (distinct a b)) \
-             (not (not (=> (= a b) (>= c 0))))))"
+                "(assert (and (and (or (>= intentower_a 0) (<= intentower_b 0)) (distinct intentower_a intentower_b)) \
+             (not (not (=> (= intentower_a intentower_b) (>= intentower_c 0))))))"
             ),
             "{script}"
         );
@@ -288,14 +288,13 @@ mod tests {
         assert_eq!(
             encode(obligation).unwrap(),
             "(set-logic QF_LIA)\n\
-             (set-info :source \"m1::sub/grd1/GRD\")\n\
-             (declare-fun a () Int)\n\
-             (declare-fun abstract_count () Int)\n\
-             (declare-fun b () Int)\n\
-             (declare-fun delta () Int)\n\
-             (assert (and (>= abstract_count 0) (<= abstract_count 1000) (>= a 0) (>= b 0) \
-             (= abstract_count (+ a b)) (>= delta 1) (<= delta a) \
-             (not (>= abstract_count 1))))\n\
+             (declare-fun intentower_a () Int)\n\
+             (declare-fun intentower_abstract_count () Int)\n\
+             (declare-fun intentower_b () Int)\n\
+             (declare-fun intentower_delta () Int)\n\
+             (assert (and (>= intentower_abstract_count 0) (<= intentower_abstract_count 1000) (>= intentower_a 0) (>= intentower_b 0) \
+             (= intentower_abstract_count (+ intentower_a intentower_b)) (>= intentower_delta 1) (<= intentower_delta intentower_a) \
+             (not (>= intentower_abstract_count 1))))\n\
              (check-sat)\n"
         );
     }
@@ -311,8 +310,8 @@ mod tests {
         ))
         .unwrap();
         assert!(
-            script.contains("(declare-fun |count'| () Int)")
-                && script.contains("(>= |count'| count)"),
+            script.contains("(declare-fun |intentower_count'| () Int)")
+                && script.contains("(>= |intentower_count'| intentower_count)"),
             "{script}"
         );
     }

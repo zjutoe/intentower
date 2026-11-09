@@ -84,40 +84,52 @@ mod tests {
 
     #[test]
     fn connectives_encode_in_prefix_form() {
-        assert_eq!(encode("a = b ∧ b = c"), "(and (= a b) (= b c))");
+        assert_eq!(
+            encode("a = b ∧ b = c"),
+            "(and (= intentower_a intentower_b) (= intentower_b intentower_c))"
+        );
         assert_eq!(
             encode("a ≥ 0 ∧ a ≤ 1000 ∧ delta ≥ 1"),
-            "(and (>= a 0) (<= a 1000) (>= delta 1))",
+            "(and (>= intentower_a 0) (<= intentower_a 1000) (>= intentower_delta 1))",
             "a chain of the same connective stays n-ary"
         );
-        assert_eq!(encode("a ≥ 0 ∨ a ≤ 100"), "(or (>= a 0) (<= a 100))");
-        assert_eq!(encode("¬ (a = b)"), "(not (= a b))");
+        assert_eq!(
+            encode("a ≥ 0 ∨ a ≤ 100"),
+            "(or (>= intentower_a 0) (<= intentower_a 100))"
+        );
+        assert_eq!(encode("¬ (a = b)"), "(not (= intentower_a intentower_b))");
         assert_eq!(
             encode("delta ≥ 1 ⇒ abstract_count ≥ 1"),
-            "(=> (>= delta 1) (>= abstract_count 1))"
+            "(=> (>= intentower_delta 1) (>= intentower_abstract_count 1))"
         );
-        assert_eq!(encode("a = b ⇔ b = a"), "(= (= a b) (= b a))");
+        assert_eq!(
+            encode("a = b ⇔ b = a"),
+            "(= (= intentower_a intentower_b) (= intentower_b intentower_a))"
+        );
         assert_eq!(encode("⊤"), "true");
-        assert_eq!(encode("⊥ ∧ a = b"), "(and false (= a b))");
+        assert_eq!(
+            encode("⊥ ∧ a = b"),
+            "(and false (= intentower_a intentower_b))"
+        );
     }
 
     #[test]
     fn nesting_keeps_every_group_explicit() {
         assert_eq!(
             encode("a = b ⇒ (b = c ∧ ¬ (a = c))"),
-            "(=> (= a b) (and (= b c) (not (= a c))))"
+            "(=> (= intentower_a intentower_b) (and (= intentower_b intentower_c) (not (= intentower_a intentower_c))))"
         );
         assert_eq!(
             encode("(a ≥ 0 ∨ a ≤ 100) ∧ a ≠ 0"),
-            "(and (or (>= a 0) (<= a 100)) (distinct a 0))"
+            "(and (or (>= intentower_a 0) (<= intentower_a 100)) (distinct intentower_a 0))"
         );
         assert_eq!(
             encode("¬ (a ≥ 0 ∨ a ≤ 100)"),
-            "(not (or (>= a 0) (<= a 100)))"
+            "(not (or (>= intentower_a 0) (<= intentower_a 100)))"
         );
         assert_eq!(
             encode("(a = b ⇒ b = c) ⇒ a = c"),
-            "(=> (=> (= a b) (= b c)) (= a c))"
+            "(=> (=> (= intentower_a intentower_b) (= intentower_b intentower_c)) (= intentower_a intentower_c))"
         );
     }
 

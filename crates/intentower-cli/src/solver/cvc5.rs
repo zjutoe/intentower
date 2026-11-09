@@ -5,10 +5,9 @@
 //! kills the child. cvc5's own `--tlimit` is unusable in this build (it aborts
 //! with SIGABRT, see docs/cvc5-smoke.md), so timing out is the adapter's job.
 
-use std::io::ErrorKind;
-use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
+use std::ffi::OsString;
+use std::path::PathBuf;
+use std::time::Duration;
 
 use super::Outcome;
 
@@ -55,77 +54,41 @@ impl Cvc5 {
         );
         let dir = std::env::temp_dir();
         let script_path = dir.join(format!("{stem}.smt2"));
-        let out_path = dir.join(format!("{stem}.out"));
-        let err_path = dir.join(format!("{stem}.err"));
-
         std::fs::write(&script_path, script)
             .unwrap_or_else(|err| panic!("cannot write {script_path:?}: {err}"));
 
-        let spawned = Command::new(&self.bin)
+        let result = crate::report::bounded_output(
+            &self.bin,
             // A `sat` verdict is a candidate counterexample (SPEC-001), which
             // cvc5 only lets us read back with model generation on.
-            .arg("--produce-models")
-            .arg(&script_path)
-            .stdin(Stdio::null())
-            .stdout(Stdio::from(
-                std::fs::File::create(&out_path)
-                    .unwrap_or_else(|err| panic!("cannot create {out_path:?}: {err}")),
-            ))
-            .stderr(Stdio::from(
-                std::fs::File::create(&err_path)
-                    .unwrap_or_else(|err| panic!("cannot create {err_path:?}: {err}")),
-            ))
-            .spawn();
-
-        let mut child = match spawned {
-            Ok(child) => child,
+            &[
+                OsString::from("--produce-models"),
+                script_path.clone().into_os_string(),
+            ],
+            self.timeout,
+        );
+        cleanup(&[&script_path]);
+        let result = match result {
+            Ok(result) => result,
             Err(err) => {
-                cleanup(&[&script_path, &out_path, &err_path]);
-                return Outcome::ToolError(if err.kind() == ErrorKind::NotFound {
-                    format!("solver `{}` not found", self.bin.display())
-                } else {
-                    format!("cannot run `{}`: {err}", self.bin.display())
-                });
+                return Outcome::ToolError(format!("cannot run `{}`: {err}", self.bin.display()));
             }
         };
-
-        let deadline = Instant::now() + self.timeout;
-        let status = loop {
-            match child.try_wait() {
-                Ok(Some(status)) => break status,
-                Ok(None) => {
-                    if Instant::now() >= deadline {
-                        child
-                            .kill()
-                            .unwrap_or_else(|err| panic!("cannot kill solver: {err}"));
-                        child
-                            .wait()
-                            .unwrap_or_else(|err| panic!("cannot reap solver: {err}"));
-                        cleanup(&[&script_path, &out_path, &err_path]);
-                        return Outcome::Timeout;
-                    }
-                    std::thread::sleep(Duration::from_millis(5));
-                }
-                Err(err) => {
-                    cleanup(&[&script_path, &out_path, &err_path]);
-                    return Outcome::ToolError(format!("cannot wait for solver: {err}"));
-                }
-            }
-        };
-
-        let stdout = read(&out_path);
-        let stderr = read(&err_path);
-        cleanup(&[&script_path, &out_path, &err_path]);
+        if result.timed_out {
+            return Outcome::Timeout;
+        }
+        let status = result.output.status;
+        let stdout = String::from_utf8(result.output.stdout).expect("solver stdout is not UTF-8");
+        let stderr = String::from_utf8(result.output.stderr).expect("solver stderr is not UTF-8");
 
         match status.code() {
-            None => Outcome::ToolError(format!(
-                "solver killed by signal; stderr: {}",
-                stderr.trim()
-            )),
+            None => tool_error(
+                &format!("solver killed by signal ({status})"),
+                &stdout,
+                &stderr,
+            ),
             Some(0) => verdict(&stdout, &stderr),
-            Some(code) => {
-                Outcome::ToolError(format!("solver exited {code}; stderr: {}", stderr.trim()))
-            }
+            Some(code) => tool_error(&format!("solver exited {code}"), &stdout, &stderr),
         }
     }
 }
@@ -136,36 +99,32 @@ fn verdict(stdout: &str, stderr: &str) -> Outcome {
     for line in stdout.lines() {
         let line = line.trim();
         if line.starts_with("(error") {
-            return Outcome::ToolError(format!(
-                "solver reported an error; stderr: {}",
-                if stderr.trim().is_empty() {
-                    line
-                } else {
-                    stderr.trim()
-                }
-            ));
+            return tool_error("solver reported an error", stdout, stderr);
         }
         if matches!(line, "sat" | "unsat" | "unknown" | "unsupported") {
             words.push(line);
         }
     }
     match words.len() {
-        0 => Outcome::ToolError(format!(
-            "no verdict in solver output; stderr: {}",
-            stderr.trim()
-        )),
+        0 => tool_error("no verdict in solver output", stdout, stderr),
         1 => match words[0] {
             "sat" => Outcome::Sat,
             "unsat" => Outcome::Unsat,
             "unknown" => Outcome::Unknown,
             _ => Outcome::Unsupported,
         },
-        _ => Outcome::ToolError(format!("{} verdicts in one run", words.len())),
+        _ => tool_error(
+            &format!("{} verdicts in one run", words.len()),
+            stdout,
+            stderr,
+        ),
     }
 }
 
-fn read(path: &Path) -> String {
-    std::fs::read_to_string(path).unwrap_or_else(|err| panic!("cannot read {path:?}: {err}"))
+/// Keep both complete streams after classifying a failed call. Diagnostics
+/// belong to the evidence even when cvc5 writes its error to stdout.
+fn tool_error(reason: &str, stdout: &str, stderr: &str) -> Outcome {
+    Outcome::ToolError(format!("{reason}; stdout:\n{stdout}\nstderr:\n{stderr}"))
 }
 
 fn cleanup(paths: &[&PathBuf]) {
@@ -177,6 +136,8 @@ fn cleanup(paths: &[&PathBuf]) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::Path;
+    use std::time::Instant;
 
     fn fixtures() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/fixtures/smt")
@@ -270,7 +231,11 @@ mod tests {
         };
         let outcome = missing.check_sat("qf_lia_unsat", &script("qf_lia_unsat.smt2"));
         assert!(
-            matches!(&outcome, Outcome::ToolError(why) if why.contains("not found")),
+            matches!(&outcome, Outcome::ToolError(why)
+                if why.contains("exited 127")
+                    && why.contains("/nonexistent/intentower-cvc5")
+                    && why.contains("stderr:\n")
+                    && why.contains("timeout:")),
             "{outcome:?}"
         );
     }
@@ -279,19 +244,32 @@ mod tests {
     fn a_non_zero_exit_is_a_tool_error() {
         let outcome = solver().check_sat("malformed", &script("malformed.smt2"));
         assert!(
-            matches!(&outcome, Outcome::ToolError(why) if why.contains("exited 1")),
+            matches!(&outcome, Outcome::ToolError(why)
+                if why.contains("exited 1")
+                    && why.contains("Parse Error")
+                    && why.contains("stdout:")
+                    && why.contains("stderr:")),
             "{outcome:?}"
         );
     }
 
     #[test]
     fn two_queries_in_one_script_is_a_tool_error() {
+        // cvc5 otherwise rejects the second query itself. Enable incremental
+        // mode only in this protocol-negative input to exercise two verdicts.
         let doubled = format!(
-            "{}(check-sat)\n(check-sat)\n",
+            "(set-option :incremental true)\n{}(check-sat)\n(check-sat)\n",
             script("qf_lia_unsat.smt2").replace("(check-sat)\n", "")
         );
         let outcome = solver().check_sat("two_queries", &doubled);
-        assert!(matches!(outcome, Outcome::ToolError(_)), "{outcome:?}");
+        assert!(
+            matches!(&outcome, Outcome::ToolError(why)
+                if why.contains("2 verdicts in one run")
+                    && why.matches("unsat").count() == 2
+                    && why.contains("stdout:")
+                    && why.contains("stderr:")),
+            "{outcome:?}"
+        );
     }
 
     #[test]

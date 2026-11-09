@@ -122,14 +122,23 @@ mod tests {
     fn arithmetic_encodes_in_prefix_form() {
         let t = ints();
         let cases = [
-            ("a + b", "(+ a b)"),
-            ("a + b + c", "(+ a b c)"),
-            ("a − b", "(- a b)"),
-            ("count - 1", "(- count 1)"),
-            ("−a", "(- a)"),
-            ("a + b − c", "(- (+ a b) c)"),
-            ("(a + b) − (c − a)", "(- (+ a b) (- c a))"),
-            ("abstract_count + delta", "(+ abstract_count delta)"),
+            ("a + b", "(+ intentower_a intentower_b)"),
+            ("a + b + c", "(+ intentower_a intentower_b intentower_c)"),
+            ("a − b", "(- intentower_a intentower_b)"),
+            ("count - 1", "(- intentower_count 1)"),
+            ("−a", "(- intentower_a)"),
+            (
+                "a + b − c",
+                "(- (+ intentower_a intentower_b) intentower_c)",
+            ),
+            (
+                "(a + b) − (c − a)",
+                "(- (+ intentower_a intentower_b) (- intentower_c intentower_a))",
+            ),
+            (
+                "abstract_count + delta",
+                "(+ intentower_abstract_count intentower_delta)",
+            ),
             ("0", "0"),
             ("-42", "(- 42)"),
         ];
@@ -142,13 +151,22 @@ mod tests {
     fn comparisons_encode_with_both_operands() {
         let t = ints();
         let cases = [
-            ("a ≥ 0", "(>= a 0)"),
-            ("a + delta ≤ 1000", "(<= (+ a delta) 1000)"),
-            ("abstract_count = a + b", "(= abstract_count (+ a b))"),
-            ("delta > 0", "(> delta 0)"),
-            ("a < b", "(< a b)"),
-            ("a ≠ b", "(distinct a b)"),
-            ("a − b ≥ c", "(>= (- a b) c)"),
+            ("a ≥ 0", "(>= intentower_a 0)"),
+            (
+                "a + delta ≤ 1000",
+                "(<= (+ intentower_a intentower_delta) 1000)",
+            ),
+            (
+                "abstract_count = a + b",
+                "(= intentower_abstract_count (+ intentower_a intentower_b))",
+            ),
+            ("delta > 0", "(> intentower_delta 0)"),
+            ("a < b", "(< intentower_a intentower_b)"),
+            ("a ≠ b", "(distinct intentower_a intentower_b)"),
+            (
+                "a − b ≥ c",
+                "(>= (- intentower_a intentower_b) intentower_c)",
+            ),
         ];
         for (source, want) in cases {
             assert_eq!(comparison(&pred(source), &t).unwrap(), want, "`{source}`");

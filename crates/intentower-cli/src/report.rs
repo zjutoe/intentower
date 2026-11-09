@@ -11,8 +11,12 @@
 //! is not proved is named.
 
 use std::collections::{BTreeMap, BTreeSet};
-use std::path::Path;
-use std::process::Command;
+use std::ffi::{OsStr, OsString};
+use std::io::{self, Read};
+use std::os::unix::process::ExitStatusExt;
+use std::path::{Path, PathBuf};
+use std::process::{Command, Output, Stdio};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use serde_json::{Value, json};
 
@@ -20,24 +24,206 @@ use crate::gate::policy::Decision;
 use crate::gate::provenance::{self, Input};
 use crate::verify::Status;
 
-/// Exact version string as the tool prints it. A report whose tool versions
-/// are unknown is not a report, so a missing tool stops here.
-pub fn version(bin: &str) -> String {
-    let output = Command::new(bin)
-        .arg("--version")
-        .output()
-        .unwrap_or_else(|err| panic!("cannot run `{bin} --version`: {err}"));
-    if !output.status.success() {
-        panic!("`{bin} --version` exited {}", output.status);
+mod cancellation;
+mod validation;
+
+/// A failed version precondition, not a verification result. Process status
+/// comes from the GNU timeout supervisor; unavailable captures remain None.
+#[derive(Debug)]
+pub struct VersionError {
+    command: [String; 2],
+    status: &'static str,
+    exit_code: Option<i32>,
+    signal: Option<i32>,
+    stdout: Option<String>,
+    stderr: Option<String>,
+    message: String,
+}
+
+impl std::fmt::Display for VersionError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.message)
     }
-    let line = String::from_utf8_lossy(&output.stdout)
-        .lines()
-        .next()
-        .unwrap_or_default()
-        .trim()
-        .to_string();
-    assert!(!line.is_empty(), "`{bin} --version` printed nothing");
-    line
+}
+
+impl VersionError {
+    pub fn diagnostic(&self) -> Value {
+        json!({
+            "status": self.status,
+            "command": self.command,
+            "status_source": "timeout_supervisor",
+            "exit_code": self.exit_code,
+            "signal": self.signal,
+            "stdout": self.stdout,
+            "stderr": self.stderr,
+            "message": self.message,
+        })
+    }
+}
+
+/// Exact version string as the tool prints it. Unknown versions cannot enter
+/// a verification report; callers must stop on an error instead of guessing.
+pub fn version(bin: &str, timeout: Duration) -> Result<String, VersionError> {
+    let command = [bin.to_string(), "--version".to_string()];
+    let result = bounded_output(bin, &[OsString::from("--version")], timeout).map_err(|err| {
+        VersionError {
+            command: command.clone(),
+            status: "TOOL_ERROR",
+            exit_code: None,
+            signal: None,
+            stdout: None,
+            stderr: None,
+            message: format!("cannot run `{bin} --version`: {err}"),
+        }
+    })?;
+    let output = result.output;
+    let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
+    let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
+    let line = stdout.lines().next().unwrap_or_default().trim().to_string();
+    let message = if result.timed_out {
+        format!(
+            "TIMEOUT: `{bin} --version` exceeded {}s",
+            timeout.as_secs_f64()
+        )
+    } else if !output.status.success() {
+        format!(
+            "`{bin} --version` exited {}; stdout: {}; stderr: {}",
+            output.status,
+            stdout.trim(),
+            stderr.trim()
+        )
+    } else if line.is_empty() {
+        format!("`{bin} --version` printed nothing")
+    } else {
+        return Ok(line);
+    };
+    Err(VersionError {
+        command,
+        status: if result.timed_out {
+            "TIMEOUT"
+        } else {
+            "TOOL_ERROR"
+        },
+        exit_code: output.status.code(),
+        signal: output.status.signal(),
+        stdout: Some(stdout),
+        stderr: Some(stderr),
+        message,
+    })
+}
+
+/// Separate preflight diagnostics cannot satisfy schema 1.0. Never replace
+/// the verification report when its required tool versions are unavailable.
+pub fn preflight_failure_path(report_path: &Path) -> PathBuf {
+    let mut name = report_path.as_os_str().to_os_string();
+    name.push(".error.json");
+    PathBuf::from(name)
+}
+
+pub fn write_preflight_failure(report_path: &Path, failure: &Value) -> io::Result<PathBuf> {
+    let path = preflight_failure_path(report_path);
+    if let Some(parent) = path
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+    {
+        std::fs::create_dir_all(parent)?;
+    }
+    let mut bytes = serde_json::to_vec_pretty(failure).map_err(io::Error::other)?;
+    bytes.push(b'\n');
+    std::fs::write(&path, bytes)?;
+    Ok(path)
+}
+
+pub(crate) struct ToolOutput {
+    pub output: Output,
+    pub timed_out: bool,
+}
+
+struct ToolCapture(PathBuf);
+
+impl Drop for ToolCapture {
+    fn drop(&mut self) {
+        // Only this call's atomically reserved directory is removed.
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+/// Bound a tool with the installed GNU timeout supervisor. KILL applies to
+/// its process group even when the tool ignores TERM. Capture to files so an
+/// inherited pipe cannot keep the caller waiting for EOF after the deadline.
+/// CLI cancellation also signals the active supervisor to kill this group.
+pub(crate) fn bounded_output(
+    bin: impl AsRef<OsStr>,
+    args: &[OsString],
+    timeout: Duration,
+) -> io::Result<ToolOutput> {
+    if timeout.is_zero() || Instant::now().checked_add(timeout).is_none() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "tool timeout must be positive and representable",
+        ));
+    }
+    let nonce = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(io::Error::other)?
+        .as_nanos();
+    let dir = std::env::temp_dir().join(format!("intentower-tool-{}-{nonce}", std::process::id()));
+    std::fs::create_dir(&dir)?;
+    let capture = ToolCapture(dir);
+    let out_path = capture.0.join("stdout");
+    let err_path = capture.0.join("stderr");
+    let output_file = |path: &Path| {
+        std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(path)
+    };
+    let bin = bin.as_ref();
+    let mut command = Command::new("timeout");
+    cancellation::bind_to_cli(&mut command);
+    let started = Instant::now();
+    let status = command
+        .args(["--signal=KILL", "--"])
+        .arg(format!(
+            "{}.{:09}s",
+            timeout.as_secs(),
+            timeout.subsec_nanos()
+        ))
+        .arg(bin)
+        .args(args)
+        .stdin(Stdio::null())
+        .stdout(Stdio::from(output_file(&out_path)?))
+        .stderr(Stdio::from(output_file(&err_path)?))
+        .status()
+        .map_err(|err| {
+            io::Error::new(
+                err.kind(),
+                format!(
+                    "cannot start GNU timeout for {}: {err}",
+                    bin.to_string_lossy()
+                ),
+            )
+        })?;
+    let elapsed = started.elapsed();
+    // GNU timeout can itself receive KILL when terminating the whole group.
+    // A tool exiting with 124/137 before its deadline is still a tool error.
+    let timed_out = elapsed >= timeout
+        && (matches!(status.code(), Some(124 | 137)) || status.signal() == Some(9));
+    let read_capture = |path: &Path| -> io::Result<Vec<u8>> {
+        let file = std::fs::File::open(path)?;
+        let length = file.metadata()?.len();
+        let mut bytes = Vec::new();
+        file.take(length).read_to_end(&mut bytes)?;
+        Ok(bytes)
+    };
+    Ok(ToolOutput {
+        output: Output {
+            status,
+            stdout: read_capture(&out_path)?,
+            stderr: read_capture(&err_path)?,
+        },
+        timed_out,
+    })
 }
 
 /// Machine-readable reason for a status that is not a proof.
@@ -96,6 +282,12 @@ pub fn build(model_id: &str, decision: &Decision, tools: Value) -> Value {
         }
     }
 
+    // No assumption-consistency check is performed by this pipeline (SP-G8).
+    issues.push(json!({
+        "code": "ASSUMPTION_CONSISTENCY_NOT_ESTABLISHED",
+        "message": "assumption consistency not established: contradictory hypotheses can yield SMT_DISCHARGED without establishing the goal for a reachable state",
+    }));
+
     json!({
         "schema_version": "1.0",
         "model_id": model_id,
@@ -138,53 +330,12 @@ pub fn write(path: &Path, report: &Value) {
 }
 
 /// T28: read a written report back for display. Every check here is a
-/// refusal, never an authorization: a report that is not schema 1.0, whose
-/// `po_total` disagrees with its rows, or whose rows are missing an id, kind
-/// or status is not rendered at all.
+/// refusal, never an authorization: schema 1.0 and its count, uniqueness and
+/// PASS consistency rules are checked before any rendering or feedback.
 pub fn read(path: &Path) -> Result<Value, String> {
     let text = std::fs::read_to_string(path).map_err(|err| format!("{path:?}: {err}"))?;
     let report: Value = serde_json::from_str(&text).map_err(|err| format!("{path:?}: {err}"))?;
-
-    let version = report
-        .get("schema_version")
-        .and_then(Value::as_str)
-        .unwrap_or("<missing>");
-    if version != "1.0" {
-        return Err(format!("{path:?}: schema_version {version} is not 1.0"));
-    }
-    let obligations = report
-        .get("obligations")
-        .and_then(Value::as_array)
-        .ok_or_else(|| format!("{path:?}: no obligations array"))?;
-    let total = report
-        .get("po_total")
-        .and_then(Value::as_u64)
-        .ok_or_else(|| format!("{path:?}: no po_total"))?;
-    if total as usize != obligations.len() {
-        return Err(format!(
-            "{path:?}: po_total {total} != {} obligations listed",
-            obligations.len()
-        ));
-    }
-    match report
-        .get("gate")
-        .and_then(|gate| gate.get("status"))
-        .and_then(Value::as_str)
-    {
-        Some(status @ ("PASS" | "FAIL" | "INCOMPLETE")) => status,
-        other => {
-            return Err(format!(
-                "{path:?}: gate.status is {other:?}, not PASS/FAIL/INCOMPLETE"
-            ));
-        }
-    };
-    for row in obligations {
-        for field in ["id", "kind", "status"] {
-            if row.get(field).and_then(Value::as_str).is_none() {
-                return Err(format!("{path:?}: an obligation has no {field}"));
-            }
-        }
-    }
+    validation::validate(&report).map_err(|err| format!("{path:?}: {err}"))?;
     Ok(report)
 }
 
@@ -281,7 +432,9 @@ fn cell(value: Option<&Value>) -> String {
         Some(_) => "-".to_string(),
         None => "-".to_string(),
     };
-    text.replace('|', "\\|").replace('\n', " ")
+    text.replace('\\', "\\\\")
+        .replace('|', "\\|")
+        .replace(['\r', '\n'], " ")
 }
 
 fn counts(rows: &[&Value], field: &str) -> BTreeMap<String, usize> {

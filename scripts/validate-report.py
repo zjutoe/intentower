@@ -26,9 +26,12 @@ SCHEMA = Path(__file__).resolve().parent.parent / "schemas/report.schema.json"
 
 def problems(report, schema):
     validator = Draft202012Validator(schema)
-    for err in sorted(validator.iter_errors(report), key=lambda e: list(e.absolute_path)):
+    schema_errors = sorted(validator.iter_errors(report), key=lambda e: list(map(str, e.absolute_path)))
+    for err in schema_errors:
         where = "/".join(map(str, err.absolute_path)) or "<root>"
         yield f"{where}: {err.message}"
+    if schema_errors:
+        return  # Cross-field checks below require the schema's field types.
 
     obligations = report.get("obligations", [])
     if report.get("po_total") != len(obligations):

@@ -1,0 +1,143 @@
+{
+  "task_id": "REVIEW-P2-REPORT",
+  "status": "done",
+  "parent": [
+    "INT-001",
+    "SPEC-001"
+  ],
+  "base_head": "f5bae6e541338b6248255dbfc053ae291d500a58",
+  "changed_files": [
+    "crates/intentower-cli/src/report.rs",
+    "crates/intentower-cli/src/report/validation.rs",
+    "scripts/validate-report.py",
+    "crates/intentower-cli/tests/report_validation.rs",
+    "crates/intentower-cli/tests/feedback.rs",
+    "tests/test_refinement_binding.py",
+    "tasks/TASK-REVIEW-P2-REPORT.md",
+    "tasks/REVIEW-P2-REPORT-results.json"
+  ],
+  "commands_run": [
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 0,
+      "result": "Final suite: 174 passed, 0 failed, 0 ignored; doc-tests: 0"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "12 passed in 3.465 seconds; prior P1 regressions retained"
+    },
+    {
+      "command": "timeout 90s cargo test --locked --offline --test report_validation -- --nocapture",
+      "exit_code": 0,
+      "result": "Test author: 3 passed; 141 oracle cases, 34 accepted and 107 rejected"
+    },
+    {
+      "command": "timeout 10s target/debug/intentower report tests/fixtures/report/pass-with-unsupported.invalid.json --out /tmp/intentower-p2-report-original-repro.md",
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "result": "Invalid PASS rejected before rendering"
+    },
+    {
+      "command": "timeout 10s cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Frozen schema 1.0 shape and original three cross-field rules",
+      "status": "passed",
+      "evidence": "141 variants agree with independent Python Draft202012Validator and pre-existing count, ID uniqueness and PASS constraints"
+    },
+    {
+      "check": "All consumers reject invalid evidence before output",
+      "status": "passed",
+      "evidence": "report/feedback/escalate exit 2, no verdict printed, no summary or packet created or existing output overwritten"
+    },
+    {
+      "check": "Normal report behavior retained",
+      "status": "passed",
+      "evidence": "Actual Rossi/cvc5 PASS and existing real FAIL/INCOMPLETE reports remain displayable with tool access disabled; existing stale report tests pass"
+    },
+    {
+      "check": "Unknown internal category still stops",
+      "status": "passed",
+      "evidence": "Pure escalation mapping test retained; external unknown statuses and agent_claim fields now rejected at the report boundary"
+    },
+    {
+      "check": "No schema, dependency, approved input or prior P1 production edits",
+      "status": "passed",
+      "evidence": "Baseline, diff inspection and prior-task hash comparison"
+    },
+    {
+      "check": "Independent non-author review",
+      "status": "passed",
+      "evidence": "review_p2_reports: no_blocking_findings; this P2 may close"
+    }
+  ],
+  "independent_review": {
+    "reviewer": "review_p2_reports",
+    "author_of_reviewed_changes": false,
+    "verdict": "no_blocking_findings",
+    "production_sha256": {
+      "crates/intentower-cli/src/report.rs": "e291f1113f77ff4e91b1a15fe391b7f100be82137ec84be08d2fa974aeee9276",
+      "crates/intentower-cli/src/report/validation.rs": "40b2b351b75a4a69ef9fb531e15e0985605c46c38d8d7f74cfadc47e74303ee4",
+      "scripts/validate-report.py": "768999e55912cea0c53806e8218d2b29fe58c74d1c5ef8c6f565c5de63cb0d66"
+    },
+    "commands_run": [
+      {
+        "command": "timeout 90s cargo test --locked --offline --test report_validation -- --nocapture",
+        "exit_code": 0,
+        "result": "3 passed; all 141 schema comparisons agree"
+      },
+      {
+        "command": "timeout 10s target/debug/intentower baseline",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ]
+  },
+  "test_development": {
+    "initial_new_target_exit_code": 101,
+    "initial_result": "2 passed, 1 failed: test mutation generator used pointer_mut on an absent optional field",
+    "repair_rounds": 1,
+    "correction": "Insert optional field into its parent object; no production acceptance failure or weakened checks",
+    "corrected_new_target_exit_code": 0
+  },
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "preserved_prior_work": {
+    "previous_task": "REVIEW-P1",
+    "production_files_unchanged": true,
+    "historical_record_unchanged": true,
+    "direct_test_adjustment": "Candidate binding fixture now uses schema-valid MODEL-006 instead of MODEL-CANDIDATE and additionally checks successful escalation; original P1 assertions retained"
+  },
+  "remaining_risks": [
+    "Six prior P2 findings remain: external-tool timeouts, missing-tool failure reporting, SMT identifier collisions, solver error-output retention, dry-run classification and vacuity warning in JSON",
+    "Read validation checks shape and consistency; it cannot authenticate an edited report or replace the current-input Gate",
+    "The producer can still emit custom model IDs or PO labels outside the frozen schema; the reader now rejects those reports rather than expanding the schema",
+    "Rust checks explicitly implement this frozen schema; future schema changes must update validation and oracle tests together",
+    "No real LLM experiment or source-code formal correctness proof; no human phase-gate approval implied"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "Handle external-tool timeouts in a separately bounded task"
+}

@@ -1,0 +1,209 @@
+{
+  "task_id": "REVIEW-P2-SOLVER-DIAGNOSTICS",
+  "status": "done",
+  "parent": [
+    "INT-001 C-02/C-06",
+    "SPEC-001 SP-G2/SP-G3 and tool-error contract",
+    "T19",
+    "T20",
+    "T30"
+  ],
+  "base_head": "f5bae6e541338b6248255dbfc053ae291d500a58",
+  "changed_files": [
+    "crates/intentower-cli/src/solver/cvc5.rs",
+    "crates/intentower-cli/src/feedback.rs",
+    "crates/intentower-cli/src/report.rs",
+    "crates/intentower-cli/tests/solver_diagnostics.rs",
+    "tasks/TASK-REVIEW-P2-SOLVER-DIAGNOSTICS.md",
+    "tasks/REVIEW-P2-SOLVER-DIAGNOSTICS-results.json"
+  ],
+  "behavior": [
+    "Completed solver calls classified as TOOL_ERROR retain separate complete stdout and stderr, including surrounding whitespace and trailing lines",
+    "Nonzero exit, signal, explicit error, missing verdict and multiple verdicts keep their existing classifications; valid verdict text inside failed calls is never treated as a proof",
+    "JSON obligation detail and issue message retain raw diagnostic text; summary and feedback escape backslashes before pipes and flatten CR/LF for one Markdown table cell",
+    "The existing 8192-byte feedback budget remains unchanged; oversized diagnostics are preserved in JSON while feedback refuses without writing a truncated packet",
+    "No solver invocation, lifecycle, timeout, source encoding, F0, schema, dependency or approved baseline changes"
+  ],
+  "commands_run": [
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 101,
+      "result": "Initial strengthened test: 72 library tests passed, one failed; the real cvc5 double-query fixture lacked incremental mode and produced its own exit-1 error rather than two verdicts"
+    },
+    {
+      "command": "timeout 60s cargo test --locked --offline --lib solver::cvc5::tests",
+      "exit_code": 0,
+      "result": "10 passed after a test-input-only correction enabling incremental mode in the protocol-negative script"
+    },
+    {
+      "command": "timeout 90s cargo test --locked --offline --test solver_diagnostics -- --nocapture",
+      "exit_code": 0,
+      "result": "Test author final target: 5 passed; real normal and malformed cvc5 runs, protocol negatives, end-to-end report consumers, oversized diagnostics"
+    },
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 0,
+      "result": "Final complete Rust suite: 181 passed, 0 failed, 0 ignored; doc-tests 0"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "30 passed in 20.072 seconds"
+    },
+    {
+      "command": "timeout 10s cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --exit-code -- schemas/report.schema.json approvals docs/INT-001.md docs/SPEC-001.md models project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0,
+      "result": "Protected files, models, schema and dependency manifests unchanged"
+    },
+    {
+      "command": "Python SHA256 preservation check against task-start dirty/untracked inventory",
+      "exit_code": 0,
+      "result": "29 prior files unchanged; reverting only the current cell escaping in memory restores report.rs to its exact task-start hash"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Actual malformed cvc5 stdout root cause and complete stderr are retained",
+      "status": "passed",
+      "evidence": "Actual Parse Error from cvc5 exit 1 is captured with both complete streams; stderr marker is injected only as negative diagnostic evidence"
+    },
+    {
+      "check": "Rejected protocol branches never become proofs",
+      "status": "passed",
+      "evidence": "Exit 7 with unsat, signal, error after unsat, no verdict and two verdicts remain TOOL_ERROR; real incremental cvc5 also supplies the two-verdict negative"
+    },
+    {
+      "check": "All actual refinement POs remain present through errors",
+      "status": "passed",
+      "evidence": "Normal real-tool run discharges all six nonduplicate POs; error wrapper retains the identical six IDs as TOOL_ERROR with CLI exit 2 and INCOMPLETE"
+    },
+    {
+      "check": "JSON, issues, summary and feedback preserve the relevant evidence",
+      "status": "passed",
+      "evidence": "Obligation detail and issue message retain complete raw streams; summary and grouped feedback retain content and safe table columns for backslash/pipe/LF diagnostics"
+    },
+    {
+      "check": "Oversized diagnostic refuses feedback without truncation",
+      "status": "passed",
+      "evidence": "Six actual failed solver calls each retain 8288-byte raw stderr in detail/issues; default feedback exits 2 with the 8192-byte refusal, creates no output and leaves JSON bytes unchanged"
+    },
+    {
+      "check": "Full regression, formatting and protected baseline",
+      "status": "passed",
+      "evidence": "181 Rust and 30 Python tests, fmt, diff, baseline and preservation checks pass"
+    },
+    {
+      "check": "Frozen independent non-author review",
+      "status": "passed",
+      "evidence": "review_solver_diagnostics: no_blocking_findings; this P2 may close after rechecking the corrected Markdown escaping and both budget boundaries"
+    }
+  ],
+  "independent_review": {
+    "reviewer": "review_solver_diagnostics",
+    "author_of_reviewed_changes": false,
+    "verdict": "no_blocking_findings",
+    "may_close_this_p2": true,
+    "frozen_hashes_verified": true,
+    "commands_run": [
+      {
+        "command": "timeout 90s cargo test --locked --offline --test solver_diagnostics -- --nocapture",
+        "exit_code": 0,
+        "result": "5 passed"
+      },
+      {
+        "command": "Independent Python inspection using two installed Markdown renderers on actual generated summary and feedback",
+        "exit_code": 0,
+        "result": "6 summary rows and 1 grouped feedback row each retain four columns, Parse Error and visible original backslash-pipe content"
+      },
+      {
+        "command": "In-memory reversal of only the report.rs cell edit followed by SHA256",
+        "exit_code": 0,
+        "result": "Exact task-start hash restored; earlier report/timeout work is preserved"
+      }
+    ],
+    "additional_reported_checks": [
+      "Formatting, git diff --check and baseline all exit 0",
+      "Frozen production, test and task-document hashes match; production and test hashes unchanged after verification",
+      "Protected files, model sources, schema and dependencies have no diff"
+    ],
+    "review_correction": "Initial review found the backslash-pipe Markdown display defect; the final escaping sequence was independently rechecked after correction",
+    "limits": "Reviewer ran the bounded five-test target and display probes; complete 181 Rust / 30 Python suites were run by the main agent"
+  },
+  "frozen_sha256": {
+    "crates/intentower-cli/src/solver/cvc5.rs": "180ed4d089cea52bbfb57df3180bf2272da35910eebc14029d8614bb4895e201",
+    "crates/intentower-cli/src/feedback.rs": "f1192c34214bc3e981aa466a255c53cce6a24cd9c65607b5aad0e595a797bf42",
+    "crates/intentower-cli/src/report.rs": "faf558d406814215ff9ea55715474eb27aad83010f62eb19c486e37fb0d46ebb",
+    "crates/intentower-cli/tests/solver_diagnostics.rs": "94239b39c9bcefb959a60197363ba456c40b286269f9e63d3fca74d081e04016",
+    "tasks/TASK-REVIEW-P2-SOLVER-DIAGNOSTICS.md": "917ec5899c8f702fecb7d8b7037305e43ffb5b686f6c3b15bba7ab7018ebbc29"
+  },
+  "development_evidence": {
+    "test_failure_repair_rounds": 1,
+    "test_only_correction": "Enable incremental mode only in the real double-verdict negative fixture; no production invocation or acceptance weakened",
+    "prefreeze_review_correction": "Reviewer found that escaping pipes without first escaping source backslashes breaks a Markdown table cell; feedback and summary now escape backslashes first",
+    "budget_coverage": "Added oversized actual-error negative before freeze; no production budget change or failed acceptance",
+    "no_other_failures_reported_by_test_author": true
+  },
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "regression_model_results": {
+    "scope": "Temporary test refinement only; not implementation source-code proof or a project-wide PO inventory",
+    "normal": {
+      "total": 6,
+      "discharged": 6,
+      "not_discharged": 0,
+      "unknown": 0,
+      "unsupported": 0,
+      "tool_error": 0,
+      "cli_exit": 0
+    },
+    "injected_real_parse_error": {
+      "total": 6,
+      "discharged": 0,
+      "tool_error": 6,
+      "cli_exit": 2,
+      "expected_negative": true
+    },
+    "oversized_real_parse_error": {
+      "total": 6,
+      "discharged": 0,
+      "tool_error": 6,
+      "stderr_bytes_each": 8288,
+      "cli_exit": 2,
+      "feedback_exit": 2,
+      "expected_negative": true
+    },
+    "test_author_evidence": [
+      "/tmp/intentower-solver-diagnostics-114-1794189252871055608-refinement",
+      "/tmp/intentower-solver-diagnostics-114-1794189252871166277-oversized-diagnostic"
+    ]
+  },
+  "preserved_prior_work": "All task-start dirty/untracked files outside the allowed report cell edit match their starting hashes. No historical result, model, Intent/Spec, approval, schema or dependency changes",
+  "remaining_risks": [
+    "Three prior P2 findings remain: structured missing-tool failure reports, dry-run classification and vacuity warning in JSON",
+    "Only completed TOOL_ERROR calls gain full streams; existing pre-spawn/wait, timeout, UTF-8 decoding and lifecycle behavior is unchanged",
+    "Existing feedback grouping still selects one representative diagnostic per status and is not a lossless archive; complete per-PO text is retained in JSON",
+    "Model regression proofs, source tests and independent review do not formally prove implementation code correct or constitute human phase-gate approval"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "REVIEW-P2-DRY-RUN: repair refinement dry_run outcome classification as a separate bounded task"
+}

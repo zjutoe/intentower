@@ -91,8 +91,8 @@ mod tests {
     #[test]
     fn two_different_variables_stay_different() {
         let t = types(&[("a", Sort::Int), ("count'", Sort::Int)]);
-        assert_eq!(integer(&expr("a"), &t).unwrap(), "a");
-        assert_eq!(integer(&expr("count'"), &t).unwrap(), "|count'|");
+        assert_eq!(integer(&expr("a"), &t).unwrap(), "intentower_a");
+        assert_eq!(integer(&expr("count'"), &t).unwrap(), "|intentower_count'|");
     }
 
     #[test]
@@ -148,10 +148,20 @@ mod tests {
 
     #[test]
     fn names_become_valid_smt_symbols() {
-        assert_eq!(smt_name("count'").unwrap(), "|count'|");
-        assert_eq!(smt_name("abstract_count").unwrap(), "abstract_count");
-        assert_eq!(smt_name("a b").unwrap(), "|a b|");
+        assert_eq!(smt_name("count'").unwrap(), "|intentower_count'|");
+        assert_eq!(
+            smt_name("abstract_count").unwrap(),
+            "intentower_abstract_count"
+        );
+        assert_eq!(smt_name("a b").unwrap(), "|intentower_a b|");
+        assert_eq!(smt_name("true").unwrap(), "intentower_true");
+        assert_eq!(
+            smt_name("intentower_true").unwrap(),
+            "intentower_intentower_true"
+        );
         assert_eq!(smt_name("a|b"), Err(SmtError::BadName("a|b".to_string())));
+        assert_eq!(smt_name(r"a\b"), Err(SmtError::BadName(r"a\b".to_string())));
+        assert_eq!(smt_name("a\nb"), Err(SmtError::BadName("a\nb".to_string())));
         assert_eq!(smt_name(""), Err(SmtError::BadName(String::new())));
     }
 }

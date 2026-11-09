@@ -1,0 +1,184 @@
+{
+  "task_id": "REVIEW-P2-SMT-NAMES",
+  "status": "done",
+  "parent": [
+    "INT-001",
+    "SPEC-001"
+  ],
+  "base_head": "f5bae6e541338b6248255dbfc053ae291d500a58",
+  "changed_files": [
+    "crates/intentower-cli/src/smt/mod.rs",
+    "crates/intentower-cli/src/smt/atoms.rs",
+    "crates/intentower-cli/src/smt/arithmetic.rs",
+    "crates/intentower-cli/src/smt/logic.rs",
+    "crates/intentower-cli/src/smt/encode.rs",
+    "crates/intentower-cli/tests/smt_names.rs",
+    "tasks/TASK-REVIEW-P2-SMT-NAMES.md",
+    "tasks/REVIEW-P2-SMT-NAMES-results.json"
+  ],
+  "production_behavior_files": [
+    "crates/intentower-cli/src/smt/mod.rs"
+  ],
+  "test_only_source_files": [
+    "crates/intentower-cli/src/smt/atoms.rs",
+    "crates/intentower-cli/src/smt/arithmetic.rs",
+    "crates/intentower-cli/src/smt/logic.rs",
+    "crates/intentower-cli/src/smt/encode.rs"
+  ],
+  "behavior": [
+    "Every accepted source free identifier receives the fixed intentower_ prefix, including source names already carrying that prefix",
+    "Declarations and references still use one mapper; original type-environment keys and PO/report identities are unchanged",
+    "Quote symbols where needed for apostrophes, spaces and Unicode; reject empty names, pipe/backslash delimiters or escapes, and control characters explicitly",
+    "Boolean constants, arithmetic/logical operators and sorts are unchanged; no F0 theory expansion"
+  ],
+  "commands_run": [
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 0,
+      "result": "Final suite: 176 passed, 0 failed, 0 ignored; doc-tests: 0"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "30 passed in 20.172 seconds"
+    },
+    {
+      "command": "timeout 120s cargo test --locked --offline --test smt_names -- --nocapture",
+      "exit_code": 0,
+      "result": "Test author corrected target: 2 passed; 22 actual Rossi/cvc5 models with 51 POs"
+    },
+    {
+      "command": "timeout 10s cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --exit-code -- schemas/report.schema.json approvals docs/INT-001.md docs/SPEC-001.md models project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0,
+      "result": "No protected, schema, model or dependency changes"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Reserved/built-in names remain genuine source variables",
+      "status": "passed",
+      "evidence": "let, exists, forall, true, false, and, or, abs plus x and intentower_true controls each retain real positive PASS and negative FAIL/NOT_DISCHARGED outcomes"
+    },
+    {
+      "check": "An existing source prefix cannot alias another source variable",
+      "status": "passed",
+      "evidence": "true and intentower_true preserve their ordered-state invariant in the good model; bad m::step/inv3/INV is NOT_DISCHARGED instead of vacuously discharged"
+    },
+    {
+      "check": "Complete original PO inventory retained",
+      "status": "passed",
+      "evidence": "Independent XML enumeration of every generated .bpo matches report IDs and hashes; good prefix-pair has 6 POs, bad has 5 because its second variable is unchanged"
+    },
+    {
+      "check": "Primed identifiers, literals and unsupported boundaries retained",
+      "status": "passed",
+      "evidence": "Existing typed encoder and real invariant/refinement tests pass; declarations and references share mapping; FIS/Bool/outside-F0 results are unchanged"
+    },
+    {
+      "check": "Only the naming function changes production behavior",
+      "status": "passed",
+      "evidence": "Reviewer compared the production prefixes of four cfg(test)-only source files to their starting hashes; no implementation changes there"
+    },
+    {
+      "check": "Independent non-author review",
+      "status": "passed",
+      "evidence": "review_smt_names: no_blocking_findings; this P2 may close"
+    }
+  ],
+  "independent_review": {
+    "reviewer": "review_smt_names",
+    "author_of_reviewed_changes": false,
+    "verdict": "no_blocking_findings",
+    "frozen_sha256": {
+      "crates/intentower-cli/src/smt/mod.rs": "e470b7e1812600933048909199ed789df069b088b6005b9a1899aaf5aa3ef05e",
+      "crates/intentower-cli/src/smt/atoms.rs": "1f57bfdb09f121d5988a0d0823c308d310556da617e56b289947a7b014d4f541",
+      "crates/intentower-cli/src/smt/arithmetic.rs": "d445626630fc1b82535e35db4b5a68da2d6af058017b23412155f518e6a922d4",
+      "crates/intentower-cli/src/smt/logic.rs": "d8c96a57ce28adc02c81a6f0e3388c192fe92bbd23770051f591ba5c2133ea86",
+      "crates/intentower-cli/src/smt/encode.rs": "1f4eb162f63d2fdede506729cfd93097f005ec5be958bb935dee3d3a4bee27f2"
+    },
+    "commands_run": [
+      {
+        "command": "timeout 90s cargo test --locked --offline --test smt_names -- --nocapture",
+        "exit_code": 0,
+        "result": "2 passed; 22 real models, 51 POs"
+      },
+      {
+        "command": "Independent XML/report ID and artifact-hash check",
+        "exit_code": 0
+      },
+      {
+        "command": "timeout 10s target/debug/intentower baseline",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ],
+    "name_probe": "18 independently prefixed names, including reserved words, source prefixes, primes, digit-leading names, spaces, Unicode and case/Unicode distinctions, can be assigned distinct values in real cvc5",
+    "exploratory_correction": "Reviewer corrected a probe syntax error and an incorrect prediction that the installed cvc5 rejects backslash; these were exploratory checks, not production acceptance failures",
+    "quoted_symbol_boundary": {
+      "reference": "https://smt-lib.org/papers/smt-lib-reference-v2.7-r2025-07-07.pdf",
+      "result": "Backslash rejection is the strict naming boundary; installed cvc5 is permissive in the independent probe, so no claim is made that this solver itself rejects it"
+    }
+  },
+  "test_development": {
+    "initial_new_target_exit_code": 101,
+    "initial_result": "1 passed, 1 failed: bad prefix-pair test incorrectly expected 6 POs; actual Rossi generated 5",
+    "repair_rounds": 1,
+    "correction": "Assert the actual complete ID set; retain models, required NOT_DISCHARGED result and full inventory checks; no production change",
+    "corrected_new_target_exit_code": 0
+  },
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "regression_model_results": {
+    "scope": "22 temporary regression models only; not source-code formal verification or a project-wide proof inventory",
+    "total": 51,
+    "discharged": 40,
+    "not_discharged": 11,
+    "unknown": 0,
+    "unsupported": 0,
+    "tool_error": 0,
+    "counter_models": {
+      "models": 20,
+      "total": 40,
+      "discharged": 30,
+      "not_discharged": 10
+    },
+    "prefix_pair_models": {
+      "models": 2,
+      "total": 11,
+      "discharged": 10,
+      "not_discharged": 1
+    },
+    "negative_results_expected": true
+  },
+  "preserved_prior_work": "All files present at task start outside the authorized naming and direct-test paths match their starting hashes; prior result records, approvals, models, schema and dependencies were not edited",
+  "remaining_risks": [
+    "Four prior P2 findings remain: structured missing-tool failure reporting, solver error-output retention, dry-run classification and vacuity warning in JSON",
+    "Rossi warns that some source names overlap textual operator vocabulary; the actual typed POG and positive/negative SMT decisions are checked, not inferred from warning-free parsing",
+    "Regression proofs and independent code review do not formally prove implementation source code correct or constitute human phase-gate approval"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "Repair solver error-output retention in a separately scoped task"
+}

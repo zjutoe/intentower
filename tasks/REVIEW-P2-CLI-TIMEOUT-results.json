@@ -1,0 +1,150 @@
+{
+  "task_id": "REVIEW-P2-CLI-TIMEOUT",
+  "status": "done",
+  "parent": [
+    "INT-001",
+    "SPEC-001"
+  ],
+  "base_head": "f5bae6e541338b6248255dbfc053ae291d500a58",
+  "changed_files": [
+    "crates/intentower-cli/src/main.rs",
+    "crates/intentower-cli/src/report.rs",
+    "crates/intentower-cli/src/gate/policy.rs",
+    "tests/test_cli_timeouts.py",
+    "tasks/TASK-REVIEW-P2-CLI-TIMEOUT.md",
+    "tasks/REVIEW-P2-CLI-TIMEOUT-results.json"
+  ],
+  "behavior": [
+    "verify/gate accept --timeout-secs N; a positive, representable integer; explicit CLI value overrides INTENTOWER_TIMEOUT_SECS, otherwise default 30 seconds",
+    "Rossi export and both tool-version queries use installed GNU timeout with KILL and per-call exclusive file capture",
+    "Captured output is read to the file length observed at tool exit, without waiting for a descendant-held pipe or chasing later appends",
+    "Version queries precede POG; errors exit 2 without inventing a version",
+    "Build timeout preserves source hashes and records build_ok=false, INCOMPLETE and a TIMEOUT issue; no nonexistent PO is invented",
+    "The existing cvc5 adapter receives the same explicit deadline; its proof status and error-output mapping are unchanged"
+  ],
+  "runtime_requirement": {
+    "tool": "GNU coreutils timeout",
+    "verified_version": "timeout (GNU coreutils) 8.32",
+    "verified_interface": "timeout --help: --signal=KILL and process-group termination",
+    "missing_behavior": "exit 2; no unbounded fallback",
+    "crate_or_manifest_dependencies_changed": false
+  },
+  "commands_run": [
+    {
+      "command": "timeout 180s cargo test --locked --offline",
+      "exit_code": 0,
+      "result": "174 passed; 0 failed; 0 ignored; doc-tests: 0"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "24 passed in 9.266 seconds"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 90s python3 -m unittest discover -s tests -p 'test_cli_timeouts.py' -v",
+      "exit_code": 0,
+      "result": "Test author: 12 passed in 5.780 seconds on first run"
+    },
+    {
+      "command": "timeout 10s target/debug/intentower verify --help",
+      "exit_code": 0,
+      "result": "--timeout-secs N and default/environment behavior displayed"
+    },
+    {
+      "command": "timeout 10s cargo fmt --all -- --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --exit-code -- schemas/report.schema.json approvals docs/INT-001.md docs/SPEC-001.md models project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0,
+      "result": "No protected, schema or dependency changes"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Rossi export, Rossi version and cvc5 version do not wait without a deadline",
+      "status": "passed",
+      "evidence": "1-second blocking wrappers yield bounded exit 2; unknown versions do not start a POG or fabricate a report"
+    },
+    {
+      "check": "Output capture cannot deadlock on a full pipe",
+      "status": "passed",
+      "evidence": "Build wrapper writes over 128 KiB to both streams; actual markers are retained in the TIMEOUT report"
+    },
+    {
+      "check": "Timed-out monitored group is forcibly terminated",
+      "status": "passed",
+      "evidence": "TERM-ignoring parent and descendant are no longer running after timeout; tests permit exited zombie states awaiting OS reaping"
+    },
+    {
+      "check": "Configuration and outcome classification",
+      "status": "passed",
+      "evidence": "CLI/env/default behavior, ten invalid configuration subcases, fast exit 124/137 distinguished from deadline, paths with spaces and missing GNU supervisor"
+    },
+    {
+      "check": "Real tools and previous repairs remain functional",
+      "status": "passed",
+      "evidence": "Actual Rossi/cvc5 single-PO positive cases plus full Rust and Python suites; prior task files outside the three authorized sources match starting hashes"
+    },
+    {
+      "check": "Independent review",
+      "status": "passed",
+      "evidence": "review_cli_timeouts: no_blocking_findings; CLI timeout subtask complete, whole timeout finding remains open for script layer"
+    }
+  ],
+  "independent_review": {
+    "reviewer": "review_cli_timeouts",
+    "author_of_reviewed_changes": false,
+    "verdict": "no_blocking_findings",
+    "production_sha256": {
+      "crates/intentower-cli/src/main.rs": "401acca00ba852cecf2b72ecc462d113288bd7753bc59c0b82efd376c702158c",
+      "crates/intentower-cli/src/report.rs": "20c06ca50d4f757b070d9b4a32e0e5683e5f208fee91f0e1f0d22acc855162e7",
+      "crates/intentower-cli/src/gate/policy.rs": "184edb20d1c7492943e1446c4aa17bceab9e26a629923ad7aa89e6e3e5408be3"
+    },
+    "commands_run": [
+      {
+        "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 60s python3 -m unittest discover -s tests -p 'test_cli_timeouts.py' -v",
+        "exit_code": 0,
+        "result": "12 passed"
+      },
+      {
+        "command": "timeout 10s target/debug/intentower baseline",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ]
+  },
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "repair_rounds_after_failed_acceptance": 0,
+  "preserved_prior_work": "All files present at task start are unchanged except the three explicitly authorized production files; prior protections were exercised by regressions and historical records were not edited",
+  "remaining_risks": [
+    "The timeout review finding is only partially closed: scripts/run-refinement.sh still needs a force-kill grace period in a separate task",
+    "Five other prior P2 findings remain: structured missing-tool failure reports, SMT identifier collisions, solver error-output retention, dry-run classification and vacuity warning in JSON",
+    "If a tool version is unknown, CLI exits 2 without verification JSON; no placeholder version is fabricated",
+    "The CLI now requires installed GNU timeout; no new crate dependency or installation was performed",
+    "This is a deadline for the monitored call/group, not isolation or cleanup of arbitrary early-exit or detached daemons",
+    "Tests and independent code review are not a formal proof of implementation source code or human phase-gate approval"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "Repair force termination in scripts/run-refinement.sh as a separately bounded task"
+}

@@ -21,6 +21,7 @@
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::time::{Duration, Instant};
 
 use clap::{Arg, Command};
 use serde_json::json;
@@ -29,6 +30,9 @@ use intentower_cli::baseline;
 use intentower_cli::feedback;
 use intentower_cli::gate::policy::{self, Verdict};
 use intentower_cli::report;
+use intentower_cli::solver::cvc5::DEFAULT_TIMEOUT;
+
+mod output_paths;
 
 fn run(name: &'static str, about: &'static str) -> Command {
     Command::new(name)
@@ -58,6 +62,13 @@ fn run(name: &'static str, about: &'static str) -> Command {
                 .long("policy")
                 .value_name("FILE")
                 .help("policy file to pin into the report inputs by hash"),
+        )
+        .arg(
+            Arg::new("timeout_secs")
+                .long("timeout-secs")
+                .value_name("N")
+                .value_parser(clap::value_parser!(u64).range(1..))
+                .help("deadline per tool call in seconds (default: 30; INTENTOWER_TIMEOUT_SECS when unset)"),
         )
 }
 
@@ -405,6 +416,74 @@ fn main() -> ExitCode {
         .map(|source| model_dir.join(source))
         .collect();
 
+    let failure_path = report::preflight_failure_path(&report_path);
+    let mut input_paths = sources.clone();
+    input_paths.push(manifest_path.clone());
+    input_paths.extend(policy_path.iter().cloned());
+    let check_outputs = || {
+        output_paths::check(
+            &[report_path.as_path(), failure_path.as_path()],
+            &input_paths,
+        )
+    };
+    if let Err(error) = check_outputs() {
+        return fail(error);
+    }
+
+    let timeout_secs = match sub.get_one::<u64>("timeout_secs") {
+        Some(secs) => *secs,
+        None => match std::env::var("INTENTOWER_TIMEOUT_SECS") {
+            Ok(value) => match value.parse::<u64>() {
+                Ok(secs) => secs,
+                Err(_) => {
+                    return fail(format!(
+                        "INTENTOWER_TIMEOUT_SECS is not a positive integer: {value}"
+                    ));
+                }
+            },
+            Err(std::env::VarError::NotPresent) => DEFAULT_TIMEOUT.as_secs(),
+            Err(err) => return fail(format!("INTENTOWER_TIMEOUT_SECS: {err}")),
+        },
+    };
+    let timeout = Duration::from_secs(timeout_secs);
+    if timeout.is_zero() || Instant::now().checked_add(timeout).is_none() {
+        return fail("timeout must be positive and representable by the monotonic clock");
+    }
+
+    // Versions are prerequisites, not values to guess after a failed build.
+    let cvc5 = std::env::var("INTENTOWER_CVC5").unwrap_or_else(|_| "cvc5".to_string());
+    let mut tools = json!({});
+    for (tool, bin) in [("rossi", "rossi"), ("cvc5", cvc5.as_str())] {
+        match report::version(bin, timeout) {
+            Ok(version) => tools[tool] = json!(version),
+            Err(err) => {
+                if let Err(conflict) = check_outputs() {
+                    return fail(format!("{err}; {conflict}"));
+                }
+                let failure = json!({
+                    "artifact_type": "tool_preflight_failure",
+                    "format_version": 1,
+                    "operation": name,
+                    "model_id": model_id,
+                    "model_dir": model_dir,
+                    "verification_report": report_path,
+                    "verification_started": false,
+                    "tool": tool,
+                    "versions_observed": tools,
+                    "error": err.diagnostic(),
+                });
+                return match report::write_preflight_failure(&report_path, &failure) {
+                    Ok(path) => fail(format!(
+                        "{err}; verification did not start; preflight failure: {path:?}"
+                    )),
+                    Err(write_error) => fail(format!(
+                        "{err}; cannot write preflight failure alongside {report_path:?}: {write_error}"
+                    )),
+                };
+            }
+        }
+    }
+
     let work = report_path
         .parent()
         .filter(|parent| !parent.as_os_str().is_empty())
@@ -415,13 +494,11 @@ fn main() -> ExitCode {
         &model_id.to_lowercase(),
         &work,
         policy_path.as_deref(),
+        timeout,
     );
-
-    let cvc5 = std::env::var("INTENTOWER_CVC5").unwrap_or_else(|_| "cvc5".to_string());
-    let tools = json!({
-        "rossi": report::version("rossi"),
-        "cvc5": report::version(&cvc5),
-    });
+    if let Err(error) = check_outputs() {
+        return fail(error);
+    }
     let report = report::build(&model_id, &decision, tools);
     report::write(&report_path, &report);
 

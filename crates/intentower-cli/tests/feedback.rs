@@ -210,7 +210,8 @@ fn a_pass_report_is_not_a_repair_input() {
     for row in value["obligations"].as_array_mut().unwrap() {
         row["status"] = serde_json::json!("SMT_DISCHARGED");
     }
-    value["gate"]["status"] = serde_json::json!("PASS");
+    value["gate"] = serde_json::json!({ "status": "PASS", "reasons": [] });
+    value["issues"] = serde_json::json!([]);
     let (code, stdout, stderr, written) = packet_of(&value, "pass");
     assert_eq!(code, Some(2), "stdout {stdout}");
     assert!(
@@ -469,8 +470,14 @@ fn repeated_failure_hands_off_to_codex_review() {
 
 #[test]
 fn a_status_that_is_not_classified_stops_instead_of_being_folded_in() {
-    let text = escalation(&with_status(FAIL, "WEIRD"), "esc-weird", &[]);
-    assert_eq!(decided(&text), "UNCLASSIFIED_STOP");
+    // Unknown statuses are refused at the CLI boundary. Keep the pure mapping
+    // check too: a future unclassified internal status must still stop.
+    let value = with_status(FAIL, "WEIRD");
+    let text = feedback::escalation(&value, "not_stopped", 0, 0);
+    assert_eq!(
+        feedback::next_step(&feedback::grouped(&value), "not_stopped", false),
+        "UNCLASSIFIED_STOP"
+    );
     assert!(text.contains("不在升级表内"), "{text}");
     assert!(
         text.contains("`WEIRD`"),
@@ -499,17 +506,23 @@ fn a_pass_after_a_repair_still_waits_for_a_human_to_read_the_diff() {
 fn the_next_step_is_read_from_the_report_not_from_what_the_agent_claims() {
     let mut claimed = report(INCOMPLETE);
     claimed["agent_claim"] = serde_json::json!("我已经修好了，可以判定通过");
-    let plain = escalation(
-        &report(INCOMPLETE),
-        "esc-claim-plain",
-        &["--verifications", "1"],
-    );
-    let with_claim = escalation(&claimed, "esc-claim", &["--verifications", "1"]);
+    let plain = feedback::escalation(&report(INCOMPLETE), "not_stopped", 1, 0);
+    let with_claim = feedback::escalation(&claimed, "not_stopped", 1, 0);
     assert_eq!(
         plain, with_claim,
         "an agent's own account of its work must not move a single row"
     );
     assert!(!with_claim.contains("我已经修好了"));
+
+    // Extra agent declarations are not part of schema 1.0, so the external
+    // report boundary rejects them before any next-step decision is printed.
+    let dir = out_dir("esc-claim");
+    let src = dir.join("report.json");
+    std::fs::write(&src, claimed.to_string()).unwrap();
+    let (code, stdout, stderr) = run(&["escalate", src.to_str().unwrap()]);
+    assert_eq!(code, Some(2), "{stdout}{stderr}");
+    assert!(stdout.is_empty());
+    assert!(stderr.contains("agent_claim"), "{stderr}");
 }
 
 #[test]

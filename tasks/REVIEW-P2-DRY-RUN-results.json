@@ -1,0 +1,194 @@
+{
+  "task_id": "REVIEW-P2-DRY-RUN",
+  "status": "done",
+  "parent": "infrastructure-only (Phase plan T31/T33 experiment accounting); approved INT-001 C-02/C-06; SPEC-001 verification semantics unchanged",
+  "changed_files": [
+    "scripts/run-refinement.sh",
+    "tests/test_refinement_dry_run.py",
+    "tasks/TASK-REVIEW-P2-DRY-RUN.md",
+    "tasks/REVIEW-P2-DRY-RUN-results.json"
+  ],
+  "behavior": [
+    "run.json.dry_run records the exact DRY_RUN=1 configuration used by the existing skip-Pi branch",
+    "Missing or unparseable assistant completion events no longer turn ordinary runs into dry-runs",
+    "Seeded first-round PASS without invoking Pi remains an ordinary seeded run unless DRY_RUN=1 is configured",
+    "Pi exit policy, completed-message and token counts, real Gate decisions, timeouts, caps, binding and feedback budget are unchanged"
+  ],
+  "commands_run": [
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 90s python3 -m unittest discover -s tests -p 'test_refinement_dry_run.py' -v",
+      "exit_code": 0,
+      "result": "10 new tests passed on the first run in 4.466 seconds"
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 120s python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "result": "40 tests passed in 24.517 seconds; no failures or skips"
+    },
+    {
+      "command": "timeout 10s bash -n scripts/run-refinement.sh",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff --exit-code -- docs approvals models project.json schemas AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0,
+      "result": "Protected sources, schema, policy, plan and dependencies unchanged"
+    },
+    {
+      "command": "Python SHA256 task-start preservation and exact script reconstruction check",
+      "exit_code": 0,
+      "result": "34 prior dirty/untracked files unchanged; script differs only at the three expected summary argument/assignment locations"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Explicit DRY_RUN=1 skips Pi but rebuilds and verifies the real model",
+      "status": "passed"
+    },
+    {
+      "check": "Ordinary completion, empty/partial/malformed logs, exit 7 and timeout 124 remain non-dry and retain original evidence",
+      "status": "passed"
+    },
+    {
+      "check": "Seeded PASS without Pi is non-dry and retains seed hash/path",
+      "status": "passed"
+    },
+    {
+      "check": "Non-1 configuration does not skip Pi",
+      "status": "passed"
+    },
+    {
+      "check": "Bad explicit dry-run model remains FAIL for all rounds and stops at 3 verifications / 2 repairs",
+      "status": "passed"
+    },
+    {
+      "check": "All existing Python tests, syntax, baseline, scope and preservation checks pass",
+      "status": "passed"
+    },
+    {
+      "check": "Frozen non-author independent review",
+      "status": "passed",
+      "evidence": "review_dry_run: no_blocking_findings; this P2 may close"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "regression_model_results": {
+    "scope": "Temporary test refinement models only; not implementation source-code proof or a project-wide PO inventory",
+    "tool_source": "Installed actual CLI, Rossi and cvc5; Pi protocol and fault stubs never supply proof verdicts",
+    "independent_observations": {
+      "positive_per_run": {
+        "total": 6,
+        "discharged": 6
+      },
+      "expected_negative_dry_run": {
+        "rounds": 3,
+        "total_each_round": 6,
+        "discharged_each_round": 5,
+        "not_discharged_each_round": 1,
+        "gate_exit_each_round": 1,
+        "script_exit": 2,
+        "verifications": 3,
+        "repairs": 2
+      }
+    }
+  },
+  "tool_versions": {
+    "bash": "GNU bash 5.1.8(1)-release",
+    "timeout": "GNU coreutils 8.32",
+    "intentower": "intentower 0.1.0",
+    "rossi": "rossi 0.2.3",
+    "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]",
+    "commands": "Local timeout-bounded --version calls all exited 0"
+  },
+  "independent_review": {
+    "reviewer": "review_dry_run",
+    "author_of_reviewed_changes": false,
+    "verdict": "no_blocking_findings",
+    "may_close_this_p2": true,
+    "real_llm_calls": 0,
+    "commands_run": [
+      {
+        "command": "env PYTHONDONTWRITEBYTECODE=1 timeout 60s python3 -",
+        "stdin_source": "/tmp/intentower-review-p2-dry-run-independent-probe.py",
+        "exit_code": 0,
+        "result": "13 scenarios passed in 5.472 seconds, including all 10 new tests plus DRY_RUN empty/0/01"
+      },
+      {
+        "command": "timeout 10s bash -n scripts/run-refinement.sh",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      },
+      {
+        "command": "timeout 10s target/debug/intentower baseline",
+        "exit_code": 0,
+        "result": "5 hashes / 3 model IDs"
+      },
+      {
+        "command": "Read-only frozen hash, task-start snapshot and protected hash checks",
+        "exit_code": 0,
+        "result": "Only three summary edits, all frozen files match, prior 34 dirty files unchanged"
+      },
+      {
+        "command": "Original-script negative control and final integrity check",
+        "exit_code": 0,
+        "result": "The new empty-output regression rejects the unchanged original script as expected; current frozen/protected hashes remain intact"
+      }
+    ],
+    "configuration_probes": [
+      "unset",
+      "1",
+      "",
+      "0",
+      "01",
+      "true"
+    ],
+    "gate_evidence": "Positive cases each generate 6/6 SMT_DISCHARGED; negative dry-run model generates 6 POs per round (5 SMT_DISCHARGED, 1 NOT_DISCHARGED), FAIL in each of 3 rounds and 2 repairs",
+    "limits": "Independent review ran the bounded scenarios and extra configuration/negative controls; it did not repeat the full 40-test suite"
+  },
+  "frozen_sha256": {
+    "scripts/run-refinement.sh": "06e0dce5c7f0427fe3ee3ad746c4ba7fbfdfc61769e7a4b3909b8f1f98137178",
+    "tests/test_refinement_dry_run.py": "0918f72c809336de93b455d24174c7904d6c7ae7f7911029419905cda6e21780",
+    "tasks/TASK-REVIEW-P2-DRY-RUN.md": "5ef1ec14e0d291d40aa92fdf97c64770181f134964eed73d8abbd24c7ea333c4"
+  },
+  "development": {
+    "failed_checks": 0,
+    "repair_rounds": 0,
+    "real_llm_calls": 0
+  },
+  "unexecuted_checks": [
+    {
+      "check": "Rust full suite",
+      "status": "not_run",
+      "reason": "No Rust, solver, gate or dependency changes in this task; Python regressions exercise the existing real CLI"
+    }
+  ],
+  "preserved_prior_work": "Prior script fixes retained against the task-start copy; all other 34 pre-existing dirty/untracked files keep their starting SHA256; protected files and historical evidence unchanged",
+  "remaining_risks": [
+    "Two prior P2 findings remain: structured missing-tool failure reports and vacuity warning in JSON",
+    "llm.calls remains the existing recognized assistant message_end count, not an audited count of provider requests or Pi invocations",
+    "Historical run classifications are preserved without retroactive relabeling or a claim that old experiments were reverified",
+    "Regression model outcomes and source tests do not formally prove implementation code correct or constitute human phase-gate approval"
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "REVIEW-P2-VACUITY-JSON: add the approved assumption-consistency warning to JSON verification reports in a separate bounded task"
+}
