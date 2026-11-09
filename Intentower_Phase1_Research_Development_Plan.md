@@ -9,6 +9,7 @@
 > （原写 `INT-002` / `SPEC-002`）。`INT-002` 保留给 P4 的恒温器实验意图草案（已被
 > `approvals/MODEL-005.md` 引用）。背景见 `docs/decisions/ADR-0004-intent-id-for-the-gate.md`。
 > **修订（2026-11-09，人类指示）**：钉基线与重钉改为 Agent 展示完整命令及具体变更、提示人类批准，获明确批准后由 Agent 执行，见 §2.2 与 `AGENTS.md` §3；本次规则修改不批准任何具体钉入。
+> **内容审阅修订（2026-11-09，T35-R7 人类指示）**：人类仅审阅 INT；Agent 展开并技术核验 SPEC / 模型，未决选择提示人类裁定后回填 INT。下述现行关卡与模板按此执行，旧签署和已执行证据保留历史事实；钉基线操作仍需单独明确批准。
 
 ---
 
@@ -24,7 +25,7 @@
 
 | ID | 研究问题 | 如何判定 |
 |---|---|---|
-| RQ-01 | 人能否只审查少量高层 Intent / Spec，便理解 Agent 交付的功能承诺？ | 人类仅看顶层需求、跨层关系和审查报告，能正确回答预设的行为问题；记录所用时间 |
+| RQ-01 | 人能否仅审阅 INT（含裁定回填），便理解 Agent 交付的功能承诺？ | 不要求阅读 SPEC / 模型，仍能正确回答预设行为问题；如实记录 INT 审阅、选择裁定与操作批准耗时 |
 | RQ-02 | Agent 能否在高层规范不变的前提下自动完成一次非平凡 Event-B 精化？ | M0 → M1，生成真实 PO，自动完成所有必需证明义务；人工不代写每项证明 |
 | RQ-03 | Rossi + SMT + cvc5 能否提供适合频繁迭代的反馈？ | 记录 PoC 成功率、P50/P95 验证耗时、失败类别、Agent 修复轮次 |
 | RQ-04 | 能否防止“没有证明 / 修改了规范 / 没有 PO”被误报成成功？ | 多个故意破坏的负例全部被 Gate 拒绝 |
@@ -70,7 +71,7 @@
 ## 1. 系统架构与分工
 
 ```text
-                   Human（批准 Intent / 关键 Spec）
+                   Human（审阅 INT、裁定未决选择）
                                   |
                        Pi（Coding Agent Harness）
                          + Strata（本地模型）
@@ -152,7 +153,7 @@ intentower/
 │   └── examples/                 # 少量固定、可复现的样例报告
 ├── approvals/
 │   ├── README.md                 # 人工批准策略；不假装具备安全隔离
-│   └── baseline.json             # 人工批准的 INT / SPEC / M0 / policy 哈希（P1 Gate 后建立）
+│   └── baseline.json             # 已批准 INT 及技术核验后派生工件的冻结哈希；写入操作须人工批准
 └── artifacts/                    # 临时构建/PO/SMT/日志，默认不提交
 ```
 
@@ -160,19 +161,25 @@ intentower/
 
 | 工件 | 最小内容 | 编辑权 |
 |---|---|---|
-| `INT-*` | 目标、动机、范围、不做什么、不可违背的约束 | 人类批准；Agent 只能提出变更建议 |
-| `SPEC-*` | 可观察行为、假设、前置条件、边界输入、失败行为、验收方式 | Agent 起草；人类审查关键语义 |
-| `MODEL-*` | Event-B M0 / M1、Refines、Invariant、Witness（如需） | Agent 可编辑 M1；M0 变更须审批 |
+| `INT-*` | 目标、动机、范围、不做什么、不可违背的约束 | 人类裁定与批准；Agent 提示未决选择，在收到明确裁定后忠实回填并记录来源 |
+| `SPEC-*` | 可观察行为、假设、前置条件、边界输入、失败行为、验收方式 | Agent 展开与技术核验；未决选择先由人类裁定并回填 INT，无单独人工内容批准 |
+| `MODEL-*` | Event-B M0 / M1、Refines、Invariant、Witness（如需） | Agent 在 INT / SPEC 下建模、技术复核并执行任务所需 PO；新语义选择回到 INT，已钉模型不自动重钉 |
 | `EVD-*` | 工具版本、输入哈希、PO 清单、求解状态、测试记录、风险 | 工具生成，不接受 Agent 口头宣告 |
 
-**固定的关系**：`INT → SPEC → MODEL(M0→M1) → PO → Evidence`。P1 确认 M0 后，冻结 `approvals/baseline.json`（至少记录 INT、批准的 SPEC、M0、`project.json` 的 SHA256）。初次钉入和后续重钉均由 Agent 先展示完整操作命令（含脚本正文）及具体变更，包括相关路径、旧/新哈希和模型映射，提示人类明确批准；获批准后由 Agent 执行所展示的操作。批准仅对应所展示的命令、内容与范围，执行前若有变化须重新展示并获批；内容本身仍须经人类批准，不得自动刷新或代填批准身份/日期。具体流程见 `AGENTS.md` §3；旧基线 note 和批准记录中的人工亲写限制保留作历史说明，以本节现行流程为准。修改本流程不等于批准任何具体钉入。源代码和普通测试通过 `implements` / `tests` 关联到 SPEC，但初期这些关联只代表**可追溯**，不代表已完成代码级数学证明。
+**固定的关系**：`INT → SPEC → MODEL(M0→M1) → PO → Evidence`。人类仅审阅 INT；Agent 展开 SPEC / 模型，逐项追溯到 INT 条款与已裁定选择，完成任务所需检查并按实质风险接受独立技术复核。重要选择未定时，暂停依赖工作，展示关联条款、选项、影响与建议；人类明确裁定后由 Agent 忠实回填 INT，再继续，不重复请求批准同一决定。细节保持承诺且在任务范围内时由 Agent 决定。技术审查不证明自然语言意图已被正确捕捉。
+
+P1 技术核验 M0 后可提议冻结 `approvals/baseline.json`（至少记录 INT、技术核验的 SPEC、M0、`project.json` 的 SHA256）。初次钉入和后续重钉均由 Agent 先展示完整操作命令（含脚本正文）及具体变更，包括相关路径、旧/新哈希和模型映射，提示人类明确批准；获批准后由 Agent 执行所展示的操作。批准仅对应所展示的命令、内容与范围，执行前变化须重新展示并获批；此为操作授权，不要求人类通读派生工件。不得自动刷新或代填批准身份/日期。具体流程见 `AGENTS.md` §3；旧亲写限制和签署保留为历史事实。修改流程不等于批准具体钉入。源代码和普通测试通过 `implements` / `tests` 关联到 SPEC，但初期只代表**可追溯**，不代表已完成代码级数学证明。
 
 ### 2.3 可复制的 Spec 模板
 
 ```markdown
 # SPEC-001 — <行为名称>
 - Parent Intent: INT-001
-- Status: proposed | approved
+- Status: proposed | reviewed（技术审查状态，不是人类批准或证明状态）
+- Parent Intent revision: <获批 INT 的版本或 SHA256>
+- Traceability: <逐项关联 INT 条款及人类裁定>
+- Open decisions: <无，或列出阻塞相关展开的选择>
+- Technical review: <审查者、检查证据、结论与未验证边界>
 - Observable behavior: <不含实现细节的一句话>
 - Assumptions: <精确列出，禁止空泛>
 - Preconditions: <什么时候允许执行>
@@ -185,6 +192,8 @@ intentower/
 - Unverified risks: <未覆盖的性质>
 ```
 
+需要裁定时给人类的决策单仅含：关联 INT 条款、尚未决定的选择、选项与影响、Agent 建议。收到明确答复后记录裁定来源并回填 INT，再更新 SPEC；不得把人类未答复的建议当作裁定，也不要求人类通读 SPEC。旧 `approved` 状态和签署保留历史事实，不为新 SPEC 增设人工签署块。
+
 ### 2.4 Agent 执行单元（必须遵循）
 
 每个 TASK 尽量满足：
@@ -196,7 +205,7 @@ intentower/
 5. 每个任务完成时必须给出：`changed_files`、`commands_run`、`results`、`remaining_risks`、`intent_or_spec_changed`。
 6. 测试不通过最多自主修复 **2 轮**；之后停止并升级到强模型或人类。不要通过删测试、放宽规范或忽略错误获得绿灯。
 7. 代码及工具运行应有超时，禁止无限递归调用 Agent 或验证器。
-8. 只有人类可以批准顶层语义变化。`approvals/` 中的声明只是流程纪律，不是抵御恶意本地进程的密码学保护。
+8. 只有人类可以裁定 INT 的语义与未决选择；Agent 收到明确裁定后可忠实回填，不得自行扩大。SPEC / 模型在 INT 内按技术审查执行；已钉工件不自动重钉。`approvals/` 中的声明只是流程纪律，不是抵御恶意本地进程的密码学保护。
 
 ### 2.5 TASK 文件模板
 
@@ -207,7 +216,7 @@ intentower/
 - Objective: <一个可验证的结果>
 - Read first: <不超过 5 个明确文件>
 - Allowed edits: <明确文件路径>
-- Do not edit: docs/INT-*.md, approved M0, approvals/*, unrelated files
+- Do not edit: Intent without an explicit human decision; derived files outside task scope; baseline/approval records without operational approval; unrelated files
 - Inputs: <文件与示例值>
 - Algorithm / behavior: <步骤或形式关系>
 - Outputs: <文件/API/命令返回格式>
@@ -234,7 +243,7 @@ intentower/
 | **T05** | 编写根目录 `AGENTS.md` 和 `tasks/TASK-TEMPLATE.md`；规定单任务粒度、保护文件、失败升级、handoff 格式。 | 能把 T01–T04 的既有工件指向真实路径；禁止“未运行测试却声称通过” |
 | **T06** | 编写最小 `project.json`，只含 `schema_version`、`intent_ids`、`spec_ids`、`models`、`required_evidence`；实现 JSON 格式验证测试。 | 合法 manifest 接受、缺少顶层字段拒绝；暂不实现复杂的全局关联图 |
 
-**P0 Gate（人类）**：批准 `INT-001`、`SPEC-001` 与工具边界。不得因为工具实现方便而反向修改用户意图。
+**P0 Gate**：人类批准 `INT-001`，裁定并回填工具边界等未决选择；Agent 完成 `SPEC-001` 的追溯与技术核验，无单独人工 SPEC 批准。不得因为工具实现方便而反向修改用户意图。
 
 ### P1 — 工具可行性 Spike（优先做，决定后续路线）
 
@@ -252,7 +261,7 @@ intentower/
 
 - 明确 `PO inventory` 与 `typed hypotheses / goal` 可用，且未丢失上下文公理、已选前提、类型和 WD 前提。
 - 确认 Rossi 的 PO 来源、模型版本和导出路径可追溯。
-- 请人类批准 M0 与工具策略；Agent 按 §2.2 展示完整命令和具体变更，提示人类批准后执行，将当前 INT / SPEC / M0 / `project.json` 的哈希写入 `approvals/baseline.json`；该文件之后受保护。
+- Agent 技术核验 M0 与工具策略对已批准 INT 的保持关系；新增选择先回填 INT，无单独人工模型批准。按 §2.2 展示完整命令和具体变更，获得人类对操作的明确批准后执行，将当前 INT / SPEC / M0 / `project.json` 的哈希写入 `approvals/baseline.json`；该文件之后受保护。
 - 如果 T12 无法稳定获得类型化 PO，**停止 P2**。优先研究 Rossi 上游 API 或现成 Rodin/SMT 插件路线；不得跳到“自己写通用 Event-B 解析器”。
 
 ### P2 — 最小 SMT 自动证明后端
@@ -321,7 +330,7 @@ intentower/
 | **T29** | 制作 `prompts/refine.md`：输入已批准 M0、精化目标、禁止改变的约束；要求 Agent 只修改 M1，并给出新增状态/事件/粘合不变量的解释。 | Prompt 示例包含输入文件、允许输出文件及明确限制 |
 | **T30** | 制作 `prompts/repair.md`：只输入本轮失败 PO、相关模型片段、工具错误；禁止一次修复顺带重构别处。 | 一次反馈不超过指定上下文预算；失败原因按类型归纳 |
 | **T31** | 编写 `scripts/run-refinement.sh` 或同等小型入口（不另建通用 Agent 框架）：依次调用 Pi → Rossi/Intentower → 将失败结果交给 Pi。 | 可手工执行，最多 3 次候选验证、最多 2 次自动修复，超限退出 |
-| **T32** | 加入 protected-input 检查：从人工批准的 `approvals/baseline.json` 读取 M0、INT、批准 Spec 与 `project.json` 的 SHA256；每轮前后比较，变化则立即停止，不自动更新批准文件。 | 修改一个受保护文件的故障注入必须终止本轮；注意这不是恶意进程隔离 |
+| **T32** | 加入 protected-input 检查：从按获批操作冻结的 `approvals/baseline.json` 读取 M0、INT、经技术核验 Spec 与 `project.json` 的 SHA256；每轮前后比较，变化则立即停止，不自动更新批准文件。 | 修改一个受保护文件的故障注入必须终止本轮；注意这不是恶意进程隔离 |
 | **T33** | 运行 3 次 M0→M1 自动精化实验；分别记录是否成功、轮数、工具耗时、LLM 调用数、Token/上下文成本。 | `evidence/experiments/*.json` 与 README 小结；不可只展示最好一次 |
 | **T34** | 为失败情况加升级路径：`UNSUPPORTED`→要求缩小模型/交专家；`NOT_DISCHARGED`→给候选反例；`UNKNOWN`→保留不确定性；重复失败→Codex Review。 | 所有失败类别有确定的下一步，不允许“Agent 宣称自己解决了” |
 
@@ -339,7 +348,7 @@ intentower/
 
 | 任务 | 具体指令 | 文件 / 可验收输出 |
 |---|---|---|
-| **T35** | 编写 `docs/INT-003.md` 与 `SPEC-003.md`，描述 Gate 要求、状态枚举、边界情况；人类批准，再继续。 | 已批准 SPEC 明确 `0 条 PO`、缺失、过期、工具错误均不能 PASS |
+| **T35** | 人类审阅 `docs/INT-003.md`；Agent 展开并核验 `SPEC-003.md` 的 Gate 要求、状态枚举和边界情况，未决选择由人类裁定回填 INT 后再继续。 | 获批 INT 下的技术核验 SPEC 明确 `0 条 PO`、缺失、过期、工具错误均不能 PASS；无待裁定选择，不另求人类批准 SPEC |
 | **T36** | 建立 Gate 的 Event-B 抽象 M0：必须显式表示必需 PO 数、已证明数及证据是否有效；用不变量表达 GatePass 安全性质。 | Rossi 静态检查通过，PO 非空；不依赖实际 Rust 源码 |
 | **T37** | 建立 Gate 的 M1：加入失败状态分类或状态计数，保持 M0 的 GatePass 条件；用 Rossi + cvc5 生成并检查精化 PO。 | 真实精化证明结果进入 Evidence；不能证明的义务公开列出 |
 | **T38** | 将 `SPEC-003` 的边界场景映射为 Rust Gate 的参数化测试，特别覆盖 `PASS` 误报的所有路径。 | `cargo test` 通过；至少一个故意注入的错误实现会被测试发现 |
@@ -397,8 +406,8 @@ intentower/
 
 | 角色 | 可以自主做 | 必须升级的情形 |
 |---|---|---|
-| 人类（项目负责人） | 批准 Intent、修改范围、重要语义取舍、最终发布决定 | — |
-| Pi + Strata（默认执行） | 一次一个原子任务；写少量代码、固定格式文档、执行命令、提交真实日志 | 新抽象边界、证明语义、失败超过 2 轮、范围扩大 |
+| 人类（项目负责人） | 仅审阅 INT、裁定未决选择；保留基线等具体操作授权及最终发布决定 | 不要求通读或逐份批准 SPEC / 模型 |
+| Pi + Strata（默认执行） | 一次一个原子任务；展开 SPEC / 模型、维护追溯、执行检查和真实日志；获裁定后忠实回填 INT | 重要选择未定或影响 INT 承诺时升级人类；技术难题、证明语义与修复超限升级强技术复核 |
 | Codex（关键 Review） | 检查 INT/SPEC 的语义偏差、SMT translator soundness、Gate 漏洞、最终总结 | 不默认重写弱模型全部产物；优先提出具体缺陷和最小修正 |
 | Rossi + cvc5（确定性工具） | 产生 PO 并尝试自动求解；报告证据 | 不能解释人类真实意图，也不对任意代码的全部行为负责 |
 
@@ -407,7 +416,13 @@ intentower/
 ```text
 You are implementing exactly ONE Intentower task.
 Read only the listed input files first.
-Do not modify approved Intent, baseline M0, or approval records.
+Derive and technically review Specs/models under the approved Intent.
+Pause dependent work for unresolved consequential choices; show options and
+effects to the human, then faithfully record the decision in Intent.
+Do not request separate human content approval for derived artifacts.
+Do not change Intent without an explicit human decision. Respect task edit
+scope; do not refresh baselines or write approval records without approval
+of the exact displayed operation.
 Do not add features or abstractions not required by this task.
 Implement the smallest change satisfying the stated acceptance tests.
 Run the exact tests in the task. Never claim a test passed unless it ran.
@@ -485,7 +500,7 @@ next_task: Tyy
 
 按以下条件**全部满足**才称为 Intentower Phase 1 MVP 成功：
 
-- [ ] 已批准 `INT-001` 和关键 `SPEC-*`；任何变更有审查记录。
+- [ ] 人类已批准 `INT-001` 并裁定重要选择；关键 SPEC / 模型有到 INT 的追溯及任务所需技术核验记录，不要求单独人工内容批准。
 - [ ] 在指定 Linux Console 环境中，可从 Event-B 文本模型启动 Rossi POG。
 - [ ] 工具能够完整列出全部 PO，保留 ID、上下文及输入来源。
 - [ ] 至少一组 M0→M1 的**非平凡精化**获得自动验证证据；不支持或未知项不能隐藏。

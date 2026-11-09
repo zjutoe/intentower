@@ -6,7 +6,7 @@
 
 Intentower is an **intent-driven, verification-assisted software engineering toolchain** for coding agents. It aims to help humans guide software projects through a hierarchy of increasingly concrete specifications, while tools provide evidence that each refinement preserves the intended behavior.
 
-**中文简介：** 意浮图希望让人在高层审查需求、行为和关键约束，让 Coding Agent 逐层精化模型与实现，并利用自动验证提供自下而上的证据。目标是降低理解、审查和维护 AI 生成软件的认知负担，而不是要求人类阅读所有代码。
+**中文简介：** 意浮图让人类仅审阅 INT，由 Coding Agent 展开并核验 SPEC、模型和实现。展开时遇到需要明确的选择，Agent 展示选项与影响，由人类裁定后回填 INT，再继续；工具提供自下而上的证据。目标是降低理解、审查和维护 AI 生成软件的认知负担。
 
 The name combines **intent** with **tower**: a small, understandable top level supported by larger, more detailed levels below.
 
@@ -27,10 +27,10 @@ A checked Event-B model is **not** automatically a proof that separately written
 ## Approach
 
 ```text
-Human approves Intent / key Specification
+Human reviews Intent and resolves open choices
                    |
                    v
-     Coding agent (Pi + Strata by default)
+ Coding agent derives and reviews Specification
                    |
                    v
       Event-B models M0 -> M1 -> ...
@@ -50,17 +50,19 @@ Human approves Intent / key Specification
                    v
  Evidence report + strict acceptance gate
                    |
-          human reviews semantics
+    unresolved choices -> human -> Intent
 ```
 
 **Design principles:**
 
-1. Human intent is authoritative. Agents may propose changes, but must not approve them.
+1. Human-approved Intent is authoritative. Agents derive and technically review Specs and models; unresolved consequential choices return to the human and are recorded in Intent before dependent work continues. Humans do not separately approve derived artifacts.
 2. Refine in small, reviewable steps; preserve traceability between levels.
 3. Use existing verification infrastructure before building new infrastructure.
 4. Treat `unknown`, `timeout`, `unsupported`, missing and stale evidence as **not proved**.
 5. Report the precise scope of each guarantee. Never equate passing tests or model proofs with full source-code correctness.
 6. Prefer independent, machine-executed evidence to an agent's confidence statement.
+
+Human content review and operational approval are separate. Baseline pinning still requires the agent to display complete commands and the concrete diff, obtain explicit human approval, then execute. Historical signatures are retained; technical review does not prove that natural-language Intent was captured correctly. See `AGENTS.md` §3.
 
 ## Phase 1: smallest useful vertical slice
 
@@ -68,7 +70,7 @@ The first phase uses six incremental milestones. These are **targets**, not clai
 
 | Stage | Goal | Exit evidence |
 | --- | --- | --- |
-| **P0 — Foundation** | Define Intent, Spec, agent rules, repository and task templates. | Human-approved top-level Intent and key Spec. |
+| **P0 — Foundation** | Define Intent, Spec, agent rules, repository and task templates. | Human-approved Intent, resolved choices and technically reviewed derived Spec. |
 | **P1 — Tool feasibility** | Confirm Pi + Strata, Rossi PO generation and typed PO access, and cvc5 execution. | Reproducible model and typed PO inventory. |
 | **P2 — SMT prototype** | Encode a deliberately small Event-B formula subset (initially Boolean logic and quantifier-free linear integer arithmetic). | Real cvc5 discharge of supported INV and refinement obligations; negative examples are rejected. |
 | **P3 — Evidence gate** | Record complete PO inventory, provenance and precise statuses. | Missing, stale, unsupported or failed obligations cannot produce PASS. |
@@ -100,7 +102,7 @@ This is a research repository. There is **no released `intentower` executable ye
 2. Read this README and [`AGENTS.md`](AGENTS.md).
 3. Confirm local versions and connectivity before installing or updating tools; do not assume a particular version or command is available.
 4. Use Pi + Strata to execute **only T01** from the plan, then validate its explicit acceptance commands and review its handoff before assigning T02.
-5. Continue one small task at a time and stop at every phase gate for human approval.
+5. Continue one small task at a time. Technical phase gates require their specified evidence and reviews; request human decisions for unresolved Intent choices and explicit authorization for concrete protected operations. Stop after the assigned task rather than starting the next one automatically.
 
 The CLI surface implemented so far (`intentower --help` is authoritative):
 
@@ -129,7 +131,7 @@ Intentower's planned verification pipeline records **all** generated proof oblig
 
 An obligation may be reported as `SMT_DISCHARGED`, `NOT_DISCHARGED`, `UNKNOWN`, `TIMEOUT`, `UNSUPPORTED`, `TOOL_ERROR`, `STALE`, or `MISSING`. A `sat` result for the negated PO is initially a **candidate counterexample**, not an automatically validated Event-B trace. `SMT_DISCHARGED` is **not** a Lean-kernel-checked proof certificate.
 
-The acceptance gate must re-run verification on **current** source inputs; it cannot trust an editable historical JSON report as authorization to pass. Approval files and approved high-level models may only be changed by explicit human decision. Simple hash checks are workflow safeguards, **not** isolation against a malicious local process.
+The acceptance gate must re-run verification on **current** source inputs; it cannot trust an editable historical JSON report as authorization to pass. Agents may revise derived Specs and high-level models within an explicitly scoped task under approved Intent and the required technical review. Unresolved choices return to the human and are recorded in Intent. Approval-record and baseline writes require explicit authorization of the displayed operation; model edits do not automatically refresh pins. Simple hash checks are workflow safeguards, **not** isolation against a malicious local process.
 
 ## Repository layout (target, created incrementally)
 

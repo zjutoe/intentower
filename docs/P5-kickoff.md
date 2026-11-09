@@ -8,6 +8,7 @@
   见 ADR-0003 与 `docs/rossi-smoke.md` §44。）
 
 > **操作流程修订（2026-11-09，人类直接指示）**：钉基线与重钉改为 Agent 展示完整命令及具体变更、提示人类批准，获明确批准后由 Agent 执行，细则见 `AGENTS.md` §3。批准绑定所展示的命令、内容与范围，执行前变化须重新展示并获批。下文 2026-11-04 的实测与历史事件保留当时记录，其中“只能人类写”的旧限制不再适用于后续操作；本次未实际钉入。
+> **内容审阅修订（2026-11-09，T35-R7）**：人类仅审阅 INT；Agent 展开并技术核验 SPEC / 模型，未决选择提示人类裁定后回填 INT，不另设派生内容人工批准。旧签署与实测是历史记录；具体基线操作授权仍保留。以下现行就绪条件与开工顺序按此执行。
 
 ## 1. 入口状态（本机实测，2026-11-04）
 
@@ -69,7 +70,7 @@ intentower --help                      verify gate report baseline feedback esca
 |---|---|---|
 | D-3 | Agent 访问范围仍无成文规则（`approvals/P4-GATE.md` §4.4） | P5 让 Agent 改 **Gate 源码本身**。允许读哪些 crate、能否读参考模型、能否动 `tests/`，需要成文规则而不是 prompt 措辞（§4.3 已证该约束不具机制强制性） |
 | D-4 | 闭卷条件未测（§4.1） | T40 的工作流对比若继续开卷，结论只能是「闭环走通」，不能是「Agent 能力」 |
-| D-5 | P5 新增受保护输入的钉入时机 | `SPEC-003`（人类批准后）、Gate 的 M0/M1 模型（T36/T37 通过后），阶段细则见 `SPEC-003` §8.3。Agent 先展示完整命令及具体变更、提示人类批准，获明确批准后执行（`AGENTS.md` §3）；钉值集合无上限这一缺口已被人类接受（§5.2）。改了编号的 `docs/SPEC-001.md` **已重钉**（`df75138a…`，见 `docs/rossi-smoke.md` §48）。另：phase plan 本身不在钉住集合里，改它不会报警，是否纳入由人类定 |
+| D-5 | P5 新增受保护输入的钉入时机 | `SPEC-003` 在 INT 裁定及技术核验后，Gate M0/M1 在 T36/T37 验收与技术复核后，阶段细则见 `SPEC-003` §8.3。无单独人工派生内容批准；Agent 展示完整命令及具体变更，获人类对操作的明确批准后执行（`AGENTS.md` §3）。历史重钉与钉值集合无上限的记录保留；phase plan 是否纳入基线仍由人类裁定 |
 | D-6 | 脚本层无回归测试（§4.7，已发现 5 个缺陷均无测试覆盖） | P5 dogfooding 仍走 `scripts/run-refinement.sh`：是在 T38 顺带补脚本测试，还是明确留到第二阶段，需要决定，否则会重复同类缺陷 |
 | D-7 | `pi.jsonl` 原件未提交，只有 sha256 指纹（§4.6） | P5 若还要引用工具调用计数，先决定是否落盘，否则计数不可复核 |
 
@@ -77,7 +78,7 @@ intentower --help                      verify gate report baseline feedback esca
 
 | 任务 | 就绪状态 | 现在缺什么 | 预计改动面（≤3 生产文件） | 验收口径要点 | 不得宣称 |
 |---|---|---|---|---|---|
-| **T35** | **草案已交，等人类批准**（2026-11-04） | `docs/INT-003.md`、`docs/SPEC-003.md` 已写入（均 `Status: proposed`） | 2 个文档 | 验收是「**人类批准**的 SPEC 明确 0 条 PO / 缺失 / 过期 / 工具错误均不能 PASS」，agent 交付 ≠ 完成；批准前不得当作正式语义引用 | 起草不产生任何验证结论；SPEC-003 §10 N-01 新增一个真实缺口：Gate 不读 baseline |
+| **T35** | INT 已裁定，SPEC 技术复核及 R6 首阶段钉入完成；R7 规则修改待受控重钉 | 无需重新人工审阅 SPEC；R7 三份规范的哈希更新须按操作流程另获批准 | 2 个特性文档及相关规则 | 人类批准 INT；派生 SPEC 技术核验明确 0 条 PO / 缺失 / 过期 / 工具错误均不能 PASS，无未决选择 | 技术复核与钉入不产生模型证明，N-01/N-02 运行时代码缺口仍未关闭 |
 | **T36** | 就绪 | `models/gate/` 目录尚不存在（plan 布局里已规划） | 1–2 个 `.eventb` + `models.json` | Rossi 静态检查通过、PO **非空**、不依赖 Rust 源码 | 模型通过 ≠ Rust Gate 代码正确 |
 | **T37** | 就绪（有一个风险） | 若计数/集合表达式超出已批准 SMT 子集（Bool + QF_LIA），需**单独批准**的理论扩展任务 | 1 个 `.eventb` + 可能 1 处编码器 | 真实精化 PO 结果进 Evidence，不能证明的义务**公开列出** | `UNSUPPORTED` 不能被跳过或替换成常量 |
 | **T38** | 就绪 | 无（现成基座：`tests/gate_policy.rs` 7、`tests/cli_gate.rs` 8、`tests/report_schema.rs` 5、`tests/inventory.rs` 6） | 测试为主 | 必须包含「故意注入的错误实现会被测试发现」；`judge` 是纯函数，但 exit 码与 report 路径也要覆盖 | `cargo test` 通过 ≠ 模型被证明 |
@@ -91,7 +92,7 @@ intentower --help                      verify gate report baseline feedback esca
 
 ```
 0. 已裁定：D-1 编号（ADR-0004）、D-2 证据命名（ADR-0003）。开工前还建议裁定 D-3（Agent 访问规则）
-1. T35 起草 docs/INT-003.md + docs/SPEC-003.md → 人类批准
+1. T35 人类审阅 INT-003；Agent 展开并技术核验 SPEC-003，未决选择由人类裁定回填 INT，不单独批准 SPEC
    → 然后按 SPEC-003 §8.3 准备 project.json 的 ID/固定版本及 baseline.json 变更；Agent 展示完整命令和具体变更、提示人类批准，获明确批准后执行（AGENTS.md §3）
 2. T36  Gate 抽象 M0（建议 MODEL-007；Rossi 检查 + PO 非空 + 约束可满足性检查，防 vacuous proof）
 3. T37  M1 精化（MODEL-008）+ cvc5 真实结果

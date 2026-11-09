@@ -1,0 +1,349 @@
+{
+  "task_id": "T35-R7-INT-REVIEW",
+  "status": "done",
+  "phase": "rules_revised_and_approved_baseline_repin_verified",
+  "parent": "INT-001 C-01; explicit current user decision to adopt Intent-only human content review",
+  "authorization": {
+    "user_message": "同意，应该按这个流程试试。人类只审阅INT，Agent在SPEC展开过程中遇得需要明确的选择，提示人类审阅，由人类裁定后回填INT，这样最合理。请修改现行项目规则",
+    "scope": "Revise current project governance and faithfully backfill this decision in Intent; does not approve a baseline write whose concrete commands and hashes had not yet been shown."
+  },
+  "changed_files": [
+    "approvals/baseline.json",
+    "AGENTS.md",
+    "README.md",
+    "Intentower_Phase1_Research_Development_Plan.md",
+    "docs/INT-001.md",
+    "docs/INT-003.md",
+    "docs/SPEC-003.md",
+    "docs/methodology.md",
+    "docs/P5-kickoff.md",
+    "tasks/TASK-TEMPLATE.md",
+    "tasks/TASK-T35-R7-INT-REVIEW.md",
+    "tasks/T35-R7-INT-REVIEW-baseline.json",
+    "tasks/T35-R7-INT-REVIEW-apply.py",
+    "tasks/T35-R7-INT-REVIEW-proposal.md",
+    "tasks/T35-R7-INT-REVIEW-results.json"
+  ],
+  "commands_run": [
+    {
+      "command": "git status --short and task-relevant rule/template/source-of-authority reads",
+      "exit_code": 0,
+      "result": "Started clean at 6f129dd; identified nine current documents/templates needing consistent updates."
+    },
+    {
+      "command": "Python task-start snapshot",
+      "exit_code": 0,
+      "result": "118 input hashes, original nine files and actual baseline captured."
+    },
+    {
+      "command": "Python document/signature/technical-contract/scope checks",
+      "exit_code": 0,
+      "result": "Exactly nine current files changed; 109 unrelated initial hashes unchanged; original signatures and statuses preserved; Gate core sections and fixed tool values unchanged."
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 2,
+      "result": "Expected rejection: only INT-001, INT-003 and SPEC-003 have authorized document changes. Actual baseline left unchanged; not PASS."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "No tracked whitespace errors."
+    },
+    {
+      "command": "python3 tasks/T35-R7-INT-REVIEW-apply.py --check",
+      "exit_code": 0,
+      "result": "Fixed proposal inputs match; expected document drift remains; this is not baseline PASS or human approval."
+    },
+    {
+      "command": "Python isolated baseline writer rehearsal and real CLI verification",
+      "exit_code": 0,
+      "result": "In temporary copy only: same script apply exit 0, actual CLI baseline exit 0 with 7 hashes/3 model IDs; six drift cases each refused before write with exit 1 and zero target writes."
+    },
+    {
+      "command": "Correction round 1: bounded README/plan changes and coupled plan guard/script/proposal update; final --check and git diff --check",
+      "exit_code": 0,
+      "result": "Two independent findings resolved; fixed three-document baseline candidate unchanged; current proposal inputs match."
+    },
+    {
+      "command": "set -e\ncd /home/mye/src/llm/intentower\npython3 tasks/T35-R7-INT-REVIEW-apply.py --apply\ntimeout 10s ./target/debug/intentower baseline\ngit diff --check",
+      "exit_code": 0,
+      "result": "WROTE approvals/baseline.json: 63ad8bbfdf17cd0f1abef4132fef1ece76c21af9fc36586e4056f4f2079a3214; BASELINE OK: 7 hashes, 3 model ids pinned; git diff --check passed. Exact approved set -e sequence completed."
+    },
+    {
+      "command": "Python approved-candidate bytes, JSON semantics, all current pins, frozen proposal and initial-scope comparisons",
+      "exit_code": 0,
+      "result": "Only three pin values updated; other pins, all model mappings and original approval metadata preserved. All 13 reviewed artifacts match; 108 unrelated start hashes unchanged."
+    },
+    {
+      "command": "git diff -- approvals/baseline.json",
+      "exit_code": 0,
+      "result": "Exactly the three approved normative-document SHA256 replacements."
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Intent-only human content authority, technical derivation and consequential-choice loop are consistent across nine current documents/templates",
+      "status": "passed"
+    },
+    {
+      "check": "Explicit decisions can be faithfully recorded in Intent before dependent derivation continues; no duplicate approval or autonomous choice",
+      "status": "passed"
+    },
+    {
+      "check": "Technical reviewed status, historical signatures, formal proof, code testing and operational approval remain distinct",
+      "status": "passed"
+    },
+    {
+      "check": "Baseline protection and scoped task edits remain; no separate human Spec/model content approval",
+      "status": "passed"
+    },
+    {
+      "check": "Existing Gate technical contracts/tool versions/decisions and historical signed metadata preserved; source/models/policy/history unchanged",
+      "status": "passed"
+    },
+    {
+      "check": "Exact three-document drift reported; concrete baseline candidate updates only those three hashes; isolated positive/negative checks",
+      "status": "passed"
+    },
+    {
+      "check": "Independent technical review of the frozen bounded increment",
+      "status": "passed"
+    },
+    {
+      "check": "Human approval and actual execution of the concrete baseline-repin operation",
+      "status": "passed"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "validation": {
+    "changed_existing_files": [
+      "AGENTS.md",
+      "README.md",
+      "Intentower_Phase1_Research_Development_Plan.md",
+      "docs/INT-001.md",
+      "docs/INT-003.md",
+      "docs/SPEC-003.md",
+      "docs/methodology.md",
+      "docs/P5-kickoff.md",
+      "tasks/TASK-TEMPLATE.md"
+    ],
+    "unchanged_start_hashes": 109,
+    "original_signatures_and_status_preserved": true,
+    "gate_technical_contract_preserved": true,
+    "existing_tool_versions_and_choices_preserved": true,
+    "actual_baseline_and_policy_unchanged": true,
+    "expected_baseline_drift": [
+      "docs/INT-001.md",
+      "docs/INT-003.md",
+      "docs/SPEC-003.md"
+    ],
+    "scope": "workflow documentation checks, not model proof or runtime verification",
+    "recorded_at_phase": "Rule-revision checks before the separately approved baseline repin; expected_baseline_drift refers to that earlier phase."
+  },
+  "proposal": {
+    "hash_changes": [
+      {
+        "path": "docs/INT-001.md",
+        "old": "b3af782053102bac13b66e58045851cb9417f1b3343d796968a4487c78da730d",
+        "new": "a578966bdd5172a56d8892b173d0362bdbea5ba8e625783fb1f64e06f758e511"
+      },
+      {
+        "path": "docs/INT-003.md",
+        "old": "2db9f7ee888f4198c1b2205b865071be09e44cf8fc5bb7f747b32b4899a6a7d9",
+        "new": "36e7d89563b05ae2c3285ec94d50299f4101a6bf9ba27555c7178f29bc5d8848"
+      },
+      {
+        "path": "docs/SPEC-003.md",
+        "old": "88efb6a0c6e1f40553393f38ee3cac139601e14ff6c8e89b48c5b45e699deac2",
+        "new": "e2704ab5fe56b7b2b29b9750d30fdaa7fe74a9d0163f49c9080882244c9fbffa"
+      }
+    ],
+    "old_baseline_sha256": "06b0ad10de4be36ec86d76410dc414adc9fc2332e73031b098c5704270b92e08",
+    "new_baseline_sha256": "63ad8bbfdf17cd0f1abef4132fef1ece76c21af9fc36586e4056f4f2079a3214",
+    "candidate_path": "tasks/T35-R7-INT-REVIEW-baseline.json",
+    "script_path": "tasks/T35-R7-INT-REVIEW-apply.py",
+    "script_sha256": "4dbfc2af07642a9ae3708cb3b6831b4bd1f13a636307a648d97ebbfed8af11ab",
+    "commands_after_approval": "set -e\ncd /home/mye/src/llm/intentower\npython3 tasks/T35-R7-INT-REVIEW-apply.py --apply\ntimeout 10s ./target/debug/intentower baseline\ngit diff --check",
+    "guarded_inputs": 16,
+    "actual_baseline_written": false,
+    "recorded_at_phase": "Original preapproval concrete proposal; actual_baseline_written=false records preparation, not current execution state."
+  },
+  "isolated_rehearsal": {
+    "scope": "isolated writer rehearsal only, not human approval or model proof",
+    "positive": {
+      "apply_exit": 0,
+      "baseline_exit": 0,
+      "stdout": "BASELINE OK: 7 hashes, 3 model ids pinned",
+      "candidate_bytes_match": true
+    },
+    "negative": [
+      {
+        "path": "docs/INT-001.md",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "path": "docs/SPEC-003.md",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "path": "approvals/baseline.json",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "path": "tasks/T35-R7-INT-REVIEW-baseline.json",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "path": "AGENTS.md",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "path": "models/counter/models.json",
+        "exit_code": 1,
+        "writes": 0
+      }
+    ],
+    "actual_protected_targets_unchanged": true,
+    "recorded_at_phase": "Before review correction; correction changed only the plan hash literal in script EXPECTED and embedded provenance, with control flow and candidate unchanged. Final --check independently passed after correction; original rehearsal evidence reused."
+  },
+  "frozen_sha256": {
+    "AGENTS.md": "b49a102f95a2dd60842c6ebe5c7a3dd33bbe71d84b6dd86f509935039ba36ed9",
+    "README.md": "daa96fcc331e2b80375e84175910a10d1bf19fc86062f9219729702cd4411002",
+    "Intentower_Phase1_Research_Development_Plan.md": "17f67bb0319b220303a7728580b4b711fb9f5acf636d2bab85541a64fab0877e",
+    "docs/INT-001.md": "a578966bdd5172a56d8892b173d0362bdbea5ba8e625783fb1f64e06f758e511",
+    "docs/INT-003.md": "36e7d89563b05ae2c3285ec94d50299f4101a6bf9ba27555c7178f29bc5d8848",
+    "docs/SPEC-003.md": "e2704ab5fe56b7b2b29b9750d30fdaa7fe74a9d0163f49c9080882244c9fbffa",
+    "docs/methodology.md": "30c0b2477c1340f3c9156de764fbf6882322b04f7f9765c8a8f965cc36f461ca",
+    "docs/P5-kickoff.md": "e33a2728c922aaa652e308a0ef4b9e02ffbf77d835fa73aae7c1b1feab88c17d",
+    "tasks/TASK-TEMPLATE.md": "4da17ae32f0431e01a7eb0e0d120b20de3eaea3360a80a74271d27e6f2323f90",
+    "tasks/TASK-T35-R7-INT-REVIEW.md": "f7687b31bd2e55fbcedea730664df8633f428b73013ae4662de33a29ce03fc2a",
+    "tasks/T35-R7-INT-REVIEW-baseline.json": "63ad8bbfdf17cd0f1abef4132fef1ece76c21af9fc36586e4056f4f2079a3214",
+    "tasks/T35-R7-INT-REVIEW-apply.py": "4dbfc2af07642a9ae3708cb3b6831b4bd1f13a636307a648d97ebbfed8af11ab",
+    "tasks/T35-R7-INT-REVIEW-proposal.md": "9a4289e8f12f0796964160d77213c5e5fae66b5854d6dc4af0ef6548a26dbe1e"
+  },
+  "scope_preservation": {
+    "snapshot": "/tmp/intentower-t35-r7-start-0oj7td6f",
+    "head_before": "6f129dd1148be48d69979d7b9638afb0db7c11a6",
+    "start_hashes": 118,
+    "unrelated_hashes_unchanged": 108,
+    "source_edits": 0,
+    "actual_baseline_writes": 1,
+    "actual_policy_edits": 0,
+    "original_signed_fields_changed": false,
+    "historical_result_files_changed": false,
+    "authorized_baseline_fields_changed": [
+      "docs/INT-001.md",
+      "docs/INT-003.md",
+      "docs/SPEC-003.md"
+    ]
+  },
+  "baseline_operation_approval": {
+    "status": "approved",
+    "proposal_document": "tasks/T35-R7-INT-REVIEW-proposal.md",
+    "human_content_decision": "already explicitly given in current user message",
+    "pending_scope": "Only write the exact reviewed baseline candidate; does not request another human review of derived Spec/model content",
+    "requested_human_content_approval": false,
+    "user_message": "批准执行",
+    "source": "Explicit current user reply to the displayed T35-R7-INT-REVIEW repin proposal and complete command sequence",
+    "artifact_and_input_binding_verified_before_write": true,
+    "executed": true,
+    "no_new_human_spec_content_approval_requested": true
+  },
+  "not_run": [
+    "Full source suites (no source/test changes)",
+    "Model proof (not applicable to this governance/baseline task)",
+    "T36 and runtime Gate enforcement (outside scope)"
+  ],
+  "repair_rounds": 1,
+  "remaining_risks": [
+    "Intent-to-Spec alignment is supported by traceability and technical review, not an established automatic proof of natural-language intent capture.",
+    "Legacy baseline CLI text still describes human-only writing; current AGENTS operational approval rule supersedes that historical wording without source changes."
+  ],
+  "intent_or_spec_changed": true,
+  "approved_intent_or_spec_changed": true,
+  "approval_identity_or_date_changed": false,
+  "committed": false,
+  "next_task_suggestion": "Commit this governance/baseline change if assigned, then separately assign T36; do not automatically start either.",
+  "rule_revision_status": "done",
+  "review_correction": {
+    "round": 1,
+    "findings_resolved": [
+      "README residual phase/model human-content gates",
+      "Plan INT edit-rights row blocked faithful backfill"
+    ],
+    "changed_review_files": [
+      "README.md",
+      "Intentower_Phase1_Research_Development_Plan.md",
+      "tasks/T35-R7-INT-REVIEW-apply.py",
+      "tasks/T35-R7-INT-REVIEW-proposal.md"
+    ],
+    "baseline_candidate_unchanged": true,
+    "script_sha256": "4dbfc2af07642a9ae3708cb3b6831b4bd1f13a636307a648d97ebbfed8af11ab",
+    "freeze_paths": 13
+  },
+  "independent_review": {
+    "reviewer": "/root/review_t35_human_changes",
+    "verdict": "accept",
+    "source": "Final thread message for T35-R7-INT-REVIEW",
+    "initial_findings": 2,
+    "resolved_findings": 2,
+    "remaining_substantive_findings": [],
+    "resolution": [
+      "README no longer imposes residual human approval on all technical phases/models",
+      "Plan explicitly allows faithful Intent backfill after a received human decision"
+    ],
+    "checks": [
+      "13 final frozen hashes match; 109 unrelated input hashes unchanged",
+      "Original signing/status fields, specified Q answers and Gate technical core preserved",
+      "Baseline candidate changes only three document hashes; 7 hashes/3 IDs preserved; script, embedded script, diff and hashes consistent",
+      "Independent checker, final --check and git diff --check exit 0",
+      "Actual baseline exit 2 reports exactly the three authorized changed documents"
+    ],
+    "scope_limit": "Rules and concrete proposal only; not actual baseline-operation approval; no workspace --apply, model proofs or source suites"
+  },
+  "execution_turn_changed_files": [
+    "approvals/baseline.json",
+    "tasks/T35-R7-INT-REVIEW-results.json"
+  ],
+  "post_apply_validation": {
+    "actual_baseline_matches_approved_candidate": true,
+    "actual_baseline_sha256": "63ad8bbfdf17cd0f1abef4132fef1ece76c21af9fc36586e4056f4f2079a3214",
+    "counts": {
+      "hashes": 7,
+      "model_ids": 3
+    },
+    "only_three_pins_updated": true,
+    "other_pins_preserved": true,
+    "model_mappings_preserved": true,
+    "original_approval_metadata_preserved": true,
+    "all_current_pins_match": true,
+    "frozen_reviewed_artifacts_match": 13,
+    "task_start_changed_existing_files": [
+      "AGENTS.md",
+      "Intentower_Phase1_Research_Development_Plan.md",
+      "README.md",
+      "approvals/baseline.json",
+      "docs/INT-001.md",
+      "docs/INT-003.md",
+      "docs/P5-kickoff.md",
+      "docs/SPEC-003.md",
+      "docs/methodology.md",
+      "tasks/TASK-TEMPLATE.md"
+    ],
+    "unrelated_start_hashes_unchanged": 108,
+    "production_code_policy_models_unchanged": true
+  }
+}

@@ -3,12 +3,12 @@
      "approved_at": "2026-11-03",
      "note": "P1 baseline, human-written and frozen. Agents may read it but never refresh it (AGENTS.md §3).",
      "sha256": {
-       "docs/INT-001.md": "b3af782053102bac13b66e58045851cb9417f1b3343d796968a4487c78da730d",
+       "docs/INT-001.md": "a578966bdd5172a56d8892b173d0362bdbea5ba8e625783fb1f64e06f758e511",
        "docs/SPEC-001.md": "df75138af1a98fb81541f5ba05b71b6d645649f232b78a7ef13547acb5a7154e",
        "models/counter/m0.eventb": "48560e02cadd9f454e3a4f0bb0c88bed195a93fb340ad6258b0f43f6132c618f",
        "project.json": "8bf5814c6380d4c921c2c5c1c8cd30e82ce9e9aa78ff2c5780c1dcb9710cdff1",
-       "docs/INT-003.md": "2db9f7ee888f4198c1b2205b865071be09e44cf8fc5bb7f747b32b4899a6a7d9",
-       "docs/SPEC-003.md": "88efb6a0c6e1f40553393f38ee3cac139601e14ff6c8e89b48c5b45e699deac2",
+       "docs/INT-003.md": "36e7d89563b05ae2c3285ec94d50299f4101a6bf9ba27555c7178f29bc5d8848",
+       "docs/SPEC-003.md": "e2704ab5fe56b7b2b29b9750d30fdaa7fe74a9d0163f49c9080882244c9fbffa",
        "models/thermostat/th0.eventb": "a3afd84f2611522d0fec97ac8408cac2fa70070f9c5c3d4414d1a9881be136ea"
 	 
      },
