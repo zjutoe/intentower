@@ -1,0 +1,327 @@
+{
+  "task_id": "T35-R4-GATE-RULES",
+  "status": "done",
+  "parent_task_status": "needs_review",
+  "authorization": "User agreed to the preceding concrete rule proposal; this task executes step1 documentation only. No policy,baseline or implementation write authority is exercised here.",
+  "changed_files": [
+    "docs/INT-003.md",
+    "docs/SPEC-003.md",
+    "tasks/T35-R4-semantic-diff.md",
+    "tasks/TASK-T35-R4-GATE-RULES.md",
+    "tasks/T35-R4-GATE-RULES-results.json"
+  ],
+  "changes": [
+    "Formalize startup cwd as project root, fixed approval baseline and default project.json or explicit policy that must be pinned by that same baseline",
+    "Specify expected_tool_versions, exact trimmed observed first-line matching against approved complete strings, fail-closed missing/invalid/mismatch cases and no new GNU timeout lock",
+    "Require start-snapshot baseline checks and publication-time rechecks of baseline,selected policy,selected manifest,source and PO evidence; do not reload a new baseline or ID selection to rescue a run",
+    "Require source selection and manifest hash from the same bytes; record baseline/manifest as other report inputs and selected policy as policy; reject output aliases to baseline too",
+    "Strengthen G-A/section5 and INT I-02/I-03/I-04: invalid preconditions/evidence first INCOMPLETE2; valid current counterexample remains FAIL1; only complete nonempty all-discharged fresh verified runs PASS0",
+    "Keep verify under SPEC-001, candidate M1 verification without premature pinning, eight statuses,F0,schema1.0 and no false proof/approval claims",
+    "Add unimplemented R4 acceptance scenarios and model boolean-source assumptions; keep historical matrices/test results unchanged and separate from new-rule evidence",
+    "Keep human signature/Status and Q-03 through Q-06 answers; record only authorized Q-01/Q-02 details and clarify current implementation gaps"
+  ],
+  "normative_policy_example": {
+    "expected_tool_versions": {
+      "rossi": "rossi 0.2.3",
+      "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+    }
+  },
+  "commands_run": [
+    {
+      "command": "timeout 5s target/debug/intentower gate --help",
+      "exit_code": 0,
+      "result": "Existing CLI shape confirmed; not evidence of R4 implementation"
+    },
+    {
+      "command": "timeout 5s target/debug/intentower verify --help",
+      "exit_code": 0,
+      "result": "Existing verify interface confirmed; SPEC-001 remains untouched"
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned; actual baseline unchanged and not yet extended for R4"
+    },
+    {
+      "command": "timeout 20s python3 inline normative document/decision/version checker",
+      "exit_code": 0,
+      "result": "Document structure,links,qualified test definitions,signatures,other answers and103 preservation checks pass;6 corrupted documents rejected;4672 abstract decision cases and17 version examples checked"
+    },
+    {
+      "command": "timeout 10s python3 inline manifest-correction checker",
+      "exit_code": 0,
+      "result": "Manifest binding contract and deliberate deletion of invalidation rejected;64 composite freshness design cases checked; guard order and103 preservation checks pass"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Formal requirements and decision priority consistent across Intent,Spec and semantic diff",
+      "status": "passed"
+    },
+    {
+      "check": "Fixed version configuration and matching/failure behavior fully specified without policy/code writes",
+      "status": "passed"
+    },
+    {
+      "check": "Candidate manifest/source binding closes selected-ID drift; no whole-manifest baseline pin",
+      "status": "passed"
+    },
+    {
+      "check": "Human signature,status,other answers,fixed values andhistorical data preserved",
+      "status": "passed"
+    },
+    {
+      "check": "Schema,status,F0,verify andcandidate approval boundaries preserved",
+      "status": "passed"
+    },
+    {
+      "check": "Design/data positive and negative checks",
+      "status": "passed"
+    },
+    {
+      "check": "Independent final frozen review",
+      "status": "passed"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "normative_design_validation": {
+    "scope": "Normative design/data checks only; not current Gate implementation tests or a formal proof",
+    "document_positive": "passed",
+    "negative_controls": [
+      {
+        "case": "status",
+        "rejected": [
+          "signature_or_status"
+        ]
+      },
+      {
+        "case": "signature",
+        "rejected": [
+          "signature_or_status",
+          "spec_approval_block"
+        ]
+      },
+      {
+        "case": "baseline_guard",
+        "rejected": [
+          "missing_contract:preconditions_ok = BaselineOK ∧ PolicyPinned ∧ ToolVersionsMatch"
+        ]
+      },
+      {
+        "case": "failure_priority",
+        "rejected": [
+          "missing_contract:verdict = INCOMPLETE                         若 ¬context_valid"
+        ]
+      },
+      {
+        "case": "version_value",
+        "rejected": [
+          "version_example"
+        ]
+      },
+      {
+        "case": "verify_scope",
+        "rejected": [
+          "missing_contract:不因此新增基线或版本锁前置条件"
+        ]
+      }
+    ],
+    "abstract_decision_cases": 4672,
+    "abstract_decision_counts": {
+      "INCOMPLETE": 4606,
+      "FAIL": 64,
+      "PASS": 2
+    },
+    "version_examples": [
+      {
+        "case": "exact",
+        "matched": true
+      },
+      {
+        "case": "trim_first_line",
+        "matched": true
+      },
+      {
+        "case": "different_release",
+        "matched": false
+      },
+      {
+        "case": "case_changed",
+        "matched": false
+      },
+      {
+        "case": "different_commit",
+        "matched": false
+      },
+      {
+        "case": "different_branch",
+        "matched": false
+      },
+      {
+        "case": "empty_first_line",
+        "matched": false
+      },
+      {
+        "case": "nonzero_query",
+        "matched": false
+      },
+      {
+        "case": "timeout_query",
+        "matched": false
+      },
+      {
+        "case": "missing_policy",
+        "matched": false
+      },
+      {
+        "case": "missing_field",
+        "matched": false
+      },
+      {
+        "case": "wrong_type",
+        "matched": false
+      },
+      {
+        "case": "missing_tool",
+        "matched": false
+      },
+      {
+        "case": "empty_value",
+        "matched": false
+      },
+      {
+        "case": "unknown_constraint",
+        "matched": false
+      },
+      {
+        "case": "wrong_value_type",
+        "matched": false
+      },
+      {
+        "case": "missing_observation",
+        "matched": false
+      }
+    ],
+    "preserved_other_paths": 103,
+    "gate_models_created": false,
+    "review_correction": {
+      "round": 1,
+      "issue": "Bind unpinned candidate selection to this run without freezing the entire manifest",
+      "manifest_contract": "passed",
+      "negative_manifest_mutation_rejected": true,
+      "composite_freshness_cases": 64,
+      "unchanged_decision_and_version_checks": "4672 decision cases and17 version examples from first validation; section5 guard strings unchanged; no source test/proof claim"
+    }
+  },
+  "validation_artifact": {
+    "path": "/tmp/intentower-t35-r4-start-qyx3p7v4/validation.json",
+    "sha256": "05a1daa7a5e36b16c782bb642077e1b581bb3478641962cfc8eb075ea33ba6e8"
+  },
+  "independent_review": {
+    "reviewer": "review_t35_human_changes",
+    "author_of_reviewed_changes": false,
+    "verdict": "accept",
+    "source": "Final thread message from /root/review_t35_human_changes for T35-R4-GATE-RULES",
+    "initial_finding": "Unpinned candidate ID selection was not explicitly bound to the startup manifest; source/PO/base/policy could stay unchanged while candidate mapping moved",
+    "resolution": "Hash and select from the same startup manifest bytes; roleother input with final recheck; any change invalidates this run without freezing the whole manifest or preventing candidate additions between runs",
+    "remaining_substantive_findings": [],
+    "checks": [
+      "Final four frozen hashes match;103 other start hashes unchanged;Status,signature,Q03-Q06,fixed version values andpriority preserved",
+      "Independent read-only checker andgit diff --check exit0",
+      "Prior320 abstract priority cases passed;reviewer explicitly limits these to normative design checks",
+      "Only the reviewed manifest correction was re-reviewed;no full source suites,model proof orGate model creation"
+    ],
+    "scope_limit": "Accepts the authorized normative document revision only;new runtime rules,actual policy andbaseline remain unimplemented/unsynchronized"
+  },
+  "preservation": {
+    "snapshot": "/tmp/intentower-t35-r4-start-qyx3p7v4",
+    "starting_dirty_paths": 65,
+    "total_hashed_paths": 105,
+    "unchanged_other_hashed_paths": 103
+  },
+  "frozen_sha256": {
+    "docs/INT-003.md": "548b869516b5d7318882363c7262d612a33e71457caeddd458ea3b5bdd244c5a",
+    "docs/SPEC-003.md": "7e547eeeb1487c84512bfa2f859588c860d2f07825c20d4151805964207be707",
+    "tasks/T35-R4-semantic-diff.md": "3eb60280f8dc1c55a5387995063a059e18fb675dae86f78042787d73c2270b50",
+    "tasks/TASK-T35-R4-GATE-RULES.md": "1e93773f963a3062b13eed0bd6d2d1f767ead99bb9946a8002f038ff2a2cbdd5"
+  },
+  "line_changes_from_task_start": {
+    "docs/INT-003.md": {
+      "added": 11,
+      "deleted": 10
+    },
+    "docs/SPEC-003.md": {
+      "added": 104,
+      "deleted": 38
+    }
+  },
+  "development": {
+    "failed_executed_command_checks": 0,
+    "initial_independent_findings": 1,
+    "resolved_independent_findings": 1,
+    "repair_rounds": 1,
+    "production_files_changed": 0,
+    "tests_changed": 0,
+    "real_llm_calls": 0
+  },
+  "checks_not_run": [
+    {
+      "check": "R4 real Gate integration acceptance cases",
+      "status": "not_run",
+      "reason": "New guard andmatching code not implemented in this documentation-only task"
+    },
+    {
+      "check": "Full Rust/Python suites",
+      "status": "not_run",
+      "reason": "No code/test change;old183/88 remains historical evidence,not proof of R4 conformance"
+    },
+    {
+      "check": "T36/T37 formal Gate model proof",
+      "status": "not_run",
+      "reason": "No Gate model created or verified"
+    },
+    {
+      "check": "Actual policy/baseline synchronization",
+      "status": "not_run",
+      "reason": "Left to the next controlled Q-05 stage"
+    }
+  ],
+  "actual_writes": {
+    "project_json": false,
+    "approvals_baseline": false,
+    "source": false,
+    "tests": false,
+    "models": false,
+    "signature_identity_or_date": false,
+    "approval_status": false
+  },
+  "remaining_risks": [
+    "Current Gate code andproject.json do not implement the new baseline,default pinned policy,version,manifest-binding andfinal recheck requirements",
+    "Q-05 controlled synchronization of final approved documents andpolicy/baseline remains pending;baselineOK5hash/3ID does not attest the newly documented checks",
+    "New section6.3 real positive/negative tests,verify isolation andcomplete T38 acceptance remain pending",
+    "Known final-report I/O panic/exit-code gap,path/use races,tool correctness andassumption-consistency limits remain",
+    "Model boolean guards require explicit source/gluing assumptions;no model orimplementation formal correctness has been established"
+  ],
+  "intent_or_spec_changed": true,
+  "approved_intent_or_spec_changed": true,
+  "approval_status_changed": false,
+  "approval_identity_or_date_changed": false,
+  "authorized_signed_answer_updates": [
+    "Q-01",
+    "Q-02"
+  ],
+  "committed": false,
+  "next_task_suggestion": "Q-05 controlled synchronization preparation for final text,project expected_tool_versions andIDs,thenbaseline;after that separately implement andtest Gate guards"
+}
+

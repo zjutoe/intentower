@@ -8,6 +8,7 @@
 > **修订（2026-11-04，人类裁定）**：P5 的 T35 所写意图/规范编号改为 **`INT-003` / `SPEC-003`**
 > （原写 `INT-002` / `SPEC-002`）。`INT-002` 保留给 P4 的恒温器实验意图草案（已被
 > `approvals/MODEL-005.md` 引用）。背景见 `docs/decisions/ADR-0004-intent-id-for-the-gate.md`。
+> **修订（2026-11-09，人类指示）**：钉基线与重钉改为 Agent 展示完整命令及具体变更、提示人类批准，获明确批准后由 Agent 执行，见 §2.2 与 `AGENTS.md` §3；本次规则修改不批准任何具体钉入。
 
 ---
 
@@ -164,7 +165,7 @@ intentower/
 | `MODEL-*` | Event-B M0 / M1、Refines、Invariant、Witness（如需） | Agent 可编辑 M1；M0 变更须审批 |
 | `EVD-*` | 工具版本、输入哈希、PO 清单、求解状态、测试记录、风险 | 工具生成，不接受 Agent 口头宣告 |
 
-**固定的关系**：`INT → SPEC → MODEL(M0→M1) → PO → Evidence`。P1 确认 M0 后，由人类冻结 `approvals/baseline.json`（至少记录 INT、批准的 SPEC、M0、`project.json` 的 SHA256）；后续 Agent 只读，不得自动刷新。源代码和普通测试通过 `implements` / `tests` 关联到 SPEC，但初期这些关联只代表**可追溯**，不代表已完成代码级数学证明。
+**固定的关系**：`INT → SPEC → MODEL(M0→M1) → PO → Evidence`。P1 确认 M0 后，冻结 `approvals/baseline.json`（至少记录 INT、批准的 SPEC、M0、`project.json` 的 SHA256）。初次钉入和后续重钉均由 Agent 先展示完整操作命令（含脚本正文）及具体变更，包括相关路径、旧/新哈希和模型映射，提示人类明确批准；获批准后由 Agent 执行所展示的操作。批准仅对应所展示的命令、内容与范围，执行前若有变化须重新展示并获批；内容本身仍须经人类批准，不得自动刷新或代填批准身份/日期。具体流程见 `AGENTS.md` §3；旧基线 note 和批准记录中的人工亲写限制保留作历史说明，以本节现行流程为准。修改本流程不等于批准任何具体钉入。源代码和普通测试通过 `implements` / `tests` 关联到 SPEC，但初期这些关联只代表**可追溯**，不代表已完成代码级数学证明。
 
 ### 2.3 可复制的 Spec 模板
 
@@ -251,7 +252,7 @@ intentower/
 
 - 明确 `PO inventory` 与 `typed hypotheses / goal` 可用，且未丢失上下文公理、已选前提、类型和 WD 前提。
 - 确认 Rossi 的 PO 来源、模型版本和导出路径可追溯。
-- 请人类批准 M0 与工具策略，将当前 INT / SPEC / M0 / `project.json` 的哈希写入 `approvals/baseline.json`；该文件之后受保护。
+- 请人类批准 M0 与工具策略；Agent 按 §2.2 展示完整命令和具体变更，提示人类批准后执行，将当前 INT / SPEC / M0 / `project.json` 的哈希写入 `approvals/baseline.json`；该文件之后受保护。
 - 如果 T12 无法稳定获得类型化 PO，**停止 P2**。优先研究 Rossi 上游 API 或现成 Rodin/SMT 插件路线；不得跳到“自己写通用 Event-B 解析器”。
 
 ### P2 — 最小 SMT 自动证明后端

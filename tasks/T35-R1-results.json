@@ -1,0 +1,309 @@
+{
+  "task_id": "T35-R1",
+  "status": "done",
+  "parent_task_status": "needs_review",
+  "parent": [
+    "Approved INT-001 C-01 through C-06",
+    "Approved SPEC-001 SP-G1 through SP-G9"
+  ],
+  "proposed_inputs": [
+    "INT-003",
+    "SPEC-003"
+  ],
+  "scope": "Revise unapproved Gate drafts and deliver a bounded semantic diff; no approval, re-baseline, code change, model experiment or next task",
+  "changed_files": [
+    "docs/INT-003.md",
+    "docs/SPEC-003.md",
+    "tasks/T35-R1-semantic-diff.md",
+    "tasks/TASK-T35-R1.md",
+    "tasks/T35-R1-results.json"
+  ],
+  "behavior": [
+    "Keep both draft statuses proposed and approval blocks byte-identical",
+    "Preserve I-01 through I-08, non-goal substance, S-01 through S-05, the original decision function and four invariants, eight status values, F0 and complete nonzero PO requirements",
+    "Describe per-run source snapshots and POG isolation, input drift, current CLI deadlines, separate preflight diagnostics, cancellation/platform limits and output alias checks",
+    "Replace fixed-directory deletion as the G-I mechanism with the existing fresh-evidence isolation commitment; keep implementation layout in an explanatory section",
+    "Map existing tests by judge, inventory, adapter, pipeline and CLI level; retain outstanding B-01/B-02/B-14/B-17 and T38 mutation acceptance work",
+    "Keep the original historical model matrix and append references to the four-model alignment and prior183 Rust/88 Python results",
+    "Correct unsupported historical approval/reference claims without inventing new decisions; all six Q items remain pending this revision",
+    "Record the final report I/O panic behavior as an unmet exit-code requirement, not as an accepted alternative result"
+  ],
+  "commands_run": [
+    {
+      "command": "timeout 5s target/debug/intentower gate --help",
+      "exit_code": 0,
+      "result": "Actual timeout option, default30 and environment override confirmed"
+    },
+    {
+      "command": "timeout 15s python3 /tmp/intentower-t35-r1-check.py",
+      "attempt": 1,
+      "exit_code": 1,
+      "result": "Reference validation treated backticked tests/...rs and tests/...py legend placeholders as actual files; no missing real test definition was found"
+    },
+    {
+      "command": "timeout 15s python3 /tmp/intentower-t35-r1-check.py",
+      "attempt": 2,
+      "exit_code": 0,
+      "result": "After replacing the legend with plain explanation, proposed statuses, approvals, core clauses, historical matrix, links, qualified test references and five negative controls pass"
+    },
+    {
+      "command": "timeout 15s python3 /tmp/intentower-t35-r1-check.py",
+      "attempt": 3,
+      "exit_code": 0,
+      "result": "After the final four bounded factual corrections, the same checks and five negative controls pass"
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "git diff HEAD --exit-code -- docs/INT-001.md docs/SPEC-001.md approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "Python approval-block byte comparison, snapshot SHA256 and four frozen hashes",
+      "exit_code": 0,
+      "result": "Both approval blocks byte-identical;56 other starting dirty paths and40 protected/reference paths preserved"
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Proposed states and empty approval blocks preserved",
+      "status": "passed"
+    },
+    {
+      "check": "Core contract, original historical matrix and proof boundaries preserved",
+      "status": "passed"
+    },
+    {
+      "check": "Current behavior and support limits described with traceable evidence",
+      "status": "passed"
+    },
+    {
+      "check": "Qualified source/test references and relative links valid",
+      "status": "passed"
+    },
+    {
+      "check": "Five deliberate corruptions rejected by document-contract checker",
+      "status": "passed"
+    },
+    {
+      "check": "No source, test, approved input or historical evidence modifications",
+      "status": "passed"
+    },
+    {
+      "check": "Frozen independent review",
+      "status": "passed",
+      "result": "Non-author accepts the final frozen draft-only revision; human approval is outside this verdict"
+    },
+    {
+      "check": "Human approval of T35 final text",
+      "status": "not_run",
+      "reason": "Outside this drafting task; T35 remains needs_review"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "checks_not_run": [
+    {
+      "check": "Full Rust/Python suites this revision",
+      "status": "not_run",
+      "reason": "Documentation-only; prior actual183 Rust/88 Python evidence is linked and not presented as a rerun"
+    },
+    {
+      "check": "T36/T37 Gate model proof",
+      "status": "not_run",
+      "reason": "No Gate model generated or verified by this task"
+    },
+    {
+      "check": "T38 complete acceptance including mutation of a faulty implementation",
+      "status": "not_run",
+      "reason": "References and coverage levels audited; T38 not completed by this draft"
+    }
+  ],
+  "prior_evidence": [
+    {
+      "path": "tasks/REVIEW-P2-NESTED-TIMEOUT-results.json",
+      "claim": "Prior full183 Rust/88 Python passes and independent F2 closure"
+    },
+    {
+      "path": "tasks/REVIEW-P2-OUTPUT-ALIAS-results.json",
+      "claim": "Independent F1 closure"
+    },
+    {
+      "path": "tasks/REVIEW-P4-DIFF-results.json",
+      "claim": "Read-only inventory and approval boundary audit"
+    },
+    {
+      "path": "/tmp/intentower-t35-alignment-iesy3oza/evidence.json",
+      "claim": "Prior real four-model matrix recheck, exit/PO/input counts unchanged; not rerun in R1"
+    }
+  ],
+  "preservation": {
+    "starting_dirty_paths": 56,
+    "snapshot_hashed_paths": 58,
+    "unchanged_other_starting_paths": 56,
+    "protected_reference_hashed_paths": 42,
+    "unchanged_other_protected_reference_paths": 40,
+    "snapshot": "/tmp/intentower-t35-r1-start-c1jagxpl"
+  },
+  "development": {
+    "repair_rounds": 2,
+    "first_correction": "Only replace the ambiguous path-pattern legend after reference-check failure; validation was not weakened",
+    "final_correction": "Independent review found N-04 approval attribution inconsistency, inaccurate169 attribution in the semantic diff, and outdated P-01 diagnostic wording. Root also clarified that preflight diagnostic writing requires writability. All four corrected together; no additional scope",
+    "independent_checker_correction": "Reviewer corrected a /tmp checker assumption requiring literal QF_LIA; the original/current draft states the theory in Chinese. No draft change for this issue",
+    "production_files_changed": 0,
+    "tests_added_or_changed": 0,
+    "real_llm_calls": 0
+  },
+  "intent_or_spec_changed": true,
+  "approved_intent_or_spec_changed": false,
+  "approval_status_changed": false,
+  "human_decisions_recorded": 0,
+  "committed": false,
+  "remaining_risks": [
+    "T35 still needs human review/approval; Q-01 through Q-06 are not decided by this revision",
+    "Standalone gate does not enforce baseline consistency or expected tool-version pins",
+    "Final normal report I/O errors may still panic and fail the specified exit2 contract; this is documented but not repaired",
+    "Cancellation support is limited to reviewed Linux x86_64/glibc LP64 and GNU timeout8.32 behavior, including inherited blockedALRM, creating-thread and active-supervisor group boundaries",
+    "Workflow path/input guards do not isolate malicious concurrent processes; assumption consistency and implementation formal correctness remain unestablished",
+    "T36/T37 models, T38 total coverage/mutation acceptance and P5 experiments remain separate work"
+  ],
+  "next_task_suggestion": "T35 human review of T35-R1-semantic-diff.md and Q-01 through Q-06; approve final text and separately authorize required implementations/policy/baseline updates before T36",
+  "independent_review": {
+    "task_id": "T35-R1",
+    "reviewer": "review_t35_alignment",
+    "author_of_reviewed_changes": false,
+    "verdict": "accept",
+    "scope": "Read-only independent review of the frozen proposed Gate-draft alignment and semantic diff; no repository writes, complete-suite reruns, LLM experiments, model proof or human approval.",
+    "reviewed_requirements": [
+      "TASK-T35-R1",
+      "approved INT-001 C-01..C-06",
+      "approved SPEC-001 SP-G1..SP-G9",
+      "starting proposed INT-003/SPEC-003"
+    ],
+    "frozen_sha256": {
+      "docs/INT-003.md": "adb59438d7ff418c84e433544d758430a5fe3f4918205b5eeec0d64b49eec461",
+      "docs/SPEC-003.md": "5dddd213d60e80343da25bfec3757ce1f534e6a92a69f662fc7153d36e72934f",
+      "tasks/T35-R1-semantic-diff.md": "878e40b9585b4dcb384cdb01261614b4e38b48416855c3059e190bfff7d45c19",
+      "tasks/TASK-T35-R1.md": "e2302be26207f2f24b4edddceb29f67df52148deacf3badd146d6bae0dd536f0"
+    },
+    "freeze_file_sha256": "7ed512c6dfc8d603c7a8d5ef5ede4c8e26f5cd671f4696c591ac268941cdaf41",
+    "acceptance": {
+      "proposed_statuses_preserved": true,
+      "approval_blocks_byte_identical_to_start": true,
+      "original_clause_ids_preserved": true,
+      "spec_section5_byte_identical_to_start": true,
+      "three_verdicts_eight_statuses_f0_and_nonzero_complete_po_preserved": true,
+      "starting_non_draft_dirty_files_unchanged": 56,
+      "protected_reference_non_draft_files_unchanged": 40,
+      "prior_p4_record_paths_still_match_recorded_hashes": 54,
+      "qualified_function_references_checked": 36,
+      "local_markdown_links_checked": 6,
+      "four_historical_model_reports_match_documented_counts_and_live_input_hashes": true,
+      "final_increment_is_exactly_four_reviewed_corrections": true,
+      "remaining_substantive_findings": []
+    },
+    "resolved_findings": [
+      "N-04 now distinguishes current implementation from proposed NG-04; no unverified historical approval claim.",
+      "Semantic diff R1-07 no longer attributes 169 historical tests to the starting Gate draft.",
+      "P-01 quotes the actual not-found-or-unreadable diagnostic.",
+      "INT section3 qualifies preflight diagnostic creation on successful writing."
+    ],
+    "commands_run": [
+      {
+        "command": "timeout 10s target/debug/intentower gate --help",
+        "exit_code": 0,
+        "result": "Current per-call --timeout-secs option and model/out/policy options confirmed."
+      },
+      {
+        "command": "timeout 10s target/debug/intentower baseline",
+        "exit_code": 0,
+        "result": "BASELINE OK: 5 hashes, 3 model ids pinned."
+      },
+      {
+        "command": "timeout 10s python3 /tmp/intentower-t35-r1-independent-check.py (initial reviewer checker)",
+        "exit_code": 1,
+        "result": "Reviewer-only false rejection: checker required literal QF_LIA although the starting draft uses its Chinese definition. No production finding."
+      },
+      {
+        "command": "timeout 10s python3 /tmp/intentower-t35-r1-independent-check.py (corrected predicate, final freeze)",
+        "exit_code": 0,
+        "result": "Proposed statuses, unchanged approval blocks/core function, all IDs/states and 56+40 preservation checks pass. Five intentionally corrupted document cases rejected."
+      },
+      {
+        "command": "python3 inline read-only qualified-function/local-link checker",
+        "exit_code": 0,
+        "result": "36 function references and 6 local Markdown links resolve."
+      },
+      {
+        "command": "python3 inline read-only historical-report and P4-record hash checker",
+        "exit_code": 0,
+        "result": "Four historical model reports match documented states/counts; their recorded inputs still match SHA256. P4 result lists 54 unchanged paths."
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0,
+        "result": "Passed at final freeze."
+      },
+      {
+        "command": "git diff HEAD --exit-code -- approvals models schemas project.json AGENTS.md Intentower_Phase1_Research_Development_Plan.md Cargo.toml Cargo.lock crates/intentower-cli/Cargo.toml docs/INT-001.md docs/SPEC-001.md",
+        "exit_code": 0
+      },
+      {
+        "command": "python3 inline final-freeze and reverse-correction hash comparison",
+        "exit_code": 0,
+        "result": "All four frozen hashes match. Reversing exactly the four agreed corrections reproduces all three prior document hashes; task hash unchanged."
+      }
+    ],
+    "review_checker": {
+      "path": "/tmp/intentower-t35-r1-independent-check.py",
+      "sha256": "53da5fc31706941929bd0a4f7fee31be14cbf0a922f9f5d83f167b4bf9acb8a1",
+      "negative_controls_rejected": [
+        "status",
+        "approval",
+        "missing-clause",
+        "changed-function",
+        "missing-status"
+      ]
+    },
+    "proof_obligations": {
+      "status": "not_applicable",
+      "total": null,
+      "discharged": null,
+      "not_discharged": null,
+      "unknown": null,
+      "unsupported": null
+    },
+    "remaining_limits": [
+      "Accept means the draft-alignment revision satisfies its bounded review; it does not approve INT-003/SPEC-003 or close overall T35.",
+      "Q-01..Q-06 remain pending; original unlocatable P4 D-1/D-2 references are corrected rather than converted into decisions.",
+      "Report I/O panic/exit-code gap, cancellation platform boundary, path races and assumption-consistency limits remain visible.",
+      "Rust183/Python88 results and four model reruns were inspected as prior evidence, not rerun by this reviewer. T36/T37 proof and T38 overall acceptance remain not_run/pending."
+    ]
+  },
+  "frozen_sha256": {
+    "docs/INT-003.md": "adb59438d7ff418c84e433544d758430a5fe3f4918205b5eeec0d64b49eec461",
+    "docs/SPEC-003.md": "5dddd213d60e80343da25bfec3757ce1f534e6a92a69f662fc7153d36e72934f",
+    "tasks/T35-R1-semantic-diff.md": "878e40b9585b4dcb384cdb01261614b4e38b48416855c3059e190bfff7d45c19",
+    "tasks/TASK-T35-R1.md": "e2302be26207f2f24b4edddceb29f67df52148deacf3badd146d6bae0dd536f0"
+  },
+  "validation_artifact_hashes": {
+    "/tmp/intentower-t35-r1-check.py": "3c616c10209b98c474737357e24244e40383d3aa01c1e65df1f9c4ad6d5a58c9",
+    "/tmp/intentower-t35-r1-check-results.json": "cbaecf41b1f14192761c6e33e1e9d8cf4d1ef3a6a65b707e3613c98a460e39f3",
+    "/tmp/intentower-t35-r1-independent-review.json": "4d77ed47da400b79842db55061f4d370d55215782117a6982f04983cff08a3da",
+    "/tmp/intentower-t35-r1-independent-check.py": "53da5fc31706941929bd0a4f7fee31be14cbf0a922f9f5d83f167b4bf9acb8a1"
+  }
+}
+

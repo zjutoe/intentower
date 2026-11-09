@@ -1,0 +1,290 @@
+{
+  "task_id": "T35-R6-SYNC",
+  "status": "done",
+  "phase": "applied_and_verified_after_explicit_human_approval",
+  "parent": "INT-003 Q-04/Q-05; SPEC-003 sections 1.1/8.3; AGENTS.md section 3",
+  "changed_files": [
+    "project.json",
+    "approvals/baseline.json",
+    "tasks/TASK-T35-R6-SYNC.md",
+    "tasks/T35-R6-SYNC-project.json",
+    "tasks/T35-R6-SYNC-baseline.json",
+    "tasks/T35-R6-SYNC-apply.py",
+    "tasks/T35-R6-SYNC-proposal.md",
+    "tasks/T35-R6-SYNC-results.json"
+  ],
+  "commands_run": [
+    {
+      "command": "git status --porcelain=v1; targeted AGENTS/Spec/policy/baseline/source reads",
+      "exit_code": 0,
+      "result": "Existing dirty work preserved; scope limited to preparation of Q-05 first-stage concrete pin proposal."
+    },
+    {
+      "command": "timeout 5s rossi --version",
+      "exit_code": 0,
+      "result": "rossi 0.2.3"
+    },
+    {
+      "command": "timeout 5s cvc5 --version",
+      "exit_code": 0,
+      "result": "First stdout line: cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+    },
+    {
+      "command": "timeout 5s target/debug/intentower baseline --help",
+      "exit_code": 0,
+      "result": "Confirmed --baseline FILE and --root DIR."
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "Actual workspace remains BASELINE OK: 5 hashes, 3 model ids pinned."
+    },
+    {
+      "command": "Python fixed candidate and proposal generation",
+      "exit_code": 0,
+      "result": "Generated minimal two-target patch; 15 fixed input guards; source bytes captured rather than auto-recomputed during execution."
+    },
+    {
+      "command": "python3 tasks/T35-R6-SYNC-apply.py --check",
+      "exit_code": 0,
+      "result": "PROPOSAL CHECK OK; no protected files written; human approval still required"
+    },
+    {
+      "command": "Python isolated apply rehearsal and real CLI baseline --baseline FIXTURE/approvals/baseline.json --root FIXTURE",
+      "exit_code": 0,
+      "result": "Temporary copy only: apply exit 0, real baseline exit 0, 7 hashes/3 model IDs. Six drift cases each refused before writes with exit 1 and zero target writes."
+    },
+    {
+      "command": "Python 110 task-start hash comparisons",
+      "exit_code": 0,
+      "result": "All 110 start hashes unchanged, including actual protected files, existing source work and historical evidence."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "No whitespace errors."
+    },
+    {
+      "command": "set -e\ncd /home/mye/src/llm/intentower\npython3 tasks/T35-R6-SYNC-apply.py --apply\ntimeout 10s ./target/debug/intentower baseline\ngit diff --check",
+      "exit_code": 0,
+      "result": "WROTE project.json: 8bf5814c6380d4c921c2c5c1c8cd30e82ce9e9aa78ff2c5780c1dcb9710cdff1; WROTE approvals/baseline.json: 06b0ad10de4be36ec86d76410dc414adc9fc2332e73031b098c5704270b92e08; BASELINE OK: 7 hashes, 3 model ids pinned; git diff --check passed. The set -e sequence completed successfully."
+    },
+    {
+      "command": "Python post-apply candidate-byte, JSON-semantics, frozen-artifact and task-start-hash checks",
+      "exit_code": 0,
+      "result": "Exact approved target bytes; only the two permitted inputs changed; 108 other start hashes unchanged; all 5 proposal artifacts frozen; prior non-policy pins, model mappings and original approval metadata preserved."
+    },
+    {
+      "command": "git diff -- project.json approvals/baseline.json",
+      "exit_code": 0,
+      "result": "Only expected policy additions and baseline hash changes."
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Candidate JSON and minimal patch contain only approved-stage ID/version additions and exact policy/doc hashes",
+      "status": "passed"
+    },
+    {
+      "check": "All existing non-policy pinned hashes, 3 model ID mappings and original approval metadata preserved",
+      "status": "passed"
+    },
+    {
+      "check": "Complete commands, script body, old/new hashes, approval binding and failure behavior shown in proposal",
+      "status": "passed"
+    },
+    {
+      "check": "Read-only preflight and isolated positive/negative rehearsal",
+      "status": "passed"
+    },
+    {
+      "check": "All actual protected/source/model/history inputs unchanged",
+      "status": "passed"
+    },
+    {
+      "check": "Independent frozen proposal review",
+      "status": "passed"
+    },
+    {
+      "check": "Explicit human approval of this concrete pin operation",
+      "status": "passed"
+    },
+    {
+      "check": "Actual workspace writes and post-write baseline verification",
+      "status": "passed"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "proposal": {
+    "guarded_inputs": 15,
+    "hash_changes": [
+      {
+        "path": "project.json",
+        "old": "1a9adec1ee0c83059450a50d41aa19ba33074f16ef888e2710fa1d56d7c03342",
+        "new": "8bf5814c6380d4c921c2c5c1c8cd30e82ce9e9aa78ff2c5780c1dcb9710cdff1"
+      },
+      {
+        "path": "approvals/baseline.json (whole file)",
+        "old": "b66f3f2fb2798efe89c062c71b8702b00ba5e1714ca438e07dda11dd8398e72e",
+        "new": "06b0ad10de4be36ec86d76410dc414adc9fc2332e73031b098c5704270b92e08"
+      },
+      {
+        "path": "docs/INT-003.md (new pin)",
+        "old": "not pinned",
+        "new": "2db9f7ee888f4198c1b2205b865071be09e44cf8fc5bb7f747b32b4899a6a7d9"
+      },
+      {
+        "path": "docs/SPEC-003.md (new pin)",
+        "old": "not pinned",
+        "new": "88efb6a0c6e1f40553393f38ee3cac139601e14ff6c8e89b48c5b45e699deac2"
+      }
+    ],
+    "script_sha256": "eb726bb9e2717f7aa300e83968b5ac59aefc4a8b32431901326d2b86e7ca9e2b",
+    "candidate_sha256": {
+      "tasks/T35-R6-SYNC-project.json": "8bf5814c6380d4c921c2c5c1c8cd30e82ce9e9aa78ff2c5780c1dcb9710cdff1",
+      "tasks/T35-R6-SYNC-baseline.json": "06b0ad10de4be36ec86d76410dc414adc9fc2332e73031b098c5704270b92e08"
+    },
+    "future_counts": {
+      "hashes": 7,
+      "model_ids": 3
+    },
+    "commands_after_approval": "set -e\ncd /home/mye/src/llm/intentower\npython3 tasks/T35-R6-SYNC-apply.py --apply\ntimeout 10s ./target/debug/intentower baseline\ngit diff --check",
+    "current_protected_files_changed": false,
+    "recorded_at_phase": "proposal preparation before approval; original proposal metadata retained"
+  },
+  "validation": {
+    "proposal_semantics": "passed",
+    "positive": {
+      "apply_exit": 0,
+      "real_cli_exit": 0,
+      "real_cli_stdout": "BASELINE OK: 7 hashes, 3 model ids pinned",
+      "target_bytes_match": true,
+      "scope": "isolated temporary copy only"
+    },
+    "negative": [
+      {
+        "changed_input": "docs/INT-003.md",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "changed_input": "project.json",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "changed_input": "approvals/baseline.json",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "changed_input": "models/counter/models.json",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "changed_input": "tasks/T35-R6-SYNC-project.json",
+        "exit_code": 1,
+        "writes": 0
+      },
+      {
+        "changed_input": "tasks/T35-R6-SYNC-baseline.json",
+        "exit_code": 1,
+        "writes": 0
+      }
+    ],
+    "workspace_untouched": true,
+    "unchanged_start_hashes": 110,
+    "recorded_at_phase": "isolated rehearsal before approval; workspace_untouched refers to that earlier phase"
+  },
+  "frozen_sha256": {
+    "tasks/TASK-T35-R6-SYNC.md": "f6c731ecc01a1b743d4f0133f46c18d06be7c9dedc7d29b6081ca015fbc0e5a5",
+    "tasks/T35-R6-SYNC-project.json": "8bf5814c6380d4c921c2c5c1c8cd30e82ce9e9aa78ff2c5780c1dcb9710cdff1",
+    "tasks/T35-R6-SYNC-baseline.json": "06b0ad10de4be36ec86d76410dc414adc9fc2332e73031b098c5704270b92e08",
+    "tasks/T35-R6-SYNC-apply.py": "eb726bb9e2717f7aa300e83968b5ac59aefc4a8b32431901326d2b86e7ca9e2b",
+    "tasks/T35-R6-SYNC-proposal.md": "0312ac4b1b924a75955fede01046439da41c22682912ce154eb389b8fb30565f"
+  },
+  "scope_preservation": {
+    "snapshot": "/tmp/intentower-t35-r6-start-yc59hzj8",
+    "task_start_hashes": 110,
+    "unchanged_hashes": 108,
+    "preexisting_dirty_paths": 74,
+    "actual_protected_writes": 2,
+    "source_files_changed": 0,
+    "models_created": 0,
+    "human_signatures_changed": false,
+    "permitted_changed_inputs": [
+      "project.json",
+      "approvals/baseline.json"
+    ]
+  },
+  "approval": {
+    "status": "approved",
+    "operation": "Replace only project.json and approvals/baseline.json with the exact reviewed candidates after explicit human approval",
+    "no_specific_operation_approval_inferred_from": "执行下一步",
+    "proposal_document": "tasks/T35-R6-SYNC-proposal.md",
+    "user_message": "批准执行 T35-R6-SYNC 完整方案",
+    "source": "Explicit current user message after the complete proposal and execution commands were displayed",
+    "applies_to": "The five previously reviewed frozen proposal artifacts and the exact displayed command sequence; no content changes were made before execution",
+    "historical_baseline_metadata_preserved": true
+  },
+  "repair_rounds": 0,
+  "not_run": [
+    "Full source suites (no source/test changes; not part of the approved command sequence)",
+    "Model proof (not applicable to policy/baseline synchronization)",
+    "T36/T37 model creation and Gate runtime implementation (outside this task)"
+  ],
+  "remaining_risks": [
+    "Gate runtime baseline/version enforcement and corresponding real integration acceptance remain pending; this baseline synchronization does not prove implementation compliance."
+  ],
+  "intent_or_spec_changed": false,
+  "committed": false,
+  "next_task_suggestion": "T36: separately assign the Gate M0 modeling task; stop after this synchronization.",
+  "independent_review": {
+    "reviewer": "/root/review_t35_human_changes",
+    "verdict": "accept",
+    "source": "Final thread message for T35-R6-SYNC proposal",
+    "remaining_substantive_findings": [],
+    "checks": [
+      "Candidates contain only agreed changes; existing non-policy pinned hashes, model mappings and P1 metadata preserved",
+      "Embedded script, diff and hashes equal actual artifacts; 5 frozen hashes and 110 initial hashes match",
+      "Workspace --check, baseline and version queries exit 0; actual baseline remains 5 hashes/3 IDs",
+      "Independent temporary-copy --apply exit 0 followed by real baseline 7 hashes/3 IDs; candidate drift rejected exit 1 with zero target writes",
+      "git diff --check exit 0"
+    ],
+    "scope_limit": "Proposal only; not human approval; actual workspace --apply not_run"
+  },
+  "execution_turn_changed_files": [
+    "project.json",
+    "approvals/baseline.json",
+    "tasks/T35-R6-SYNC-results.json"
+  ],
+  "post_apply_validation": {
+    "actual_target_bytes_match_approved_candidates": true,
+    "counts": {
+      "hashes": 7,
+      "model_ids": 3
+    },
+    "existing_non_policy_hashes_preserved": true,
+    "model_id_mappings_preserved": true,
+    "original_approval_metadata_preserved": true,
+    "normative_documents_unedited": true,
+    "task_start_changed_files": [
+      "approvals/baseline.json",
+      "project.json"
+    ],
+    "task_start_unchanged_hashes": 108,
+    "frozen_proposal_artifacts_match": 5,
+    "actual_target_sha256": {
+      "approvals/baseline.json": "06b0ad10de4be36ec86d76410dc414adc9fc2332e73031b098c5704270b92e08",
+      "project.json": "8bf5814c6380d4c921c2c5c1c8cd30e82ce9e9aa78ff2c5780c1dcb9710cdff1"
+    }
+  }
+}

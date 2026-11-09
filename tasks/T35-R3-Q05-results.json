@@ -1,0 +1,321 @@
+{
+  "task_id": "T35-R3-Q05",
+  "status": "done",
+  "authorization": "User explicitly authorized the preceding six-point Q-05 recommendation; record the decision in the approved documents without executing future stage actions",
+  "changed_files": [
+    "docs/INT-003.md",
+    "docs/SPEC-003.md",
+    "tasks/TASK-T35-R3-Q05.md",
+    "tasks/T35-R3-Q05-results.json"
+  ],
+  "decision": {
+    "stages": [
+      {
+        "stage": "T35 final text, before T36",
+        "preconditions": [
+          "Q-01 formal decision rules finalized",
+          "Q-02 matching details finalized",
+          "Q-05 decision and final text confirmed"
+        ],
+        "future_sha256_paths": [
+          "docs/INT-003.md",
+          "docs/SPEC-003.md",
+          "project.json"
+        ],
+        "future_policy_change": "Append INT-003 and SPEC-003 without removing existing IDs; update only the human-approved modified policy hash"
+      },
+      {
+        "stage": "After T36 acceptance and human M0 approval",
+        "future_sha256_paths": [
+          "models/gate/m0.eventb"
+        ],
+        "future_model_id": "MODEL-007",
+        "future_root_relative_sources": [
+          "models/gate/m0.eventb"
+        ]
+      },
+      {
+        "stage": "After T37 real refinement verification and human final M1 approval",
+        "future_sha256_paths": [
+          "models/gate/m1.eventb"
+        ],
+        "future_model_id": "MODEL-008",
+        "future_root_relative_sources": [
+          "models/gate/m0.eventb",
+          "models/gate/m1.eventb"
+        ]
+      }
+    ],
+    "future_manifest": "models/gate/models.json",
+    "future_manifest_entries": {
+      "MODEL-007": [
+        "m0.eventb"
+      ],
+      "MODEL-008": [
+        "m0.eventb",
+        "m1.eventb"
+      ]
+    },
+    "freeze_entire_manifest": false,
+    "existing_baseline_entries_preserved": true,
+    "human_explicit_authorization_and_write_required_each_time": true,
+    "no_unapproved_candidates_or_placeholder_hashes": true,
+    "baseline_freeze_is_not_proof": true
+  },
+  "commands_run": [
+    {
+      "command": "timeout 5s target/debug/intentower baseline --help",
+      "exit_code": 0,
+      "result": "Actual --root/--baseline flags confirmed; source confirms root-relative baseline lists and directory-relative manifest entries"
+    },
+    {
+      "command": "timeout 20s python3 temporary baseline fixture harness",
+      "exit_code": 0,
+      "result": "Correct mapping0; adding unpinned candidateID0; repointed007, removed008 and m0 byte drift each2 as expected. No repository mutation or model proof"
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned"
+    },
+    {
+      "command": "timeout 10s python3 /tmp/intentower-t35-r3-check.py",
+      "exit_code": 0,
+      "result": "Positive document checks, five deliberate-corruption negatives and67 unchanged starting-path checks pass; no actual Gate directory or IDs registered"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Q-05 supplies explicit stage conditions, paths, model IDs and policy synchronization",
+      "status": "passed"
+    },
+    {
+      "check": "Root-relative frozen mappings and local relative future manifest entries agree with existing CLI contract",
+      "status": "passed"
+    },
+    {
+      "check": "No automatic future approval, placeholder hash, whole-manifest pin or real stage execution",
+      "status": "passed"
+    },
+    {
+      "check": "Human signature/status, other signed answers, section5 and tool-version values unchanged",
+      "status": "passed"
+    },
+    {
+      "check": "Other starting dirty files and protected policy/baseline preserved",
+      "status": "passed"
+    },
+    {
+      "check": "Independent frozen non-author review",
+      "status": "passed",
+      "result": "review_t35_human_changes accepts the scoped Q-05 record only, without asserting stage execution or T35/model completion"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "snapshot": "/tmp/intentower-t35-r3-start-1lzyd_c1",
+  "preservation": {
+    "starting_dirty_paths": 63,
+    "total_snapshot_paths": 69,
+    "allowed_changed_paths": 2,
+    "unchanged_snapshot_paths": 67
+  },
+  "development": {
+    "failed_acceptance_checks": 0,
+    "repair_rounds": 0,
+    "production_files_changed": 0,
+    "real_llm_calls": 0
+  },
+  "checks_not_run": [
+    {
+      "check": "Full Rust/Python suites",
+      "status": "not_run",
+      "reason": "No source or test change; this task checks the specific baseline data contract and document consistency"
+    },
+    {
+      "check": "Gate model proof",
+      "status": "not_run",
+      "reason": "No Gate model exists or was created"
+    },
+    {
+      "check": "Policy/baseline synchronization",
+      "status": "not_run",
+      "reason": "Future conditional stage; Q-01/Q-02 finalization remains outstanding"
+    }
+  ],
+  "actual_changes": {
+    "model_directory_created": false,
+    "model_ids_registered": false,
+    "project_json_written": false,
+    "baseline_written": false,
+    "signature_identity_or_date_changed": false,
+    "approval_status_changed": false
+  },
+  "remaining_risks": [
+    "Q-01 formal Gate decision rules and Q-02 matching/configuration/failure details still need finalization before the T35 freeze stage",
+    "MODEL-007/008 names and planned paths are decided; actual models, verification, human acceptance and baseline registration are future work",
+    "The baseline is a workflow guard, not malicious-process isolation or a proof of models/source code",
+    "Other earlier implementation and research limits remain unchanged"
+  ],
+  "intent_or_spec_changed": true,
+  "approved_intent_or_spec_changed": true,
+  "human_decision_source": "This turn's authorization to apply the previously proposed Q-05 text",
+  "committed": false,
+  "next_task_suggestion": "T35: finalize Q-01 Gate decision requirements and Q-02 matching details, then human-confirm the final text before the first planned baseline synchronization",
+  "parent_task_status": "needs_review",
+  "frozen_sha256": {
+    "docs/INT-003.md": "ce474a68dc3834c15be4d369633e75eb0f0489085310f2eec2585141c2b5ec1e",
+    "docs/SPEC-003.md": "def5b4f025f8d8b17162b97454db9d87d24dad4b41f41a6600672ede3e1e07ba",
+    "tasks/TASK-T35-R3-Q05.md": "7aeccf984267735ee8537c105b51f6f38e358b1795872231d664f7179f29e006"
+  },
+  "temporary_baseline_fixture": {
+    "scope": "Temporary baseline data-contract tests only; no real project approval, model proof or repository mutation",
+    "root": "/tmp/intentower-q05-baseline-fixture-dkcxi43d",
+    "results": [
+      {
+        "case": "root-relative frozen IDs and local relative manifest",
+        "command": [
+          "/home/mye/src/llm/intentower/target/debug/intentower",
+          "baseline",
+          "--root",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d",
+          "--baseline",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d/baseline.json"
+        ],
+        "exit_code": 0,
+        "expected": 0,
+        "stdout": "BASELINE OK: 2 hashes, 2 model ids pinned",
+        "stderr": ""
+      },
+      {
+        "case": "additional unpinned candidate ID does not modify frozen IDs",
+        "command": [
+          "/home/mye/src/llm/intentower/target/debug/intentower",
+          "baseline",
+          "--root",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d",
+          "--baseline",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d/baseline.json"
+        ],
+        "exit_code": 0,
+        "expected": 0,
+        "stdout": "BASELINE OK: 2 hashes, 2 model ids pinned",
+        "stderr": ""
+      },
+      {
+        "case": "pinned MODEL-007 repointed",
+        "command": [
+          "/home/mye/src/llm/intentower/target/debug/intentower",
+          "baseline",
+          "--root",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d",
+          "--baseline",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d/baseline.json"
+        ],
+        "exit_code": 2,
+        "expected": 2,
+        "stdout": "- pinned model id MODEL-007 was repointed: recorded [\"models/gate/m0.eventb\"] != current [\"models/gate/m1.eventb\"]\nBASELINE CHANGED: 1 protected inputs moved. stop the round; only a human may re-baseline.",
+        "stderr": ""
+      },
+      {
+        "case": "pinned MODEL-008 removed",
+        "command": [
+          "/home/mye/src/llm/intentower/target/debug/intentower",
+          "baseline",
+          "--root",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d",
+          "--baseline",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d/baseline.json"
+        ],
+        "exit_code": 2,
+        "expected": 2,
+        "stdout": "- pinned model id MODEL-008 was removed from models.json; it meant [\"models/gate/m0.eventb\", \"models/gate/m1.eventb\"]\nBASELINE CHANGED: 1 protected inputs moved. stop the round; only a human may re-baseline.",
+        "stderr": ""
+      },
+      {
+        "case": "pinned m0 content changed",
+        "command": [
+          "/home/mye/src/llm/intentower/target/debug/intentower",
+          "baseline",
+          "--root",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d",
+          "--baseline",
+          "/tmp/intentower-q05-baseline-fixture-dkcxi43d/baseline.json"
+        ],
+        "exit_code": 2,
+        "expected": 2,
+        "stdout": "- protected file changed: models/gate/m0.eventb: recorded e299569f2c951f2135133ff03868c0552bd1639b5579c7a7c9997ff67e379faa != current 08fa4f00416b5288f2f2609994baf56ce892a31706574593c99fbf24eb8d4c69\nBASELINE CHANGED: 1 protected inputs moved. stop the round; only a human may re-baseline.",
+        "stderr": ""
+      }
+    ]
+  },
+  "document_validation": {
+    "positive": "passed",
+    "negative_controls": [
+      {
+        "case": "mapping",
+        "rejected": [
+          "root_mapping"
+        ]
+      },
+      {
+        "case": "human_stage",
+        "rejected": [
+          "missing_condition:T36 验收并经人类批准最终 M0 后"
+        ]
+      },
+      {
+        "case": "signature",
+        "rejected": [
+          "signature_or_status",
+          "spec_approval"
+        ]
+      },
+      {
+        "case": "whole_manifest",
+        "rejected": [
+          "missing_condition:不钉整个 manifest 文件"
+        ]
+      },
+      {
+        "case": "core",
+        "rejected": [
+          "core"
+        ]
+      }
+    ],
+    "unchanged_start_paths": 67,
+    "model_ids_reserved_in_document_only": true,
+    "gate_directory_created": false
+  },
+  "evidence_sha256": {
+    "/tmp/intentower-t35-r3-start-1lzyd_c1/baseline-fixture-results.json": "c42607040c0fb2bb78587fef6ec7c4cd19218624109fec4c6482bf29a5b09144",
+    "/tmp/intentower-t35-r3-start-1lzyd_c1/document-validation.json": "3e090223ac815e43a7564f5db372caa771682cba5d7f596f6deccd17c185cb8f",
+    "/tmp/intentower-t35-r3-check.py": "865983cf69aecf7ce09da12553cca3ce2c343954d2f94a4a96441bc4f33f3423"
+  },
+  "independent_review": {
+    "reviewer": "review_t35_human_changes",
+    "author_of_reviewed_changes": false,
+    "verdict": "accept",
+    "source": "Final thread message from /root/review_t35_human_changes for T35-R3-Q05",
+    "findings": [],
+    "checks": [
+      "Three frozen hashes match;67 other snapshot hashes unchanged; signatures,Status,other answers,section5 and version section preserved",
+      "Independently checked existing baseline root-relative mapping and local-manifest behavior",
+      "Independent temporary baseline fixture: correct mapping0, repointedMODEL-007 mapping2; checker and git diff --check0",
+      "Actual Gate directory absent; no registration,policy write,baseline write,model proof or full-suite rerun"
+    ],
+    "scope_limit": "Accepts the authorized Q-05 decision record only, not future model verification/human acceptance or overall T35 completion"
+  }
+}
+

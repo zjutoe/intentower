@@ -1,0 +1,212 @@
+{
+  "task_id": "T35-R2-VERSION",
+  "status": "done",
+  "authorization": "User explicitly requested filling current versions in approved INT-003/SPEC-003 and asked whether obsolete N-07 could be removed after approval",
+  "changed_files": [
+    "docs/INT-003.md",
+    "docs/SPEC-003.md",
+    "tasks/TASK-T35-R2-VERSION.md",
+    "tasks/T35-R2-VERSION-results.json"
+  ],
+  "changes": [
+    "Fill Q-02 table and answer with Rossi0.2.3 and cvc5 1.4.2 git282d5e0 using real successful local version output",
+    "Add SPEC-003 section1.1 with fixed version values, full observed first lines and explicit distinction from unimplemented version enforcement",
+    "Point G-J/N-02 to the now-recorded values while retaining matching/configuration/failure-policy and code integration as unfinished",
+    "Retain N-07 identifier because the signed approval block references N-01 through N-07; replace obsolete not-approved assertion with closed approval-state entry pointing to the existing human signature"
+  ],
+  "commands_run": [
+    {
+      "command": [
+        "timeout",
+        "5s",
+        "rossi",
+        "--version"
+      ],
+      "exit_code": 0,
+      "first_line": "rossi 0.2.3"
+    },
+    {
+      "command": [
+        "timeout",
+        "5s",
+        "cvc5",
+        "--version"
+      ],
+      "exit_code": 0,
+      "first_line": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+    },
+    {
+      "command": [
+        "timeout",
+        "5s",
+        "timeout",
+        "--version"
+      ],
+      "exit_code": 0,
+      "first_line": "timeout (GNU coreutils) 8.32"
+    },
+    {
+      "command": "Python version/table/approval-identity/other-Q/core/snapshot comparison",
+      "exit_code": 0,
+      "result": "Version evidence matches; Status, identity, dates, other signed answers and core function unchanged;59 other starting files unchanged"
+    },
+    {
+      "command": "Python document-contract negative controls",
+      "exit_code": 0,
+      "result": "Wrong version value, forged signature and changed core predicate are each rejected; actual documents pass"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Actual installed versions queried with independent deadlines",
+      "status": "passed"
+    },
+    {
+      "check": "Fixed values and raw observation agree and remain distinct from future enforcement",
+      "status": "passed"
+    },
+    {
+      "check": "N-07 closed-state text preserves signed identifier references",
+      "status": "passed"
+    },
+    {
+      "check": "No signature, identity, status, other question, core, code, policy, baseline or prior-evidence modifications",
+      "status": "passed"
+    },
+    {
+      "check": "Independent non-author frozen review",
+      "status": "passed"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "independent_review": {
+    "reviewer": "review_t35_human_changes",
+    "author_of_reviewed_changes": false,
+    "verdict": "accept",
+    "source": "Final thread message from /root/review_t35_human_changes",
+    "scope": "Current version-value fill and N-07 closed-state update only",
+    "checks": [
+      "Independently executed timeout5s rossi --version and cvc5 --version: both0 and equal the recorded first lines",
+      "Three frozen files match;59 other starting hashes unchanged; Status, identity, dates, other answers and section5 preserved",
+      "Independent document checker and git diff --check0; wrong-version/signature/core negative controls rejected",
+      "No new GNU timeout version lock, code test suite or model proof, and no claim of overall T35 closure"
+    ]
+  },
+  "frozen_sha256": {
+    "docs/INT-003.md": "03c3bf2ff46cf38b321d2e4eee91db0f77c19c0979322a8377f2a7fb32867885",
+    "docs/SPEC-003.md": "98d462b50be2638f7987c6557cd128d4181d1123f9694e750702ff7df4a773c6",
+    "tasks/TASK-T35-R2-VERSION.md": "1ac9b186527fbb0b5397007db3af45fe3b8def921379bdc836ce05e19f7b4cc9"
+  },
+  "version_observations": {
+    "rossi": {
+      "command": [
+        "timeout",
+        "5s",
+        "rossi",
+        "--version"
+      ],
+      "exit_code": 0,
+      "first_line": "rossi 0.2.3"
+    },
+    "cvc5": {
+      "command": [
+        "timeout",
+        "5s",
+        "cvc5",
+        "--version"
+      ],
+      "exit_code": 0,
+      "first_line": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+    },
+    "timeout": {
+      "command": [
+        "timeout",
+        "5s",
+        "timeout",
+        "--version"
+      ],
+      "exit_code": 0,
+      "first_line": "timeout (GNU coreutils) 8.32"
+    }
+  },
+  "validation": {
+    "actual_documents": "passed",
+    "negative_controls": [
+      {
+        "case": "wrong_version",
+        "rejected": [
+          "version_table_mismatch"
+        ]
+      },
+      {
+        "case": "forged_signature",
+        "rejected": [
+          "approval_identity_changed"
+        ]
+      },
+      {
+        "case": "changed_core",
+        "rejected": [
+          "core_changed"
+        ]
+      }
+    ]
+  },
+  "evidence_sha256": {
+    "/tmp/intentower-t35-r2-start-3ckwnyje/versions.json": "eabc977043c47362dcdf439ceeaab707071b850637830237e6b95dee19cc4925",
+    "/tmp/intentower-t35-r2-start-3ckwnyje/validation.json": "e82a8432eb360d33a813ca0b4a7c03e7fffeaece807d60a9432b8c282698f945"
+  },
+  "preservation": {
+    "snapshot": "/tmp/intentower-t35-r2-start-3ckwnyje",
+    "starting_dirty_paths": 61,
+    "unchanged_other_starting_paths": 59
+  },
+  "development": {
+    "failed_acceptance_checks": 0,
+    "repair_rounds": 0,
+    "production_files_changed": 0,
+    "real_llm_calls": 0
+  },
+  "checks_not_run": [
+    {
+      "check": "Full Rust/Python suites",
+      "status": "not_run",
+      "reason": "Documentation-only version-value fill; no source or test changes"
+    },
+    {
+      "check": "Model proof",
+      "status": "not_run",
+      "reason": "No model created/modified"
+    },
+    {
+      "check": "Runtime version pin enforcement",
+      "status": "not_run",
+      "reason": "Not implemented or authorized by this documentation task"
+    }
+  ],
+  "remaining_risks": [
+    "Version values are recorded; matching algorithm, configuration carrier, missing/mismatch behavior and runtime enforcement remain unfinished",
+    "Earlier Q-01 PASS-condition consistency and Q-05 timing/path/model-ID decisions remain outside this task",
+    "project.json and baseline are unchanged; the new approved documents are not added to the old baseline",
+    "Other known implementation/proof boundaries remain; closing N-07 does not close those gaps"
+  ],
+  "intent_or_spec_changed": true,
+  "approved_intent_or_spec_changed": true,
+  "approval_status_changed": false,
+  "approval_identity_or_date_changed": false,
+  "signed_answer_updated": "Only Q-02 version values, explicitly requested by the user",
+  "committed": false,
+  "next_task_suggestion": "T35: complete the remaining precise decisions and synchronize Gate decision requirements before implementing version enforcement or starting T36"
+}
+

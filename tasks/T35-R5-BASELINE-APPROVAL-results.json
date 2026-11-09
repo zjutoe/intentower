@@ -1,0 +1,154 @@
+{
+  "task_id": "T35-R5-BASELINE-APPROVAL",
+  "status": "done",
+  "parent": "infrastructure-only",
+  "authorization": "User explicitly replaced human-personal baseline writing with agent displays complete operation details, requests human approval, then executes only after approval.",
+  "changed_files": [
+    "AGENTS.md",
+    "Intentower_Phase1_Research_Development_Plan.md",
+    "docs/INT-003.md",
+    "docs/SPEC-003.md",
+    "docs/P5-kickoff.md",
+    "docs/decisions/ADR-0004-intent-id-for-the-gate.md",
+    "tasks/TASK-T35-R5-BASELINE-APPROVAL.md",
+    "tasks/T35-R5-BASELINE-APPROVAL-results.json"
+  ],
+  "commands_run": [
+    {
+      "command": "Read task-relevant workflow clauses with rg/sed/cat and inspect git status",
+      "exit_code": 0,
+      "result": "Found current human-personal writing restrictions and dated historical records; six current documents selected."
+    },
+    {
+      "command": "Python task-start snapshot",
+      "exit_code": 0,
+      "result": "108 input hashes and original copies of the six documents captured; 68 preexisting dirty paths."
+    },
+    {
+      "command": "Python document/approval/scope checker, first attempt",
+      "exit_code": 1,
+      "result": "Checker incorrectly required Chinese keywords in English AGENTS.md. Corrected checker language only; no repository repair."
+    },
+    {
+      "command": "Python document/approval/scope checker, corrected",
+      "exit_code": 0,
+      "result": "Six authorized existing files changed; 102 unrelated hashes unchanged; signatures, status, approval checkmarks, Q-01/02/03/06 and Gate/version sections preserved."
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "No whitespace errors."
+    },
+    {
+      "command": "timeout 10s target/debug/intentower baseline",
+      "exit_code": 0,
+      "result": "BASELINE OK: 5 hashes, 3 model ids pinned."
+    },
+    {
+      "command": "Python difflib comparison against task-start copies",
+      "exit_code": 0,
+      "result": "Reviewed only this task's six document changes; prior dirty source/doc work excluded."
+    }
+  ],
+  "acceptance": [
+    {
+      "check": "Complete command/script and proposed diff shown before an explicit human approval request; execution only after receiving approval",
+      "status": "passed"
+    },
+    {
+      "check": "Approval bound to shown command, content and scope; changes before execution require new display and approval",
+      "status": "passed"
+    },
+    {
+      "check": "Human content approval preserved; changing workflow does not approve any specific pin; no automatic refresh or invented approval identity/date",
+      "status": "passed"
+    },
+    {
+      "check": "Six current workflow documents consistent; older baseline note and historical evidence retained with explicit supersession",
+      "status": "passed"
+    },
+    {
+      "check": "Original signatures/status, Gate semantics, fixed versions and staged model conditions preserved; actual baseline/policy/source/models unchanged",
+      "status": "passed"
+    },
+    {
+      "check": "Independent review of frozen task increment",
+      "status": "passed"
+    }
+  ],
+  "proof_obligations": {
+    "status": "not_applicable",
+    "total": null,
+    "discharged": null,
+    "not_discharged": null,
+    "unknown": null,
+    "unsupported": null
+  },
+  "scope_preservation": {
+    "snapshot": "/tmp/intentower-t35-r5-start-hs05uva2",
+    "start_hashes": 108,
+    "unrelated_hashes_unchanged": 102,
+    "preexisting_dirty_paths": 68,
+    "production_files_changed": 0,
+    "tests_changed": 0,
+    "actual_baseline_changed": false,
+    "actual_policy_changed": false,
+    "human_signature_or_status_changed": false,
+    "gate_semantics_changed": false,
+    "approval_workflow_changed": true
+  },
+  "repair_rounds": 0,
+  "not_run": [
+    "Full source test suites (no source/test changes)",
+    "Model proof (not applicable)",
+    "Actual policy synchronization or baseline pinning (not authorized by this workflow-change request)"
+  ],
+  "remaining_risks": [
+    "Actual pinning still requires a separate concrete proposal and explicit human approval."
+  ],
+  "intent_or_spec_changed": true,
+  "approved_intent_or_spec_changed": true,
+  "committed": false,
+  "next_task_suggestion": "Prepare the exact policy/baseline diff, hashes and complete execution commands; request explicit human approval for that operation before executing.",
+  "independent_review": {
+    "reviewer": "/root/review_t35_human_changes",
+    "verdict": "accept",
+    "source": "Final thread message for T35-R5-BASELINE-APPROVAL",
+    "remaining_substantive_findings": [],
+    "checks": [
+      "Seven frozen hashes match; 102 unrelated hashes unchanged",
+      "Original signing/status/checkmarks, Q-01/02/03/06, Gate/version rules and staged conditions preserved",
+      "Independent preservation checker and git diff --check exit 0",
+      "timeout 5s ./target/debug/intentower baseline exit 0: 5 hashes, 3 model IDs"
+    ],
+    "scope_limit": "Documentation workflow only; no actual pinning, source suites or model proof"
+  },
+  "frozen_sha256": {
+    "AGENTS.md": "54c989f39ca3ed0c85c6068470c083eb961f39fa6c17368c0ac02a120a566907",
+    "Intentower_Phase1_Research_Development_Plan.md": "704b9851e64d4c7119557f243d696241e2d900e0dc9a7700ca86d6aae3e1e69b",
+    "docs/INT-003.md": "2db9f7ee888f4198c1b2205b865071be09e44cf8fc5bb7f747b32b4899a6a7d9",
+    "docs/SPEC-003.md": "88efb6a0c6e1f40553393f38ee3cac139601e14ff6c8e89b48c5b45e699deac2",
+    "docs/P5-kickoff.md": "28c11cd5f77f2de941d98d2ec58af365f8c52203e8b0b8927b08ed3eb0da143f",
+    "docs/decisions/ADR-0004-intent-id-for-the-gate.md": "efc7eaebc2191ea3518fdcb6c863797c5c411f6bcb9fac78346bd5753743b481",
+    "tasks/TASK-T35-R5-BASELINE-APPROVAL.md": "227597236d53a583bae25b0e2877076425797078a12d33a729d017059e683dcc"
+  },
+  "validation": {
+    "scope": "workflow documentation only",
+    "exit_code": 0,
+    "changed_existing_files": [
+      "AGENTS.md",
+      "Intentower_Phase1_Research_Development_Plan.md",
+      "docs/INT-003.md",
+      "docs/SPEC-003.md",
+      "docs/P5-kickoff.md",
+      "docs/decisions/ADR-0004-intent-id-for-the-gate.md"
+    ],
+    "unchanged_start_hashes": 102,
+    "approval_fields_preserved": true,
+    "gate_contract_and_version_sections_preserved": true,
+    "specific_pin_authorized": false,
+    "actual_baseline_and_policy_unchanged": true,
+    "frozen_paths": 7,
+    "checker_correction": "Initial checker incorrectly required Chinese phrases in English AGENTS.md; corrected checker language only; no repository repair"
+  }
+}

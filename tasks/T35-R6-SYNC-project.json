@@ -1,0 +1,18 @@
+{
+  "schema_version": "0.1",
+  "intent_ids": ["INT-001", "INT-003"],
+  "spec_ids": ["SPEC-001", "SPEC-003"],
+  "models": [],
+  "required_evidence": [
+    "tool_versions",
+    "input_hashes",
+    "po_inventory",
+    "po_statuses",
+    "test_records",
+    "risks"
+  ],
+  "expected_tool_versions": {
+    "rossi": "rossi 0.2.3",
+    "cvc5": "cvc5 1.4.2 [git 282d5e0 on branch HEAD]"
+  }
+}

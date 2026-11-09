@@ -36,6 +36,10 @@ Protected after approval:
 
 A task may create a **proposed draft** (for example T02/T03), but creation does not mean approval. Never silently edit approved files, weaken requirements, update baselines, delete tests, or rewrite project policy to make a task pass. Do not modify this `AGENTS.md` or the phase plan without an explicit task. Escalate any necessary protected change with a concise semantic diff.
 
+**Baseline pinning and repinning (human-directed revision, 2026-11-09):** The agent must first show the complete commands it will execute, including any script body, and the proposed diff with affected paths, old/new hashes and model mappings where applicable. It must then explicitly request human approval for that concrete operation. Only after receiving that approval may the agent execute the displayed commands. Approval applies to the displayed commands, content and scope; any change before execution requires a new display and approval. Human approval of the underlying Intent, Spec, model or policy is still required. Do not invent approval identities or dates, and never refresh a baseline automatically to make checks pass. Approval of this workflow change is not approval of a particular pinning operation.
+
+This workflow replaces the former requirement that humans personally write the baseline. The P1-era read-only wording in `approvals/baseline.json`'s `note` and older approval records describes the previous workflow; preserve those historical records. Their old wording does not prohibit an operation explicitly approved under this rule.
+
 **Note:** Hash comparisons are workflow guards, not security isolation from malicious local processes.
 
 ## 4. Traceability and refinement

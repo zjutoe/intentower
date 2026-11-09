@@ -7,6 +7,8 @@
   Gate 模型，未改代码/测试/基线。（例外：D-2 撞号已由人类当场裁定并执行，只改证据文件名，
   见 ADR-0003 与 `docs/rossi-smoke.md` §44。）
 
+> **操作流程修订（2026-11-09，人类直接指示）**：钉基线与重钉改为 Agent 展示完整命令及具体变更、提示人类批准，获明确批准后由 Agent 执行，细则见 `AGENTS.md` §3。批准绑定所展示的命令、内容与范围，执行前变化须重新展示并获批。下文 2026-11-04 的实测与历史事件保留当时记录，其中“只能人类写”的旧限制不再适用于后续操作；本次未实际钉入。
+
 ## 1. 入口状态（本机实测，2026-11-04）
 
 ```
@@ -67,7 +69,7 @@ intentower --help                      verify gate report baseline feedback esca
 |---|---|---|
 | D-3 | Agent 访问范围仍无成文规则（`approvals/P4-GATE.md` §4.4） | P5 让 Agent 改 **Gate 源码本身**。允许读哪些 crate、能否读参考模型、能否动 `tests/`，需要成文规则而不是 prompt 措辞（§4.3 已证该约束不具机制强制性） |
 | D-4 | 闭卷条件未测（§4.1） | T40 的工作流对比若继续开卷，结论只能是「闭环走通」，不能是「Agent 能力」 |
-| D-5 | P5 新增受保护输入的钉入时机 | `SPEC-003`（人类批准后）、Gate 的 M0/M1 模型（T36/T37 通过后）。钉入只能由人类写；钉值集合无上限这一缺口已被人类接受（§5.2）。改了编号的 `docs/SPEC-001.md` **已重钉**（`df75138a…`，见 `docs/rossi-smoke.md` §48）。另：phase plan 本身不在钉住集合里，改它不会报警，是否纳入由人类定 |
+| D-5 | P5 新增受保护输入的钉入时机 | `SPEC-003`（人类批准后）、Gate 的 M0/M1 模型（T36/T37 通过后），阶段细则见 `SPEC-003` §8.3。Agent 先展示完整命令及具体变更、提示人类批准，获明确批准后执行（`AGENTS.md` §3）；钉值集合无上限这一缺口已被人类接受（§5.2）。改了编号的 `docs/SPEC-001.md` **已重钉**（`df75138a…`，见 `docs/rossi-smoke.md` §48）。另：phase plan 本身不在钉住集合里，改它不会报警，是否纳入由人类定 |
 | D-6 | 脚本层无回归测试（§4.7，已发现 5 个缺陷均无测试覆盖） | P5 dogfooding 仍走 `scripts/run-refinement.sh`：是在 T38 顺带补脚本测试，还是明确留到第二阶段，需要决定，否则会重复同类缺陷 |
 | D-7 | `pi.jsonl` 原件未提交，只有 sha256 指纹（§4.6） | P5 若还要引用工具调用计数，先决定是否落盘，否则计数不可复核 |
 
@@ -90,7 +92,7 @@ intentower --help                      verify gate report baseline feedback esca
 ```
 0. 已裁定：D-1 编号（ADR-0004）、D-2 证据命名（ADR-0003）。开工前还建议裁定 D-3（Agent 访问规则）
 1. T35 起草 docs/INT-003.md + docs/SPEC-003.md → 人类批准
-   → 然后人类更新 project.json 的 intent_ids/spec_ids 并重钉 baseline.json（agent 不得做）
+   → 然后按 SPEC-003 §8.3 准备 project.json 的 ID/固定版本及 baseline.json 变更；Agent 展示完整命令和具体变更、提示人类批准，获明确批准后执行（AGENTS.md §3）
 2. T36  Gate 抽象 M0（建议 MODEL-007；Rossi 检查 + PO 非空 + 约束可满足性检查，防 vacuous proof）
 3. T37  M1 精化（MODEL-008）+ cvc5 真实结果
 4. T38  SPEC-003 边界场景 → Rust 参数化测试（含注入错误实现必被发现）
